@@ -1,0 +1,12 @@
+emcee==3.1.6
+matplotlib==3.10.1
+numpy==2.2.3
+path==17.0.0
+pre-commit==4.1.0
+pytest==8.3.5
+scipy==1.15.2
+stepup==3.0.3
+stepup-reprep==3.1.0
+stepup-queue==1.0.5
+zarr==3.0.8
+# stacie==1.0.0

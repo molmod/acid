@@ -1,0 +1,31 @@
+# IDEs and development tools
+.idea
+.vscode
+.ruff_cache
+
+# Results
+output
+figures
+tables
+*.pdf
+*.zip
+acid-dataset/plot*.svg
+upload
+gitline.txt
+
+# Python
+__pycache__
+
+# StepUp
+.stepup
+
+# Software environment
+activate
+venv
+venvs
+.envrc
+
+# Other
+tmp
+pkgs
+slurm-*.*

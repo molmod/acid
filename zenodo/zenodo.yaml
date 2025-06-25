@@ -1,0 +1,77 @@
+path_record_id: .zenodo-record-id.txt
+endpoint: https://zenodo.org/api
+path_token: ~/.config/zenodo-org-token.txt
+metadata:
+  title: 'The AutoCorrelation Integral Drill (ACID) Test Set'
+  keywords:
+    - autocorrelation integral
+    - systematic validation
+    - integrated correlation time
+    - exponential correlation time
+    - autocorrelation function
+    - power spectrum distribution
+    - STACIE
+  version: '1.0.0'
+  license: cc-by-nc-sa-4.0
+  publisher: Zenodo
+  resource_type: dataset
+  creators:
+    - family_name: Gozdenur
+      given_name: Toraman
+      identifiers:
+        orcid: '0000-0001-6785-333X'
+      affiliations:
+        - ror: 00cv9y106   # Ghent University
+        - name: >-
+            Labo Soete,
+            Ghent University,
+            Technologiepark-Zwijnaarde 46,
+            B-9052,
+            Ghent,
+            Belgium
+    - family_name: Fauconnier
+      given_name: Dieter
+      identifiers:
+        orcid: '0000-0002-0257-4687'
+      affiliations:
+        - ror: 00cv9y106   # Ghent University
+        - name: >-
+            Labo Soete,
+            Ghent University,
+            Technologiepark-Zwijnaarde 46,
+            B-9052,
+            Ghent,
+            Belgium
+        - name: >-
+            FlandersMake\@UGent,
+            Core Lab EEDT-MP,
+            3001 Leuven,
+            Belgium
+    - family_name: Verstraelen
+      given_name: Toon
+      identifiers:
+        orcid: '0000-0001-9288-5608'
+      affiliations:
+        - ror: 00cv9y106  # Ghent University
+        - name: >-
+            Center for Molecular Modeling (CMM),
+            Ghent University,
+            Technologiepark-Zwijnaarde 46,
+            B-9052,
+            Zwijnaarde, Belgium
+  funding:
+    - funder:
+        ror: 00cv9y106  # Ghent University
+      award:
+        title: >-
+          Molecular Dynamics Modelling of Lubricants at Ultra-High Pressures
+          with Force Fields derived Ab Initio
+        number: 'BOF/24J/2021/118'
+        identifiers:
+          - url: https://research.ugent.be/web/result/project/b54e6ff5-5f33-11ec-8b09-c5a2063e752c/details/bof-24j-2021-118-molecular-dynamics-modelling-of-lubricants-at-ultra-high-pressures-with-force-fields-derived-ab-initio/en
+path_readme: zenodo.md
+paths:
+- ../acid-dataset/acid-dataset.pdf
+- ../validation-stacie-report/report-quad.pdf
+- ../validation-stacie-report/report-lorentz.pdf
+- main.zip
