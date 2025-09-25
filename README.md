@@ -41,7 +41,8 @@ If you use this dataset in your research, please cite the following priprint:
 >
 > ```bibtex
 > @article{Toraman2025,
->  title = {STable AutoCorrelation Integral Estimator (STACIE): Robust and accurate transport properties from molecular dynamics simulations},
+>  title = {STable AutoCorrelation Integral Estimator (STACIE):
+>           Robust and accurate transport properties from molecular dynamics simulations},
 >  url = {https://doi.org/10.1021/acs.jcim.5c01475},
 >  doi = {10.1021/acs.jcim.5c01475},
 >  publisher = {Journal of Chemical Information and Modeling},
@@ -63,7 +64,9 @@ This repository contains three smaller projects:
    A workflow with post-processing scripts of the validation results
    to regenerate the figures and tables used in the STACIE paper.
 
-The `README.md` files in these directories provide more details about each project.
+When regenerating the data and the validation of results for STACIE, the workflows
+in these three projects must be executed in the order listed above.
+The `README.md` files in these directories provide more details.
 
 ## Setup of the Python Virtual Environment
 
