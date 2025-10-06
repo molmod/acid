@@ -20,4 +20,4 @@ The results of this analysis are discussed in the following paper:
 > Robust and accurate transport properties from molecular dynamics simulations"
 > *Journal of Chemical Information and Modeling* **Article ASAP**, 2025,
 > [doi:10.1021/acs.jcim.5c01475](https://doi.org/10.1021/acs.jcim.5c01475),
-> [arXiv:2506.20438v2](https://arxiv.org/abs/2506.20438v2).
+> [arXiv:2506.20438](https://arxiv.org/abs/2506.20438).

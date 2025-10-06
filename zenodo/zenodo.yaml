@@ -69,11 +69,11 @@ metadata:
   related:
     - scheme: doi
       identifier: 10.1021/acs.jcim.5c01475
-      resource_type: publication
-      relation_type: cites
+      resource_type: publication-article
+      relation_type: isdescribedby
     - scheme: arxiv
-      identifier: '2506.20438v2'
-      resource_type: publication
+      identifier: '2506.20438'
+      resource_type: publication-preprint
       relation_type: isdescribedby
     - scheme: url
       identifier: https://github.com/molmod/acid
@@ -83,6 +83,10 @@ metadata:
       identifier: https://github.com/molmod/stacie
       resource_type: software
       relation_type: requires
+    - scheme: url
+      identifier: https://molmod.github.io/stacie
+      resource_type: publication-softwaredocumentation
+      relation_type: cites
   funding:
     - funder:
         ror: 00cv9y106  # Ghent University
