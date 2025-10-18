@@ -18,4 +18,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Initial version released.
 
 [1.0.0]: https://doi.org/10.5281/zenodo.15722903
+[1.0.1]: https://doi.org/10.5281/zenodo.17387376
 [unreleased]: https://github.com/molmod/acid

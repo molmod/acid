@@ -1,1 +1,2 @@
 zenodo/zenodo.* export-ignore
+zenodo/.zenodo-record-id.txt export-ignore
