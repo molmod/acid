@@ -15,4 +15,5 @@ static(
     "../validation-stacie-report/report-quad.pdf",
     "../validation-stacie-report/report-lorentz.pdf",
 )
+glob("../LICENSE-*.txt")
 sync_zenodo("zenodo.yaml")
