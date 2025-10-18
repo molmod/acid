@@ -1,6 +1,6 @@
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v5.0.0
+  rev: v6.0.0
   hooks:
     - id: check-added-large-files
       args: ["--maxkb=1024"]
@@ -28,7 +28,7 @@ repos:
     - id: remove-crlf
       exclude_types: [binary]
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.12.0
+  rev: v0.14.1
   hooks:
     - id: ruff-format
       exclude: "^paper1/.*/minimal.py$"
@@ -36,6 +36,6 @@ repos:
       args: ["--fix", "--show-fixes"]
       exclude: "^paper1/.*/minimal.py$"
 - repo: https://github.com/hukkin/mdformat
-  rev: 0.7.22  # Use the ref you want to point at
+  rev: 1.0.0  # Use the ref you want to point at
   hooks:
   - id: mdformat
