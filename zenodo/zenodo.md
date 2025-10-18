@@ -18,6 +18,6 @@ The results of this analysis are discussed in the following paper:
 > Gözdenur Toraman, Dieter Fauconnier, and Toon Verstraelen
 > "STable AutoCorrelation Integral Estimator (STACIE):
 > Robust and accurate transport properties from molecular dynamics simulations"
-> *Journal of Chemical Information and Modeling* **Article ASAP**, 2025,
+> *Journal of Chemical Information and Modeling* 2025, 65 (19), 10445–10464,
 > [doi:10.1021/acs.jcim.5c01475](https://doi.org/10.1021/acs.jcim.5c01475),
 > [arXiv:2506.20438](https://arxiv.org/abs/2506.20438).
