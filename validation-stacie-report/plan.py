@@ -30,6 +30,7 @@ for path in SCRIPTS:
     static(path)
     script(path)
 
+static("references.bib")
 TYPS = ["report-quad.typ", "report-lorentz.typ"]
 for path in TYPS:
     static(path)

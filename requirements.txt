@@ -202,7 +202,7 @@ parse==1.20.2
     # via stepup
 parso==0.8.4
     # via jedi
-path==17.0.0
+path==17.1.1
     # via
     #   -r requirements.in
     #   stacie
@@ -220,7 +220,7 @@ platformdirs==4.3.8
     #   virtualenv
 pluggy==1.6.0
     # via pytest
-pre-commit==4.1.0
+pre-commit==4.4.0
     # via -r requirements.in
 prompt-toolkit==3.0.51
     # via ipython
@@ -296,11 +296,11 @@ six==1.17.0
     # via python-dateutil
 soupsieve==2.7
     # via beautifulsoup4
-stacie==1.0.0
+stacie==1.1.0
     # via -r requirements.in
 stack-data==0.6.3
     # via ipython
-stepup==3.1.1
+stepup==3.1.2
     # via
     #   -r requirements.in
     #   stepup-queue

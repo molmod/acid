@@ -32,7 +32,7 @@
 The following sections contain figures and tables with the same type of results in each section,
 but computed for different kernels.
 All figures and tables are labeled with a letter and are explained below.
-For a full discussion of the results, we refer to the STACIE paper: TODO ADD CITATION.
+For a full discussion of the results, we refer to the STACIE paper. @Toraman2025
 
 #set enum(numbering: "(a)")
 
@@ -56,6 +56,7 @@ For a full discussion of the results, we refer to the STACIE paper: TODO ADD CIT
   - The square blocks show the ratio of the standard deviation of the STACIE estimate
     and the RMS value of the predicted uncertainty, over 64 repetitions.
     This value is ideally 100%.
+    Lower values mean that STACIE's predictions have a smaller spread than the predicted uncertainty.
   - The dots show the ratio of the mean error
     and the RMS value of the predicted uncertainty, over 64 repetitions.
     This value is ideally 0%.
@@ -140,3 +141,6 @@ For a full discussion of the results, we refer to the STACIE paper: TODO ADD CIT
 
   }
 }
+
+#pagebreak()
+#bibliography("references.bib")

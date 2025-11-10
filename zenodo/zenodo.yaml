@@ -17,7 +17,7 @@ metadata:
     - StepUp
     - Typst
     - Python
-  version: '1.0.1'
+  version: '1.1.0'
   license:
     - cc-by-sa-4.0
     - lgpl-3.0-or-later

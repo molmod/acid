@@ -47,7 +47,7 @@ fi
 
 # Activate and update installer tools
 # See https://github.com/jazzband/pip-tools/issues/2176
-python3 -m pip install -U 'pip<25.1' pip-tools
+python3 -m pip install -U pip==25.2 pip-tools==7.5.1
 
 # Install requirements
 python3 -m piptools compile -q

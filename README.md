@@ -87,3 +87,35 @@ The script is primarily tested on Linux, but may also work on other operating sy
 
 It is recommended to install and setup [`direnv`](https://direnv.net/)
 to automatically activate the virtual environment when you enter the repository directory.
+
+## How to make a new release
+
+After having updated actual contents of the dataset, the following steps are needed
+to make a new release on Zenodo:
+
+- Update `CHANGELOG.md` with a new version section, describing the changes since the last release.
+
+- Update the version number in `zenodo/zenodo.yaml`.
+
+- Upload a draft release to Zenodo by running
+
+  ```bash
+  (cd zenodo/; stepup boot)
+  ```
+
+  Request the DOI for the new draft on <https://zenodo.org/> and add this information to `CHANGELOG.md`.
+
+- Commit all changes to Git and run `git tag` with the new version number.
+
+- Recompile all PDF files in the repository to include the Git hash in the PDF frontmatter:
+
+  ```bash
+  (cd acid-dataset/; stepup boot)
+  (cd validation-stacie-report/; stepup boot)
+  ```
+
+- Sync your local data one last time with Zenodo:
+
+  ```bash
+  (cd zenodo/; stepup sync)
+  ```
