@@ -82,8 +82,14 @@ The `README.md` files in these directories provide more details.
 
 The script `setup-venv-pip.sh` in the root directory of this repository
 sets up a Python virtual environment with the required dependencies.
-In order to run this script, you need to have Python 3.11 or later installed on your system.
-The script is primarily tested on Linux, but may also work on other operating systems.
+In order to run this script, you need to have Python 3.11, 3.12 or 3.13 installed on your system.
+If you want to use a specific Python version, run the script as follows:
+
+```bash
+PYTHON3=/usr/bin/python3.13 ./setup-venv-pip.sh
+```
+
+The setup is primarily tested on Linux, but may also work on other operating systems.
 
 It is recommended to install and setup [`direnv`](https://direnv.net/)
 to automatically activate the virtual environment when you enter the repository directory.

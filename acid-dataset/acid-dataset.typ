@@ -24,7 +24,7 @@
 
   ✶E-mail: #link("mailto:toon.verstraelen@ugent.be", "toon.verstraelen@ugent.be")
 
-  Version #read("gitline.txt")
+  Version #read("git-version.txt").trim() #read("git-date.txt").trim()
 ]
 
 = Summary
@@ -32,7 +32,7 @@
 The data set consists of synthetic time-correlated sequences of varying lengths, generated using different covariance kernels.
 
 The purpose of the data set is to validate algorithms for estimating the integral of an autocorrelation function, which is relevant for uncertainty quantification and the estimation of transport properties.
-The first application was to validate the algorithm implemented in #link("https://molmod.github.io/stacie", [STACIE]) 1.0.
+The first application was to validate the algorithm implemented in #link("https://molmod.github.io/stacie", [STACIE]).
 
 The set contains in total 15360 test cases, and each case consists of one or more time series.
 They are organized such that one can systematically study the convergence of the statistical estimate of the autocorrelation integral (and its uncertainty)
@@ -96,7 +96,7 @@ $
 
    This model will be denoted as $upright(E)(C_0, tau)$.
 
-3. The *stochastic harmonic oscillator* was adapted from #link("https://doi.org/10.3847/1538-3881/aa9332", [the work of Foreman-Mackey et al.]).
+3. The *stochastic harmonic oscillator* was adapted from #link("https://doi.org/10.3847/1538-3881/aa9332", [the work of Foreman-Mackey et al.])
    It's ACF (with modified normalization conventions) is:
 
    $
@@ -227,6 +227,14 @@ stepup boot -n 8
 
 where `8` is the number of parallel workers.
 
+= Remark on determinism
+
+The data generation scripts are fully deterministic, meaning that running them multiple times on the same hardware and software environment will yield identical results.
+However, due to differences in floating-point arithmetic across different hardware architectures and software versions,
+running the StepUp workflow on different systems may lead to slight numerical differences in the generated data.
+(Even with identical data, the hashes of the ZIP files may differ due to operating system details and software versions.)
+These differences should not affect the overall validity of the dataset, but they may impact the exact values derived from an analysis.
+
 = Software used
 
 The following software is required to use the dataset:
@@ -237,5 +245,5 @@ The following software is required to use the dataset:
 
 To fully reconstruct the dataset, the following additional Python packages are required:
 
-- StepUp >= 3.0.3
-- StepUp RepRep >= 3.0.3
+- StepUp >= 3.1.2
+- StepUp RepRep >= 3.1.4

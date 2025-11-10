@@ -20,7 +20,7 @@
 
   ✶E-mail: #link("mailto:toon.verstraelen@ugent.be", "toon.verstraelen@ugent.be")
 
-  Version #read("gitline.txt")
+  Version #read("git-version.txt").trim() #read("git-date.txt").trim()
 ]
 
 #set heading(numbering: "1.1.")

@@ -10,7 +10,8 @@ from stepup.reprep.api import compile_typst, wrap_git
 
 # Write Git information to text file for inclusion in documents.
 glob("../.git/**", _defer=True)
-wrap_git("git log -n1 --pretty='format:%cs (%h)'", out="gitline.txt")
+wrap_git("git describe --tags --long", out="git-version.txt")
+wrap_git("git log -n1 --pretty='format:(%cs)'", out="git-date.txt")
 
 static(
     "acid-dataset.typ", "generate.py", "plot.py", "settings.py", "summarize.py", "../matplotlibrc"

@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Documented the release process in `README.md`.
+- Added a remark on determinism in `acid-dataset.typ`.
 
 ### Changed
 
