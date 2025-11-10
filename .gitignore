@@ -11,7 +11,8 @@ tables
 *.zip
 acid-dataset/plot*.svg
 upload
-gitline.txt
+git-version.txt
+git-date.txt
 
 # Python
 __pycache__
