@@ -123,5 +123,5 @@ to make a new release on Zenodo:
 - Sync your local data one last time with Zenodo:
 
   ```bash
-  (cd zenodo/; stepup sync)
+  (cd zenodo/; stepup boot)
   ```
