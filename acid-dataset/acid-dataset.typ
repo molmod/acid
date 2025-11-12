@@ -6,7 +6,7 @@
 )
 
 #set table(
-  stroke: frame(rgb("21222C")),
+  stroke: frame(rgb("222222")),
 )
 
 
