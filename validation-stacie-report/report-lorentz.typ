@@ -79,7 +79,7 @@ For a full discussion of the results, we refer to the STACIE paper. @Toraman2025
   (Failures are typically due to not finding any cutoff frequency with acceptable results.)
 + *Sanity check counts for the effective number of points*
   - Number of test cases for each combination of $N$ and $M$
-    where the effective number of points used in the fit is below $20 P = 40$.
+    where the effective number of points used in the fit is below $20 P = 60$.
 + *Sanity check counts for the regression cost z-score*
   - Number of test cases for each combination of $N$ and $M$
     where the z-score of the regression cost exceeds 2.
