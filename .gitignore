@@ -30,3 +30,4 @@ venvs
 tmp
 pkgs
 slurm-*.*
+*.bak
