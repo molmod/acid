@@ -14,7 +14,7 @@
   Gözdenur Toraman,#super[†] Dieter Fauconnier,#super[†‡] and Toon Verstraelen#super[✶¶]
 
   † Soete Laboratory, Ghent University, Technologiepark-Zwijnaarde 46, 9052 Ghent, Belgium\
-  ‡ FlandersMake\@UGent, Core Lab EEDT-MP, 3001 Leuven, Belgium\
+  ‡ FlandersMake\@UGent, Core Lab MIRO, 3001 Leuven, Belgium\
   ¶ Center for Molecular Modeling (CMM), Ghent University, Technologiepark-Zwijnaarde
   46, B-9052, Ghent, Belgium
 
