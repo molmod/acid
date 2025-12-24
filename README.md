@@ -109,7 +109,9 @@ to make a new release on Zenodo:
   (cd zenodo/; stepup boot)
   ```
 
-  Request the DOI for the new draft on <https://zenodo.org/> and add this information to `CHANGELOG.md`.
+- Visit the dataset page on Zenodo and click on "New version".
+  The files and metadata will already be present due to the previous step.
+  Request the DOI for the new draft and add this information to `CHANGELOG.md`.
 
 - Commit all changes to Git and run `git tag` with the new version number.
 
@@ -125,3 +127,8 @@ to make a new release on Zenodo:
   ```bash
   (cd zenodo/; stepup boot)
   ```
+
+- Log in to <https://zenodo.org/>, go to your draft release,
+  check that all files have been uploaded correctly, and publish the release.
+
+- Push your commits and tags to GitHub.

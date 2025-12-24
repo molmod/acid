@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 (no changes yet)
 
+## [1.2.0] - 2025-12-24
+
+### Changed
+
+- Rerun STACIE validation for the Lorentz model reformulation in STACIE 1.2.
+  (The actual test data has not changed and the purpose of this release is
+  to confirm that that validation results are not affected by this reformulation.)
+
+### Fixed
+
+- Corrected affiliation typo.
+- Corrected number of parameters in `report-lorentz.pdf` (40 -> 60).
+
 ## [1.1.0] - 2025-11-11
 
 ### Added
@@ -38,4 +51,5 @@ Initial version released.
 [1.0.0]: https://doi.org/10.5281/zenodo.15722903
 [1.0.1]: https://doi.org/10.5281/zenodo.17387376
 [1.1.0]: https://doi.org/10.5281/zenodo.17573835
+[1.2.0]: https://doi.org/10.5281/zenodo.18044643
 [unreleased]: https://github.com/molmod/acid

@@ -9,4 +9,4 @@ stepup==3.1.2
 stepup-reprep==3.1.4
 stepup-queue==1.0.5
 zarr==3.0.8
-stacie==1.1.0
+stacie==1.2.0
