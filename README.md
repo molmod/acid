@@ -83,40 +83,43 @@ Each directory contains a `README.md` file that provides more details.
 
 ## Roadmap Towards ACID 2.0
 
-The objective for the next major release of this dataset include:
+The objectives for the next major release of this dataset include (in chronological order):
 
-1. [x] Support testing multiple estimators, not just one version of STACIE,
-   with summary reports comparing the performance of different estimators.
+- [x] Support testing multiple estimators, not just one version of STACIE,
+  with summary reports comparing the performance of different estimators.
 
-1. [ ] Separate Git repositories for the dataset generation and the validation of results.
-   This will allow for more regular releases of validation results for the same data.
+- [ ] Split the Git repository into two,
+  one for the dataset generation and one for the validation of results.
+  This will allow for more regular releases of validation results using the same data.
 
-1. [ ] Rewrite of the data generation workflow by exact integration of linear stochastic differential equations,
-   of which the covariance kernels can be derived analytically.
-   The resulting time series will be aperiodic by construction,
-   which is more representative of real-world applications.
-   This change will allow for more precise testing of aliasing artifacts.
+- [ ] Rewrite the data generation workflow to use exact integration
+  of linear stochastic differential equations,
+  for which the covariance kernels can be derived analytically.
+  The resulting time series will be aperiodic by construction,
+  which is more representative of real-world applications.
+  This change will allow for more precise testing of aliasing artifacts.
 
-1. [ ] Improve data storage efficiency and release engineering.
-   By storing the current datasert in single precesion (which is sufficient for stochastic time series),
-   we can reduce the size of the dataset by a factor of two and store it in full on Zenodo (40 GB).
-   This way, prospective users are not forced to regenerate the dataset,
-   which lowers the barrier to usage and allows for more reproducible research.
-   NPZ files will be used instead of ZARR files to further simplify the data reuse.
+- [ ] Improve data storage efficiency and release engineering.
+  By storing the current dataset in single precesion (which is sufficient for stochastic time series),
+  we can reduce the storage requirement by a factor two and upload it in full to Zenodo (40 GB).
+  This way, prospective users are not forced to regenerate the dataset,
+  which lowers the barrier to usage and allows for more reproducible research.
+  NPZ files will be used instead of ZARR files to further simplify the data reuse.
 
-1. [ ] Test more versions of STACIE and also other (open-source) MD post-processing tools
-   to estimate transport properties. We're considering the following:
+- [ ] Test more versions of STACIE and also other (open-source) MD post-processing tools
+  to estimate transport properties. We're considering the following:
 
-   - Kute: <https://gitlab.com/nafomat/kute>
-   - Sportran: <https://github.com/sissaschool/sportran>
-   - Binary-based time sampling (MSD method): <https://doi.org/10.1063/5.0188081>
-   - MSD implementation in MDAnalysis: <https://docs.mdanalysis.org/2.0.0/documentation_pages/analysis/msd.html#computing-an-msd>
-   - Tidydynamics: <https://lab.pdebuyl.be/tidynamics/>
+  - Kute: <https://gitlab.com/nafomat/kute>
+  - Sportran: <https://github.com/sissaschool/sportran>
+  - Binary-based time sampling (MSD method): <https://doi.org/10.1063/5.0188081>
+  - MSD implementation in MDAnalysis: <https://docs.mdanalysis.org/2.0.0/documentation_pages/analysis/msd.html#computing-an-msd>
+  - Tidydynamics: <https://lab.pdebuyl.be/tidynamics/>
 
-   Unlike STACIE, some of these tools require manual inspection of intermediate results,
-   which makes it impossible to apply them systematically to all 15360 test cases.
-   Where needed, we will (try to) work with reasonable defaults
-   to avoid any manual intervention and user bias.
+  Unlike STACIE, some of these tools require manual inspection of intermediate results,
+  which makes it impossible to apply them systematically to all 15360 test cases,
+  in the way they are normally used.
+  Where needed, we will (try to) work with reasonable defaults
+  to avoid any manual intervention and user bias.
 
 ## How to Run the Workflows
 
