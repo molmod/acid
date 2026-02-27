@@ -4,13 +4,12 @@
 .ruff_cache
 
 # Results
+input
 output
-figures
-tables
+reports
+upload
 *.pdf
 *.zip
-acid-dataset/plot*.svg
-upload
 git-version.txt
 git-date.txt
 
@@ -22,9 +21,11 @@ __pycache__
 
 # Software environment
 activate
+.loadvenv
 venv
 venvs
 .envrc
+pre-commit-*.pyz
 
 # Other
 tmp

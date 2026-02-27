@@ -7,7 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-(no changes yet)
+### Changed
+
+Major refactor of the repository structure, in preparation for ACID 2.0:
+
+- Renamed directories to make the order of execution more explicit.
+- Define a separate software environment for each workflow.
+- Possibility to validate different programs and generate reports for each.
+- Summary reports aggregating results obtained with different programs
+  (and their version and settings), in preparation for a comparative study.
+- Generalize the report template to be reusable for different programs,
+  their versions and their settings.
+- Included `acint` and `corrtime_exp` attributes in ZARR files.
+
+(The actual test data remains unchanged.)
+
+### Fixed
+
+- Corrected threshold for `neff` validity,
+  which is now correctly based on the number of model parameters in the scripts,
+  instead of being hardcoded to 40.
+  (This was only consistent for two parameters.)
+  This only has a minor influence on a few numbers in the final reports,
+  and does not affect the test data itself.
 
 ## [1.2.0] - 2025-12-24
 
