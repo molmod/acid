@@ -21,7 +21,8 @@ a software package for the computation of the autocorrelation integral.
 
 A description of the dataset, a summary of the validation results,
 and an archived version of this repository can be found on Zenodo:
-[10.5281/zenodo.15722903](https://doi.org/10.5281/zenodo.15722903).
+[10.5281/zenodo.15722902](https://doi.org/10.5281/zenodo.15722902).
+
 
 ## License
 
