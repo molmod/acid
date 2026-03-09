@@ -23,7 +23,6 @@ A description of the dataset, a summary of the validation results,
 and an archived version of this repository can be found on Zenodo:
 [10.5281/zenodo.15722902](https://doi.org/10.5281/zenodo.15722902).
 
-
 ## License
 
 All files in this dataset are distributed under a choice of license:
