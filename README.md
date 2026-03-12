@@ -77,33 +77,6 @@ This repository consits of two parts:
 1. [`2_zenodo/`](2_zenodo/):
    A workflow to package and upload the generated data to Zenodo.
 
-## Roadmap Towards ACID 2.0
-
-The objectives for the next major release of this dataset include (in chronological order):
-
-- [x] Support testing multiple estimators, not just one version of STACIE,
-  with summary reports comparing the performance of different estimators.
-
-- [x] Split the Git repository into two,
-  one for the dataset generation and one for the validation of results.
-  This will allow for more regular releases of validation results using the same data.
-
-- [ ] Rewrite the data generation workflow to use exact integration
-  of linear stochastic differential equations,
-  for which the covariance kernels can be derived analytically.
-  The resulting time series will be aperiodic by construction,
-  which is more representative of real-world applications.
-  This change will allow for more precise testing of aliasing artifacts.
-
-- [x] Improve data storage efficiency and release engineering.
-  By storing the current dataset in single precesion (which is sufficient for stochastic time series),
-  we can reduce the storage requirement by a factor two and upload it in full to Zenodo (43 GB).
-  This way, prospective users are not forced to regenerate the dataset,
-  which lowers the barrier to usage and allows for more reproducible research.
-  NPZ files will be used instead of ZARR files to further simplify the data reuse.
-
-- [ ] Upload to Zenodo with one ZIP file per kernel, containing all corresponding test cases.
-
 ## How to Run the Workflows
 
 The workflows in this repository can be executed on a compute cluster
@@ -148,6 +121,7 @@ Please, follow these guidelines to make clean commits to this repository:
    (It is included in the `requirements.in` file,
    so it will be installed in the virtual environment when you run `setup-venv-pip.sh`.)
 1. Install the pre-commit hook by running `pre-commit install` in the root directory of this repository.
+1. Update the file `CHANGELOG.md` to describe changes.
 1. Use `git commit` as you normally would.
 
 If you are working in an environment with limited permissions,
@@ -163,7 +137,8 @@ python pre-commit-4.5.1.pyz install
 After having updated actual contents of the dataset, the following steps are needed
 to make a new release on GitHub and Zenodo:
 
-- Update `CHANGELOG.md` with a new version section, describing the changes since the last release.
+- Update `CHANGELOG.md` with a new version section.
+  Double check the changes since the last release.
 
 - Update the version number in `2_zenodo/zenodo.yaml`.
 
