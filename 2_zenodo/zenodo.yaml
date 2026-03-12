@@ -2,7 +2,7 @@ path_record_id: .zenodo-record-id.txt
 endpoint: https://zenodo.org/api
 path_token: ~/.config/zenodo-org-token.txt
 metadata:
-  title: 'The AutoCorrelation Integral Drill (ACID) Test Set'
+  title: 'The AutoCorrelation Integral Drill (ACID) 2'
   keywords:
     - autocorrelation integral
     - integrated correlation time
@@ -17,14 +17,33 @@ metadata:
     - StepUp
     - Typst
     - Python
-  version: '1.2.0'
+  version: '2.0.0'
   license:
     - cc-by-sa-4.0
     - lgpl-3.0-or-later
-  copyright: Copyright (C) 2025 The Authors
+  copyright: Copyright (C) 2025-2026 The Authors
   publisher: Zenodo
   resource_type: dataset
   creators:
+    - family_name: Bohy
+      given_name: Robbe
+      identifiers:
+        orcid: '0009-0005-0024-0607'
+      affiliations:
+        - ror: 00cv9y106   # Ghent University
+        - name: >-
+            Center for Molecular Modeling (CMM),
+            Ghent University,
+            Technologiepark-Zwijnaarde 46,
+            B-9052,
+            Zwijnaarde, Belgium
+        - name: >-
+            Labo Soete,
+            Ghent University,
+            Technologiepark-Zwijnaarde 46,
+            B-9052,
+            Ghent,
+            Belgium
     - family_name: Toraman
       given_name: Gözdenur
       identifiers:
@@ -102,8 +121,6 @@ metadata:
 path_readme: zenodo.md
 paths:
 - ../acid-dataset/acid-dataset.pdf
-- ../validation-stacie-report/report-quad.pdf
-- ../validation-stacie-report/report-lorentz.pdf
 - main.zip
 - ../LICENSE-CC-BY-SA-4.0.txt
 - ../LICENSE-LGPL-3.0-or-later.txt

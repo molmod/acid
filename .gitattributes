@@ -1,2 +1,2 @@
-zenodo/zenodo.* export-ignore
-zenodo/.zenodo-record-id.txt export-ignore
+2_zenodo/zenodo.* export-ignore
+2_zenodo/.zenodo-record-id.txt export-ignore

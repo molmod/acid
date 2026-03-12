@@ -1,24 +1,28 @@
+#set page("a4", margin: 2cm, numbering: "1 / 1")
 #show link: set text(blue)
 #show table.cell.where(y: 0): set text(weight: "bold")
 #let frame(stroke) = (x, y) => (
   top: if y < 2 { stroke } else { 0pt },
   bottom: stroke,
 )
-
 #set table(
   stroke: frame(rgb("222222")),
 )
-
+#set figure(placement: auto)
+#show figure: set place(clearance: 2em)
+#show figure.caption: it => [
+    *#it.supplement #context(it.counter.display(it.numbering))#it.separator*#it.body
+]
 
 #align(center)[
   #text(size: 24pt)[
-    *The AutoCorrelation Integral Drill (ACID) Test Set*
+    *The AutoCorrelation Integral Drill (ACID) 2*
   ]
 
-  Gözdenur Toraman,#super[†] Dieter Fauconnier,#super[†‡] and Toon Verstraelen#super[✶¶]
+  Robbe Bohy,#super[†¶] Gözdenur Toraman,#super[†] Dieter Fauconnier,#super[†⁰] and Toon Verstraelen#super[✶¶]
 
   † Soete Laboratory, Ghent University, Technologiepark-Zwijnaarde 46, 9052 Ghent, Belgium\
-  ‡ FlandersMake\@UGent, Core Lab MIRO, 3001 Leuven, Belgium\
+  ⁰ FlandersMake\@UGent, Core Lab MIRO, 3001 Leuven, Belgium\
   ¶ Center for Molecular Modeling (CMM), Ghent University, Technologiepark-Zwijnaarde
   46, B-9052, Ghent, Belgium
 
@@ -29,7 +33,7 @@
 
 = Summary
 
-The data set consists of synthetic time-correlated sequences of varying lengths, generated using different covariance kernels.
+The ACID data set consists of synthetic time-correlated sequences with different lengths and covariance kernels.
 
 The purpose of the data set is to validate algorithms for estimating the integral of an autocorrelation function, which is relevant for uncertainty quantification and the estimation of transport properties.
 The first application was to validate the algorithm implemented in #link("https://molmod.github.io/stacie", [STACIE]).
@@ -178,7 +182,7 @@ Example sequences, ACFs and PSDs for all kernels are shown in Figures @fig-seqs,
 ) <fig-psds>
 
 All kernels have an autocorrelation integral of 1.
-They are all parametrized to have an almost quadratic PSD close to zero frequency, with deviations less than 2.5% RMS for the first 20 grid points of the spectrum and less than 10% for the first 40 points.
+They are parametrized to have an almost quadratic PSD close to zero frequency, with deviations less than 2.5% RMS for the first 20 grid points of the spectrum and less than 10% for the first 40 points.
 This has two important implications on the data:
 
 - It guarantees that also the shortest synthetic sequences (1024 steps) are just long enough
@@ -188,32 +192,101 @@ This has two important implications on the data:
   This is larger than the systematic deviation between the quadratic model and the real PSD
   for the first 20 points.
 
-For each combination of kernel, sequence length and number of sequences, data are stored in #link("https://zarr.readthedocs.io", [ZARR]) version 3 ZIP archives, using the pattern `{kernel_name}_nstep{nstep:05d}_nseq{nseq:04d}.zip`.
-The data stored in each ZARR file are described in @tab-zarr.
+For each combination of kernel, sequence length and number of sequences, data are stored in uncompressed ZIP archives, using the pattern `{kernel_name}_nstep{nstep:05d}_nseq{nseq:04d}.zip`.
+(Due to the efficient encoding discussed below, compression saves less than 1%.)
+The data and metadata stored in each ZIP file are described in @tab-zip and @tab-meta, respectively.
 
 #figure(
   table(
     columns: 2,
     align: left,
-    table.header([ZARR field], [Description]),
-    `root.attrs["acint"]`, [The autocorrelation integral],
-    `root.attrs["corrtime_int"]`, [The integrated autocorrelation time],
-    `root.attrs["corrtime_exp"]`, [The exponential autocorrelation time, or None if not defined],
-    `root.attrs["typst"]`, [A typst equation describing the kernel],
-    `root.attrs["latex"]`, [A latex equation describing the kernel],
-    `root["times"]`, [The time axis of the sequences],
-    `root["freqs"]`, [The frequency axis of the power spectrum],
-    `root["omegas"]`, [$2 pi times$ the frequency axis],
-    `root["psd"]`, [The reference power spectrum with normalization conventions given above],
-    `root["acf"]`, [The reference autocorrelation function],
-    `root["sequences"]`, [The stochastic time-dependent sequences],
+    table.header([filename], [Description]),
+    `meta.json`, [Metadate described in @tab-meta],
+    `times.npy`, [The time axis of the sequences],
+    `freqs.npy`, [The frequency axis of the power spectrum],
+    `psd.npy`, [The reference power spectrum with normalization conventions given above],
+    `acf.npy`, [The reference autocorrelation function],
+    `sequences_00.npy`, [The stochastic time-dependent sequences, first seed],
+    [...],[],
+    `sequences_63.npy`, [The stochastic time-dependent sequences, last seed],
   ),
-  caption: [Overview of data stored in each ZARR file.]
-) <tab-zarr>
+  caption: [Overview of data stored in each ZIP file.]
+) <tab-zip>
 
-All arrays, except `sequences` are 1D arrays.
-The sequences are stored in a 3D array with shape `(ncase, nseq, nstep)`, where `ncase` is 64, `nseq` is the number of sequences ($M$) and `nstep` is the number of steps ($N$).
-The ground truth of the autocorrelation integral is `root["psd"][0]`.
+
+#figure(
+  table(
+    columns: 2,
+    align: left,
+    table.header([key], [Description]),
+    `kernel`, [The name of the kernel, e.g. `exp1w`],
+    `nstep`, [The number of steps in the sequences],
+    `nseq`, [The number of sequences],
+    `nseed`, [The number of random seeds used for repetitions of the same test],
+    `acint`, [The autocorrelation integral],
+    `var`, [The variance of the sequences],
+    `corrtime_int`, [The integrated autocorrelation time],
+    `corrtime_exp`, [The exponential autocorrelation time, or None if not defined],
+    `typst`, [A typst equation describing the kernel],
+    `latex`, [A latex equation describing the kernel],
+  ),
+  caption: [Metadata stored in `meta.json` in each ZIP file.]
+) <tab-meta>
+
+All arrays, except `sequences_??` are 1D arrays.
+The sequences are stored in a 2D array with shape `(nseq, nstep)`, where `nseq` is the number of sequences ($M$) and `nstep` is the number of steps ($N$).
+The ground truth of the autocorrelation integral is stored in the metadata as `acint`
+and is also equal to `psd[0]`.
+
+The sequences are encoded as unsigned integers.
+They can be converted back to floating-point numbers as shown in @code-decode.
+The ZIP file is also a valid NPZ file, and arrays (not metadata) can be accessed with `numpy.load`,
+as shown in @code-numpy
+
+#figure(
+  box(
+    stroke: black,
+    inset: 1em,
+    ```python
+    import json
+    import zipfile
+
+    import numpy as np
+    import scipy as sp
+
+    with zipfile.ZipFile("exp1w_nstep01024_nseq0256.zip") as zf:
+        with zf.open("meta.json") as f:
+            meta = json.load(f)
+        with zf.open("sequences_00.npy") as f:
+            cdfi = np.load(f)
+    imax = np.iinfo(cdfi.dtype).max + 1
+    std = np.sqrt(meta["var"])
+    sequences = sp.stats.norm(scale=std).ppf((cdfi + 0.5) / imax)
+    ```
+  ),
+  caption: [
+    Example Python implementation decoding the integer representation of the sequences back to floating-point numbers.
+  ],
+  kind: "code",
+  supplement: "Code",
+) <code-decode>
+
+#figure(
+  box(
+    stroke: black,
+    inset: 1em,
+    ```python
+    import numpy as np
+
+    freqs = np.load("exp1w_nstep01024_nseq0256.zip")["freqs.npy"]
+    ```
+  ),
+  caption: [
+    Example Python code showing how to access arrays in the ZIP files with `numpy.load`.
+  ],
+  kind: "code",
+  supplement: "Code",
+) <code-numpy>
 
 = Data generation
 
@@ -233,7 +306,7 @@ where `8` is the number of parallel workers.
 
 The data generation scripts are fully deterministic, meaning that running them multiple times on the same hardware and software environment will yield identical results.
 However, due to differences in floating-point arithmetic across different hardware architectures and software versions,
-running the StepUp workflow on different systems may lead to slight numerical differences in the generated data.
+running the StepUp workflow on different systems may lead to different time series.
 (Even with identical data, the hashes of the ZIP files may differ due to operating system details and software versions.)
 These differences should not affect the overall validity of the dataset, but they may impact the exact values derived from an analysis.
 
@@ -241,11 +314,11 @@ These differences should not affect the overall validity of the dataset, but the
 
 The following software is required to use the dataset:
 
-- Python >= 3.12
-- NumPy == 2
-- Zarr == 3
+- Python >= 3.11
+- NumPy >= 2
+- SciPy >= 1.16
 
 To fully reconstruct the dataset, the following additional Python packages are required:
 
-- StepUp >= 3.1.2
-- StepUp RepRep >= 3.1.4
+- StepUp >= 3.2.2
+- StepUp RepRep >= 3.1.8

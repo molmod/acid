@@ -19,7 +19,7 @@ glob("kernels/*.py")
 glob("lib/*.py")
 glob("scripts/*.py")
 
-# Generate all ZARR files
+# Generate all ZIP files
 settings = loadns("settings.json", do_amend=True)
 mkdir("output/")
 paths_examples = []
@@ -32,7 +32,7 @@ for kernel in settings.kernels:
                 out=f"output/{kernel}_nstep{nstep:05d}_nseq{nseq:04d}.zip",
             )
     paths_examples.append(
-        Path(f"output/{kernel}_nstep{settings.nsteps[0]:05d}_nseq{settings.nseqs[0]:04d}.zip")
+        Path(f"output/{kernel}_nstep{settings.nsteps[0]:05d}_nseq{settings.nseqs[-1]:04d}.zip")
     )
 
 # Generate summary plots, table and report.

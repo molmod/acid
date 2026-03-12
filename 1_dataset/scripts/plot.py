@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 
 import argparse
+import json
+import zipfile
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-import zarr
+import scipy as sp
 from path import Path
 from stacie.spectrum import compute_spectrum
 
@@ -59,67 +61,70 @@ def run(
     path_svg_psds: Path,
 ):
     mpl.rc_file(path_mplrc)
-    fig1, axs1 = plt.subplots(4, 3, figsize=(7, 11), sharex=True, sharey=True)
-    fig2, axs2 = plt.subplots(4, 3, figsize=(7, 11), sharex=True, sharey=True)
-    fig3, axs3 = plt.subplots(4, 3, figsize=(7, 11), sharex=True, sharey=True)
+    fig1, axs1 = plt.subplots(4, 3, figsize=(7, 10), sharex=True, sharey=True)
+    fig2, axs2 = plt.subplots(4, 3, figsize=(7, 10), sharex=True, sharey=True)
+    fig3, axs3 = plt.subplots(4, 3, figsize=(7, 10), sharex=True, sharey=True)
 
     for i, path_zip in enumerate(paths_zip):
-        kernel = path_zip.name.split("_", 1)[0]
-        store = zarr.storage.ZipStore(path_zip)
-        root = zarr.open_group(store=store, mode="r")
+        with zipfile.ZipFile(path_zip) as zf, zf.open("meta.json") as f:
+            meta = json.load(f)
         # Compute spectrum with Stacie, to be included in plot, only for first seed
-        spectrum = compute_spectrum(root["sequences"][0], prefactors=2)
+        std = np.sqrt(meta["var"])
+        data = np.load(path_zip)
+        cfdi = data["sequences_00.npy"]
+        imax = np.iinfo(cfdi.dtype).max + 1
+        sequences = sp.stats.norm(scale=std).ppf((cfdi + 0.5) / imax)
+        spectrum = compute_spectrum(sequences, prefactors=2)
         empirical_psd = spectrum.amplitudes
         empirical_acf = np.fft.irfft(spectrum.amplitudes)
 
         row = i // 3
         col = i % 3
-        plot_seq(axs1[row, col], kernel, root, row == 3, col == 0)
-        plot_ac(axs2[row, col], kernel, root, empirical_acf, row == 3, col == 0)
-        plot_psd(axs3[row, col], kernel, root, empirical_psd, row == 3, col == 0)
+        plot_seq(axs1[row, col], meta, data, sequences, row == 3, col == 0)
+        plot_ac(axs2[row, col], meta, data, empirical_acf, row == 3, col == 0)
+        plot_psd(axs3[row, col], meta, data, empirical_psd, row == 3, col == 0)
 
     fig1.savefig(path_svg_seqs)
     fig2.savefig(path_svg_acs)
     fig3.savefig(path_svg_psds)
 
 
-def plot_seq(ax, kernel, root, xlabel, ylabel):
+def plot_seq(ax, meta, data, sequences, xlabel, ylabel):
     nstep = 150
-    times = root["times"][:nstep]
-    seq = root["sequences"][0, 0, :nstep]
-    ax.plot(times, seq)
+    times = data["times"][:nstep]
+    ax.plot(times, sequences[0, :nstep])
     if xlabel:
         ax.set_xlabel("Time $t$")
     if ylabel:
         ax.set_ylabel(r"$\hat{x}(t)$")
-    ax.set_title(kernel)
+    ax.set_title(meta["kernel"])
 
 
-def plot_ac(ax, kernel, root, empirical_acf, xlabel, ylabel):
+def plot_ac(ax, meta, data, empirical_acf, xlabel, ylabel):
     ndelta = 50
-    times = root["times"][:ndelta]
-    acf = root["acf"][:ndelta]
+    times = data["times"][:ndelta]
+    acf = data["acf"][:ndelta]
     ax.plot(times, acf, "k:", lw=2)
     ax.plot(times, empirical_acf[:ndelta], "r-")
     if xlabel:
         ax.set_xlabel(r"Time lag $\Delta_t$")
     if ylabel:
         ax.set_ylabel(r"COV[$\hat{x}(t)$, $\hat{x}(t+\Delta_t)$]")
-    ax.set_title(kernel)
+    ax.set_title(meta["kernel"])
 
 
-def plot_psd(ax, kernel, root, empirical_psd, xlabel, ylabel):
-    freqs = root["freqs"][:]
+def plot_psd(ax, meta, data, empirical_psd, xlabel, ylabel):
+    freqs = data["freqs"][:]
     nfreq = freqs.searchsorted(0.1)
     freqs = freqs[:nfreq]
-    psd = root["psd"][:nfreq]
+    psd = data["psd"][:nfreq]
     ax.plot(freqs, psd, "k:", lw=2)
     ax.plot(freqs, empirical_psd[:nfreq], "r-")
     if xlabel:
         ax.set_xlabel(r"Frequency $f$")
     if ylabel:
         ax.set_ylabel(r"Amplitude")
-    ax.set_title(kernel)
+    ax.set_title(meta["kernel"])
 
 
 if __name__ == "__main__":

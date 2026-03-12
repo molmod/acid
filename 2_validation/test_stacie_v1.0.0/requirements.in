@@ -1,7 +1,0 @@
-emcee==3.1.6
-matplotlib==3.10.8
-numpy==2.4.1
-scipy==1.17.0
-stepup==3.2.1
-zarr==3.1.5
-stacie==1.0.0

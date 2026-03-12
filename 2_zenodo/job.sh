@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
-#SBATCH --job-name=acid
+#SBATCH --job-name=zenodo
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=1
 #SBATCH --time=1:00:00
 #SBATCH --mem=5G
 
+cd ..
 source ./.loadvenv
-export PATH=$(realpath ${PWD}/scripts/):$PATH
+cd ${SLURM_SUBMIT_DIR}
 time stepup boot -n ${SLURM_CPUS_PER_TASK}

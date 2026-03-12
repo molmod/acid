@@ -1,10 +1,11 @@
-cff-version: 1.2.0
+cff-version: 2.0.0
 message: If you use this software, please cite it using these metadata.
-title: The AutoCorrelation Integral Drill (ACID) Test Set
+title: The AutoCorrelation Integral Drill (ACID) 2 -- Dataset
 abstract: >-
-  This repository contains the scripts and StepUp workflows to regenerate
-  the "AutoCorrelation Integral Drill" (ACID) test set.
-  The ACID test set comprises a diverse collection of algorithmically generated time series
+  This repository contains the scripts and
+  [StepUp workflow](https://reproducible-reporting.github.io/stepup-core/stable/)
+  to regenerate the "AutoCorrelation Integral Drill" (ACID) dataset.
+  The ACID dataset set comprises a diverse collection of synthetic time series
   designed to evaluate the performance of algorithms that compute the autocorrelation integral.
   The set contains in total 15360 test cases, and each case consists of one or more time series.
   The cases differ in the kernel characterizing the time correlations, the number of time series,
@@ -12,8 +13,17 @@ abstract: >-
   For each combination of kernel, number of sequences and sequence length,
   64 test cases are generated with different random seeds
   to allow for a systematic validation of uncertainty estimates.
-  The total dataset, once generated, is about 80 GB in size.
+  The total dataset, once generated, is about 43 GB in size.
 authors:
+  - family-names: Bohy
+    given-names: Robbe
+    orcid: https://orcid.org/0009-0005-0024-0607
+    affiliation: >-
+      Center for Molecular Modeling (CMM),
+      Ghent University,
+      Technologiepark-Zwijnaarde 46,
+      B-9052,
+      Zwijnaarde, Belgium
   - family-names: Toraman
     given-names: Gözdenur
     orcid: https://orcid.org/0000-0001-6785-333X

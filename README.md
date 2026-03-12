@@ -1,11 +1,18 @@
-<!-- markdownlint-disable line-length -->
+:rotating_light:
+This repository is being refactored to prepare for the next major release, ACID 2.
+The information below describes how ACID 2 will be organized after the refactoring has been completed.
 
-# The AutoCorrelation Integral Drill (ACID) Test Set
+You can view the latest version of the ACID 1 dataset and validation results at the following URLs:
+
+- https://github.com/molmod/acid/tree/v1.2.0
+- https://zenodo.org/records/18044643
+
+# The AutoCorrelation Integral Drill (ACID) 2 -- Dataset
 
 This repository contains the scripts and
-[StepUp workflows](https://reproducible-reporting.github.io/stepup-core/stable/)
-to regenerate the "AutoCorrelation Integral Drill" (ACID) test set.
-The ACID test set comprises a diverse collection of algorithmically generated time series
+[StepUp workflow](https://reproducible-reporting.github.io/stepup-core/stable/)
+to regenerate the "AutoCorrelation Integral Drill" (ACID) dataset.
+The ACID dataset set comprises a diverse collection of synthetic time series
 designed to evaluate the performance of algorithms that compute the autocorrelation integral.
 The set contains in total 15360 test cases, and each case consists of one or more time series.
 The cases differ in the kernel characterizing the time correlations, the number of time series,
@@ -13,16 +20,14 @@ and the length of the time series.
 For each combination of kernel, number of sequences and sequence length,
 64 test cases are generated with different random seeds
 to allow for a systematic validation of uncertainty estimates.
-The total dataset, once generated, is about 80 GB in size.
+The total dataset, once generated, is about 43 GB in size.
 
-In addition to the ACID test set, this repository also contains scripts and workflows
-to validate [STACIE](https://molmod.github.io/stacie/),
-a software package for the computation of the autocorrelation integral.
+In ACID 1 releases, the validation of STACIE with ACID was included in this repository.
+As of ACID 2, the validation results are released separately in a different repository:
+<https://github.com/molmod/acid-test>.
 
-A description of the dataset, a summary of the validation results,
-and an archived version of this repository can be found on Zenodo:
+A description, the full data and and an archived copy of this repository can be found on Zenodo:
 [10.5281/zenodo.15722902](https://doi.org/10.5281/zenodo.15722902).
-
 
 ## License
 
@@ -65,22 +70,12 @@ If you use this dataset in your research, please cite the following publication:
 
 ## Overview
 
-This repository contains three smaller projects:
+This repository consits of two parts:
 
-1. [`1_acid_dataset/`](1_acid_dataset/):
-   A workflow to generate the ACID test set.
-1. [`2_validation/`](2_validation/):
-   Workflows to recompute the validation of STACIE with the ACID test set.
-   Subdirectories contain workflows for different versions or settings of STACIE.
-1. [`3_report/`](3_report/):
-   A workflow with post-processing scripts of the validation results
-   to regenerate the figures and tables used in the STACIE paper.
-1. [`4_zenodo/`](4_zenodo/):
+1. [`1_dataset/`](1_dataset/):
+   A workflow to generate the ACID 2 dataset.
+1. [`2_zenodo/`](2_zenodo/):
    A workflow to package and upload the generated data to Zenodo.
-
-When regenerating the data and the validation of results, the workflows
-in these directories must be executed in the order listed above.
-Each directory contains a `README.md` file that provides more details.
 
 ## Roadmap Towards ACID 2.0
 
@@ -89,7 +84,7 @@ The objectives for the next major release of this dataset include (in chronologi
 - [x] Support testing multiple estimators, not just one version of STACIE,
   with summary reports comparing the performance of different estimators.
 
-- [ ] Split the Git repository into two,
+- [x] Split the Git repository into two,
   one for the dataset generation and one for the validation of results.
   This will allow for more regular releases of validation results using the same data.
 
@@ -100,27 +95,14 @@ The objectives for the next major release of this dataset include (in chronologi
   which is more representative of real-world applications.
   This change will allow for more precise testing of aliasing artifacts.
 
-- [ ] Improve data storage efficiency and release engineering.
+- [x] Improve data storage efficiency and release engineering.
   By storing the current dataset in single precesion (which is sufficient for stochastic time series),
-  we can reduce the storage requirement by a factor two and upload it in full to Zenodo (40 GB).
+  we can reduce the storage requirement by a factor two and upload it in full to Zenodo (43 GB).
   This way, prospective users are not forced to regenerate the dataset,
   which lowers the barrier to usage and allows for more reproducible research.
   NPZ files will be used instead of ZARR files to further simplify the data reuse.
 
-- [ ] Test more versions of STACIE and also other (open-source) MD post-processing tools
-  to estimate transport properties. We're considering the following:
-
-  - Kute: <https://gitlab.com/nafomat/kute>
-  - Sportran: <https://github.com/sissaschool/sportran>
-  - Binary-based time sampling (MSD method): <https://doi.org/10.1063/5.0188081>
-  - MSD implementation in MDAnalysis: <https://docs.mdanalysis.org/2.0.0/documentation_pages/analysis/msd.html#computing-an-msd>
-  - Tidydynamics: <https://lab.pdebuyl.be/tidynamics/>
-
-  Unlike STACIE, some of these tools require manual inspection of intermediate results,
-  which makes it impossible to apply them systematically to all 15360 test cases,
-  in the way they are normally used.
-  Where needed, we will (try to) work with reasonable defaults
-  to avoid any manual intervention and user bias.
+- [ ] Upload to Zenodo with one ZIP file per kernel, containing all corresponding test cases.
 
 ## How to Run the Workflows
 
@@ -128,28 +110,25 @@ The workflows in this repository can be executed on a compute cluster
 that supports [SLURM](https://slurm.schedmd.com/) job scheduling,
 or on a local machine with sufficient resources.
 
-Each workflow uses its own Python virtual environment to manage the required Python packages.
-This allows for benchmarking different versions of packages in isolation.
-In a workflow directory, you will find a `requirements.in` file.
+A Python virtual environment is defined in the `requirements.in` file.
 To (re)create the virtual environment for a workflow,
-run or submit the top-level `setup-venv-pip.sh` from the directory that contains the `job.sh` script.
+run or submit the script `setup-venv-pip.sh`.
 If you want this script to use a specific Python version,
 set the `PYTHON3` environment variable before running it.
 For example:
 
 ```bash
-export PYTHON3=/usr/bin/python3.13
-cd acid-dataset/
-sbatch ../setup-venv-pip.sh
+export PYTHON3=/usr/bin/python3.13  # optional
+sbatch setup-venv-pip.sh
 ```
 
 After the virtual environment has been created,
-you can run or submit the script `job.sh` to perform the actual work.
+you can run or submit the script `job.sh` in `1_dataset/` or `2_zenodo/`.
 If you want to work interactively within the virtual environment,
-you can source the `.loadvenv` script in the workflow directory.
+you can source the `.loadvenv` script.
 
 Note that the workflows and scripts in this repository require Python 3.11 or higher.
-They are only expected to run on an x86_64 Linux system.
+They have only been tested on an `x86_64` Linux system (so far).
 All results on Zenodo were generated using the following module
 on the Tier2 VSC compute cluster donphan
 
@@ -157,11 +136,17 @@ on the Tier2 VSC compute cluster donphan
 module load Python/3.13.5-GCCcore-14.3.0
 ```
 
+When the `setup-venv-pip.sh` script detects the presence of the `$VSC_HOME`
+environment variable, it will automatically load this Python module
+and include it in the generated `.loadvenv` script.
+
 ## How to Work With This Git Repository
 
-To make clean commits to this repository, please follow these guidelines:
+Please, follow these guidelines to make clean commits to this repository:
 
 1. Install [pre-commit](https://pre-commit.com/) on your system.
+   (It is included in the `requirements.in` file,
+   so it will be installed in the virtual environment when you run `setup-venv-pip.sh`.)
 1. Install the pre-commit hook by running `pre-commit install` in the root directory of this repository.
 1. Use `git commit` as you normally would.
 
@@ -176,16 +161,16 @@ python pre-commit-4.5.1.pyz install
 ## How to Make a New Release
 
 After having updated actual contents of the dataset, the following steps are needed
-to make a new release on Zenodo:
+to make a new release on GitHub and Zenodo:
 
 - Update `CHANGELOG.md` with a new version section, describing the changes since the last release.
 
-- Update the version number in `4_zenodo/zenodo.yaml`.
+- Update the version number in `2_zenodo/zenodo.yaml`.
 
 - Upload a draft release to Zenodo by running
 
   ```bash
-  (cd 4_zenodo/; sbatch job.sh)
+  (cd 2_zenodo/; sbatch job.sh)
   ```
 
 - Visit the dataset page on Zenodo and click on "New version".
@@ -194,17 +179,16 @@ to make a new release on Zenodo:
 
 - Commit all changes to Git and run `git tag` with the new version number.
 
-- Recompile all PDF files in the repository to include the Git hash in the PDF frontmatter:
+- Recompile the PDF file with the dataset description to include the Git hash in the PDF frontmatter:
 
   ```bash
-  (cd 1_acid_dataset/; sbatch job.sh)
-  (cd 2_validation/; sbatch job.sh)
+  (cd 1_dataset/; sbatch job.sh)
   ```
 
 - Sync your local data one last time with Zenodo:
 
   ```bash
-  (cd 4_zenodo/; sbatch job.sh)
+  (cd 2_zenodo/; sbatch job.sh)
   ```
 
 - Log in to <https://zenodo.org/>, go to your draft release,
