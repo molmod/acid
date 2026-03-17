@@ -8,8 +8,8 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy as sp
+from numpy.typing import NDArray
 from path import Path
-from stacie.spectrum import compute_spectrum
 
 
 def main():
@@ -68,15 +68,14 @@ def run(
     for i, path_zip in enumerate(paths_zip):
         with zipfile.ZipFile(path_zip) as zf, zf.open("meta.json") as f:
             meta = json.load(f)
-        # Compute spectrum with Stacie, to be included in plot, only for first seed
+        # Compute spectrum to be included in plot, only for first seed
         std = np.sqrt(meta["var"])
         data = np.load(path_zip)
         cfdi = data["sequences_00.npy"]
         imax = np.iinfo(cfdi.dtype).max + 1
         sequences = sp.stats.norm(scale=std).ppf((cfdi + 0.5) / imax)
-        spectrum = compute_spectrum(sequences, prefactors=2)
-        empirical_psd = spectrum.amplitudes
-        empirical_acf = np.fft.irfft(spectrum.amplitudes)
+        empirical_psd = compute_amplitudes(sequences)
+        empirical_acf = np.fft.irfft(empirical_psd)
 
         row = i // 3
         col = i % 3
@@ -87,6 +86,42 @@ def run(
     fig1.savefig(path_svg_seqs)
     fig2.savefig(path_svg_acs)
     fig3.savefig(path_svg_psds)
+
+
+def compute_amplitudes(sequences: NDArray[float], timestep: float = 1.0) -> NDArray[float]:
+    r"""Compute the amplitudes of a batch of sequences as follows:
+
+    .. math::
+
+    C_k = \frac{1}{M}\sum_{m=1}^M \frac{F_m h}{2 N} \left|
+        \sum_{n=0}^{N-1} x^{(m)}_n \exp\left(-i \frac{2 \pi n k}{N}\right)
+    \right|^2
+
+    where:
+
+    - :math:`F_m` is the given prefactor (may be different for each sequence),
+    - :math:`h` is the timestep,
+    - :math:`N` is the number of time steps in the input sequences,
+    - :math:`M` is the number of independent sequences,
+    - :math:`x^{(m)}_n` is the value of the :math:`m`-th sequence at time step :math:`n`,
+    - :math:`k` is the frequency index.
+
+    Parameters
+    ----------
+    sequences
+        The input sequences, which is an array with shape ``(nindep, nstep)``.
+        Each row is a time-dependent sequence.
+    timestep
+        The time step of the input sequence.
+
+    Returns
+    -------
+    amplitudes
+        A numpy array that contains the amplitudes of the spectrum.
+    """
+    nindep = sequences.shape[0]
+    nstep = sequences.shape[1]
+    return timestep * (abs(np.fft.rfft(sequences, axis=1)) ** 2).sum(axis=0) / (nstep * nindep)
 
 
 def plot_seq(ax, meta, data, sequences, xlabel, ylabel):
