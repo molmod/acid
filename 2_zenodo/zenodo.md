@@ -3,6 +3,8 @@ This dataset contains the scripts and
 to regenerate the "AutoCorrelation Integral Drill" (ACID) dataset,
 as well as the generated time series.
 
+The workflows used for the validation of STACIE, a software package that computes autocorrelation integrals, along with the corresponding validation results, can be found in the [acid-test Git repository](https://github.com/molmod/acid-test).
+
 This dataset is distributed under a choice of license:
 either the Creative Commons Attribution-ShareAlike 4.0 International license (CC BY-SA 4.0)
 or the GNU Lesser General Public License, version 3 or later (LGPL-v3+).

@@ -130,17 +130,8 @@ path_readme: zenodo.md
 paths:
 - ../1_dataset/overview.pdf
 - main.zip
-- exp1p.zip
-- exp1w.zip
-- exp2.zip
-- sho1pcrit.zip
-- sho1pover.zip
-- sho1punder.zip
-- sho1wcrit.zip
-- sho1wover.zip
-- sho1wunder.zip
-- sho2crit.zip
-- sho2over.zip
-- sho2under.zip
+{% for k in kernels %}
+- {{ k }}.zip
+{% endfor %}
 - ../LICENSE-CC-BY-SA-4.0.txt
 - ../LICENSE-LGPL-3.0-or-later.txt

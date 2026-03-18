@@ -14,7 +14,7 @@ wrap_git("git describe --tags", out="git-version.txt")
 wrap_git("git log -n1 --pretty='format:(%cs %h)'", out="git-date.txt")
 
 # Declare static files
-static("acid-dataset.typ", "settings.json", "../matplotlibrc", "kernels/", "lib/", "scripts/")
+static("overview.typ", "settings.json", "../matplotlibrc", "kernels/", "lib/", "scripts/")
 glob("kernels/*.py")
 glob("lib/*.py")
 glob("scripts/*.py")
@@ -47,4 +47,4 @@ runpy(
     inp=["scripts/plot.py", "../matplotlibrc", "output/codec.zip", *paths_examples],
     out=["output/plot_seqs.svg", "output/plot_acs.svg", "output/plot_psds.svg"],
 )
-compile_typst("acid-dataset.typ", sysinp={"kernels": Path("output/kernels.csv")})
+compile_typst("overview.typ", sysinp={"kernels": Path("output/kernels.csv")})
