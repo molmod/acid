@@ -7,7 +7,6 @@ import zipfile
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-import scipy as sp
 from numpy.typing import NDArray
 from path import Path
 
@@ -17,7 +16,7 @@ def main():
     for path_svg in [args.svg_seqs, args.svg_acs, args.svg_psds]:
         if not path_svg.endswith(".svg"):
             raise ValueError(f"Output path {path_svg} must end with .svg")
-    run(args.mplrc, args.zips, args.svg_seqs, args.svg_acs, args.svg_psds)
+    run(args.mplrc, args.lookup_table, args.zips, args.svg_seqs, args.svg_acs, args.svg_psds)
 
 
 def parse_args():
@@ -28,6 +27,11 @@ def parse_args():
         "mplrc",
         type=Path,
         help="The matplotlibrc path.",
+    )
+    parser.add_argument(
+        "lookup_table",
+        type=Path,
+        help="The lookup table to decode the integers",
     )
     parser.add_argument(
         "zips",
@@ -55,6 +59,7 @@ def parse_args():
 
 def run(
     path_mplrc: Path,
+    path_lookup: Path,
     paths_zip: list[Path],
     path_svg_seqs: Path,
     path_svg_acs: Path,
@@ -65,15 +70,17 @@ def run(
     fig2, axs2 = plt.subplots(4, 3, figsize=(7, 10), sharex=True, sharey=True)
     fig3, axs3 = plt.subplots(4, 3, figsize=(7, 10), sharex=True, sharey=True)
 
+    # Load the lookup table
+    lookup_table = np.load(path_lookup)
+
     for i, path_zip in enumerate(paths_zip):
         with zipfile.ZipFile(path_zip) as zf, zf.open("meta.json") as f:
             meta = json.load(f)
         # Compute spectrum to be included in plot, only for first seed
         std = np.sqrt(meta["var"])
         data = np.load(path_zip)
-        cfdi = data["sequences_00.npy"]
-        imax = np.iinfo(cfdi.dtype).max + 1
-        sequences = sp.stats.norm(scale=std).ppf((cfdi + 0.5) / imax)
+        cdfi = data["sequences_00.npy"]
+        sequences = lookup_table[cdfi] * std
         empirical_psd = compute_amplitudes(sequences)
         empirical_acf = np.fft.irfft(empirical_psd)
 
