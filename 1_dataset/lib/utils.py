@@ -1,0 +1,28 @@
+import io
+import json
+import zipfile
+
+import numpy as np
+from numpy.typing import NDArray
+
+
+def dump_npy(name: str, zf: zipfile.ZipFile, array: NDArray):
+    """Dump a NumPy array to a ZIP file as a .npy file."""
+    zi = default_zipinfo(name)
+    buf = io.BytesIO()
+    np.save(buf, array, allow_pickle=False)
+    zf.writestr(zi, buf.getvalue())
+
+
+def default_zipinfo(name: str) -> zipfile.ZipInfo:
+    """Create a ZipInfo object with a fixed date."""
+    zi = zipfile.ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0))
+    zi.external_attr = 0
+    zi.create_system = 0
+    return zi
+
+
+def dump_meta(name: str, zf: zipfile.ZipFile, data):
+    """Dump metadata to a ZIP file as a .json file."""
+    zi = default_zipinfo(name)
+    zf.writestr(zi, json.dumps(data))

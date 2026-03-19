@@ -2,8 +2,6 @@
 """Generate test sets for a specific kernel, nstep and nseq."""
 
 import argparse
-import io
-import json
 import zipfile
 from runpy import run_path
 
@@ -13,6 +11,7 @@ from numpy.typing import NDArray
 from path import Path
 from stacie.synthetic import generate
 from stepup.core.api import amend
+from utils import dump_meta, dump_npy
 
 SEQ_DTYPE = np.uint16
 IMAX = np.iinfo(SEQ_DTYPE).max + 1
@@ -20,7 +19,7 @@ IMAX = np.iinfo(SEQ_DTYPE).max + 1
 
 def main():
     args = parse_args()
-    run(args.lookup, args.kernel, args.nstep, args.nseq, args.nseed, args.out)
+    run(args.lookup_table, args.kernel, args.nstep, args.nseq, args.nseed, args.out)
 
 
 def parse_args():
@@ -28,9 +27,9 @@ def parse_args():
         description="Generate test sets for a specific kernel, nstep and nseq."
     )
     parser.add_argument(
-        "lookup",
+        "lookup_table",
         type=str,
-        help="The lookup table to transform floats into integers",
+        help="The codec zip to encode the floats into integers.",
     )
     parser.add_argument(
         "kernel",
@@ -97,7 +96,7 @@ def run(path_lookup: Path, kernel: str, nstep: int, nseq: int, nseed: int, out: 
     tmp_root.mkdir_p()
 
     # Load the lookup table
-    lookup_table = np.load(path_lookup)
+    lookup_table = np.load(path_lookup)["lookup_boundary"]
 
     with zipfile.ZipFile(out, mode="w") as zf:
         dump_meta(
@@ -157,27 +156,6 @@ def lookup_integer(sequence: NDArray[float], std: float, table: NDArray[float]) 
 
     """
     return np.searchsorted(table, sequence / std, side="right") - 1
-
-
-def dump_npy(name: str, zf: zipfile.ZipFile, array: NDArray):
-    """Dump a NumPy array to a ZIP file as a .npy file."""
-    zi = default_zipinfo(name)
-    buf = io.BytesIO()
-    np.save(buf, array, allow_pickle=False)
-    zf.writestr(zi, buf.getvalue())
-
-
-def dump_meta(name: str, zf: zipfile.ZipFile, data):
-    zi = default_zipinfo(name)
-    zf.writestr(zi, json.dumps(data))
-
-
-def default_zipinfo(name: str) -> zipfile.ZipInfo:
-    """Create a ZipInfo object with a fixed date."""
-    zi = zipfile.ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0))
-    zi.external_attr = 0
-    zi.create_system = 0
-    return zi
 
 
 if __name__ == "__main__":

@@ -31,7 +31,7 @@ def parse_args():
     parser.add_argument(
         "lookup_table",
         type=Path,
-        help="The lookup table to decode the integers",
+        help="The codec zip to decode the integers to floats",
     )
     parser.add_argument(
         "zips",
@@ -71,7 +71,7 @@ def run(
     fig3, axs3 = plt.subplots(4, 3, figsize=(7, 10), sharex=True, sharey=True)
 
     # Load the lookup table
-    lookup_table = np.load(path_lookup)
+    lookup_table = np.load(path_lookup)["lookup_midpoint"]
 
     for i, path_zip in enumerate(paths_zip):
         with zipfile.ZipFile(path_zip) as zf, zf.open("meta.json") as f:
