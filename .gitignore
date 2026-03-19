@@ -5,7 +5,6 @@
 
 # Results
 output
-static
 *.pdf
 *.zip
 git-version.txt

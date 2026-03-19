@@ -35,8 +35,8 @@ def run(zip_out: Path):
     ppf_boundary = sp.stats.norm(scale=1.0).ppf((cdf) / IMAX).astype(np.float32)
     ppf_mid = sp.stats.norm(scale=1.0).ppf((cdf + 0.5) / IMAX).astype(np.float32)
     with zipfile.ZipFile(zip_out, mode="w") as zf:
-        dump_npy("lookup_boundary.npy", zf, ppf_boundary)
-        dump_npy("lookup_midpoint.npy", zf, ppf_mid)
+        dump_npy("boundary.npy", zf, ppf_boundary)
+        dump_npy("midpoint.npy", zf, ppf_mid)
 
 
 if __name__ == "__main__":

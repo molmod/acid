@@ -258,7 +258,7 @@ as shown in @code-numpy
             meta = json.load(f)
         with zf.open("sequences_00.npy") as f:
             cdfi = np.load(f)
-    lookup_table = np.load("static/lookup_midpoint.npy")
+    lookup_table = np.load("output/codec.zip")["midpoint"]
     std = np.sqrt(meta["var"])
     sequences = lookup_table[cdfi] * std
     ```

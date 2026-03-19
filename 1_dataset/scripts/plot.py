@@ -16,7 +16,7 @@ def main():
     for path_svg in [args.svg_seqs, args.svg_acs, args.svg_psds]:
         if not path_svg.endswith(".svg"):
             raise ValueError(f"Output path {path_svg} must end with .svg")
-    run(args.mplrc, args.lookup_table, args.zips, args.svg_seqs, args.svg_acs, args.svg_psds)
+    run(args.mplrc, args.codec, args.zips, args.svg_seqs, args.svg_acs, args.svg_psds)
 
 
 def parse_args():
@@ -29,7 +29,7 @@ def parse_args():
         help="The matplotlibrc path.",
     )
     parser.add_argument(
-        "lookup_table",
+        "codec",
         type=Path,
         help="The codec zip to decode the integers to floats",
     )
@@ -59,7 +59,7 @@ def parse_args():
 
 def run(
     path_mplrc: Path,
-    path_lookup: Path,
+    path_codec: Path,
     paths_zip: list[Path],
     path_svg_seqs: Path,
     path_svg_acs: Path,
@@ -71,7 +71,7 @@ def run(
     fig3, axs3 = plt.subplots(4, 3, figsize=(7, 10), sharex=True, sharey=True)
 
     # Load the lookup table
-    lookup_table = np.load(path_lookup)["lookup_midpoint"]
+    lookup_table = np.load(path_codec)["midpoint"]
 
     for i, path_zip in enumerate(paths_zip):
         with zipfile.ZipFile(path_zip) as zf, zf.open("meta.json") as f:
