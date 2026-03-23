@@ -32,7 +32,7 @@ def parse_args():
 
 def run(zip_out: Path):
     cdf = np.array(range(IMAX))
-    ppf_boundary = sp.stats.norm(scale=1.0).ppf((cdf) / IMAX).astype(np.float32)
+    ppf_boundary = sp.stats.norm(scale=1.0).ppf((cdf[1:]) / IMAX).astype(np.float32)
     ppf_mid = sp.stats.norm(scale=1.0).ppf((cdf + 0.5) / IMAX).astype(np.float32)
     with zipfile.ZipFile(zip_out, mode="w") as zf:
         dump_npy("boundary.npy", zf, ppf_boundary)

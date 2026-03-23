@@ -7,11 +7,10 @@ from runpy import run_path
 
 import numpy as np
 from kernels import compute
-from numpy.typing import NDArray
 from path import Path
 from stacie.synthetic import generate
 from stepup.core.api import amend
-from utils import dump_meta, dump_npy
+from utils import dump_meta, dump_npy, lookup_integer
 
 SEQ_DTYPE = np.uint16
 IMAX = np.iinfo(SEQ_DTYPE).max + 1
@@ -133,29 +132,6 @@ def run(path_codec: Path, kernel: str, nstep: int, nseq: int, nseed: int, out: P
                 raise ValueError("Negative ppfi values found")
             ppfi = ppfi.astype(SEQ_DTYPE)
             dump_npy(f"sequences_{iseed:02d}.npy", zf, ppfi)
-
-
-def lookup_integer(sequence: NDArray[float], std: float, table: NDArray[float]) -> NDArray[int]:
-    r"""Lookup to which integer the floats should be mapped according to the lookup table.
-    This lookup table is based on the mapping of the sequence to a cumulative distribution function,
-    belonging to a Gaussian distribtion with standard deviation ``std``.
-
-    Parameters
-    ----------
-    sequence
-        The input sequences, which is an array with shape ``(nindep, nstep)``.
-        Each row is a time-dependent sequence.
-    std
-        The standard deviation of the sequence.
-    table
-        The lookup table to map the floats to integers.
-
-    Returns
-    -------
-    An array that contains the original floats mapped to integers
-
-    """
-    return np.searchsorted(table, sequence / std, side="right") - 1
 
 
 if __name__ == "__main__":

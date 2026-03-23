@@ -26,3 +26,26 @@ def dump_meta(name: str, zf: zipfile.ZipFile, data):
     """Dump metadata to a ZIP file as a .json file."""
     zi = default_zipinfo(name)
     zf.writestr(zi, json.dumps(data))
+
+
+def lookup_integer(sequence: NDArray[float], std: float, table: NDArray[float]) -> NDArray[int]:
+    r"""Lookup to which integer the floats should be mapped according to the lookup table.
+    This lookup table is based on the mapping of the sequence to a cumulative distribution function,
+    belonging to a Gaussian distribtion with standard deviation ``std``.
+
+    Parameters
+    ----------
+    sequence
+        The input sequences, which is an array with shape ``(nindep, nstep)``.
+        Each row is a time-dependent sequence.
+    std
+        The standard deviation of the sequence.
+    table
+        The lookup table to map the floats to integers.
+
+    Returns
+    -------
+    An array that contains the original floats mapped to integers
+
+    """
+    return np.searchsorted(table, sequence / std)
