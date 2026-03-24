@@ -100,18 +100,26 @@ def compute_amplitudes(sequences: NDArray[float], timestep: float = 1.0) -> NDAr
 
     .. math::
 
-    C_k = \frac{1}{M}\sum_{m=1}^M \frac{F_m h}{2 N} \left|
+    C_k = \frac{1}{M}\sum_{m=1}^M \frac{h}{N} \left|
         \sum_{n=0}^{N-1} x^{(m)}_n \exp\left(-i \frac{2 \pi n k}{N}\right)
     \right|^2
 
     where:
 
-    - :math:`F_m` is the given prefactor (may be different for each sequence),
     - :math:`h` is the timestep,
     - :math:`N` is the number of time steps in the input sequences,
     - :math:`M` is the number of independent sequences,
     - :math:`x^{(m)}_n` is the value of the :math:`m`-th sequence at time step :math:`n`,
     - :math:`k` is the frequency index.
+
+    This normalization differs from conventional discrete Fourier transforms,
+    where the factor :math:`\frac{1}{N}` is typically applied in the inverse transform.
+    Applying the normalization directly in the forward transform ensures that the resulting spectrum
+    is an intensive property,
+    which is important in the context of transport properties,
+    where the zero-frequency limit is the quantity of interest.
+    Likewise, the factor :math:`\frac{1}{M}` ensures that the averaged spectrum is also intensive
+    with respect to the number of independent sequences :math:`M`.
 
     Parameters
     ----------
