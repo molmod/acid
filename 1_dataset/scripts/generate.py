@@ -2,18 +2,15 @@
 """Generate test sets for a specific kernel, nstep and nseq."""
 
 import argparse
-import io
-import json
 import zipfile
 from runpy import run_path
 
 import numpy as np
-import scipy as sp
 from kernels import compute
-from numpy.typing import NDArray
 from path import Path
 from stacie.synthetic import generate
 from stepup.core.api import amend
+from utils import dump_meta, dump_npy, lookup_integer
 
 SEQ_DTYPE = np.uint16
 IMAX = np.iinfo(SEQ_DTYPE).max + 1
@@ -21,12 +18,17 @@ IMAX = np.iinfo(SEQ_DTYPE).max + 1
 
 def main():
     args = parse_args()
-    run(args.kernel, args.nstep, args.nseq, args.nseed, args.out)
+    run(args.codec, args.kernel, args.nstep, args.nseq, args.nseed, args.out)
 
 
 def parse_args():
     parser = argparse.ArgumentParser(
         description="Generate test sets for a specific kernel, nstep and nseq."
+    )
+    parser.add_argument(
+        "codec",
+        type=str,
+        help="The codec zip to encode the floats into integers.",
     )
     parser.add_argument(
         "kernel",
@@ -56,11 +58,13 @@ def parse_args():
     return parser.parse_args()
 
 
-def run(kernel: str, nstep: int, nseq: int, nseed: int, out: Path):
+def run(path_codec: Path, kernel: str, nstep: int, nseq: int, nseed: int, out: Path):
     """Write synthetic time-correlated data to a ZIP file.
 
     Parameters
     ----------
+    path_lookup
+        The npy file that contains the lookup table to map the floats to integers
     out
         The output ZIP path.
     kernel
@@ -89,6 +93,10 @@ def run(kernel: str, nstep: int, nseq: int, nseed: int, out: Path):
     # Create ZIP archive with data and metadata.
     tmp_root = Path("./tmp/")
     tmp_root.mkdir_p()
+
+    # Load the lookup table
+    lookup_table = np.load(path_codec)["boundary"]
+
     with zipfile.ZipFile(out, mode="w") as zf:
         dump_meta(
             "meta.json",
@@ -117,35 +125,13 @@ def run(kernel: str, nstep: int, nseq: int, nseed: int, out: Path):
             # Generate the sequence
             sequence = generate(psd, 1.0, nseq, nstep, rng)
             # Map to uint16 representation
-            ppfi = sp.stats.norm(scale=std).cdf(sequence) * IMAX
-            ppfi = np.floor(ppfi)
+            ppfi = lookup_integer(sequence, std, lookup_table)
             if ppfi.max() >= IMAX:
                 raise ValueError(f"ppfi exceeds {IMAX - 1}")
             if ppfi.min() < 0:
                 raise ValueError("Negative ppfi values found")
             ppfi = ppfi.astype(SEQ_DTYPE)
             dump_npy(f"sequences_{iseed:02d}.npy", zf, ppfi)
-
-
-def dump_npy(name: str, zf: zipfile.ZipFile, array: NDArray):
-    """Dump a NumPy array to a ZIP file as a .npy file."""
-    zi = default_zipinfo(name)
-    buf = io.BytesIO()
-    np.save(buf, array, allow_pickle=False)
-    zf.writestr(zi, buf.getvalue())
-
-
-def dump_meta(name: str, zf: zipfile.ZipFile, data):
-    zi = default_zipinfo(name)
-    zf.writestr(zi, json.dumps(data))
-
-
-def default_zipinfo(name: str) -> zipfile.ZipInfo:
-    """Create a ZipInfo object with a fixed date."""
-    zi = zipfile.ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0))
-    zi.external_attr = 0
-    zi.create_system = 0
-    return zi
 
 
 if __name__ == "__main__":

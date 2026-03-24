@@ -14,6 +14,7 @@ A major refactoring of the ACID dataset.
 - Renamed directories to make the order of execution more explicit.
 - Included reference `acint` and `corrtime_exp` metadata in ZIP files.
 - More efficient storage of time series, using a customized integer encoding of real numbers.
+  The encoding/decoding is stored in a file as part of the data generation.
 - Data is stored in ordinary ZIP files, mostly compatible with the NPZ format.
   They also include a `meta.json` file with some metadata.
 

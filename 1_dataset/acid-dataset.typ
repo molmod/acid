@@ -252,16 +252,15 @@ as shown in @code-numpy
     import zipfile
 
     import numpy as np
-    import scipy as sp
 
     with zipfile.ZipFile("exp1w_nstep01024_nseq0256.zip") as zf:
         with zf.open("meta.json") as f:
             meta = json.load(f)
         with zf.open("sequences_00.npy") as f:
             cdfi = np.load(f)
-    imax = np.iinfo(cdfi.dtype).max + 1
+    lookup_table = np.load("output/codec.zip")["midpoint"]
     std = np.sqrt(meta["var"])
-    sequences = sp.stats.norm(scale=std).ppf((cdfi + 0.5) / imax)
+    sequences = lookup_table[cdfi] * std
     ```
   ),
   caption: [

@@ -72,6 +72,8 @@ idna==3.11
     # via requests
 idutils==1.5.1
     # via stepup-reprep
+iniconfig==2.3.0
+    # via pytest
 ipykernel==7.2.0
     # via stepup-reprep
 ipython==9.11.0
@@ -158,6 +160,7 @@ packaging==26.0
     #   ipykernel
     #   matplotlib
     #   nbconvert
+    #   pytest
 pandocfilters==1.5.1
     # via nbconvert
 papermill==2.7.0
@@ -182,6 +185,8 @@ platformdirs==4.9.4
     #   jupyter-core
     #   python-discovery
     #   virtualenv
+pluggy==1.6.0
+    # via pytest
 pre-commit==4.5.1
     # via -r requirements.in
 prompt-toolkit==3.0.52
@@ -201,6 +206,7 @@ pygments==2.19.2
     #   ipython
     #   ipython-pygments-lexers
     #   nbconvert
+    #   pytest
     #   rich
 pyiso4==0.1.6
     # via stepup-reprep
@@ -210,6 +216,8 @@ pyparsing==3.3.2
     # via matplotlib
 pyphen==0.17.2
     # via weasyprint
+pytest==9.0.2
+    # via -r requirements.in
 python-dateutil==2.9.0.post0
     # via
     #   jupyter-client

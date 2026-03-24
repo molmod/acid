@@ -18,17 +18,22 @@ static("acid-dataset.typ", "settings.json", "../matplotlibrc", "kernels/", "lib/
 glob("kernels/*.py")
 glob("lib/*.py")
 glob("scripts/*.py")
+mkdir("output/")
+runpy(
+    "./${inp} ${out}",
+    inp=["scripts/generate_lookup.py"],
+    out=["output/codec.zip"],
+)
 
 # Generate all ZIP files
 settings = loadns("settings.json", do_amend=True)
-mkdir("output/")
 paths_examples = []
 for kernel in settings.kernels:
     for nstep in settings.nsteps:
         for nseq in settings.nseqs:
             runpy(
                 f"./${{inp}} {kernel} {nstep} {nseq} {settings.nseed} ${{out}}",
-                inp="scripts/generate.py",
+                inp=["scripts/generate.py", "output/codec.zip"],
                 out=f"output/{kernel}_nstep{nstep:05d}_nseq{nseq:04d}.zip",
             )
     paths_examples.append(
@@ -39,7 +44,7 @@ for kernel in settings.kernels:
 runpy("./${inp} ${out}", inp=["scripts/summarize.py", "settings.json"], out="output/kernels.csv")
 runpy(
     "./${inp} ${out}",
-    inp=["scripts/plot.py", "../matplotlibrc", *paths_examples],
+    inp=["scripts/plot.py", "../matplotlibrc", "output/codec.zip", *paths_examples],
     out=["output/plot_seqs.svg", "output/plot_acs.svg", "output/plot_psds.svg"],
 )
 compile_typst("acid-dataset.typ", sysinp={"kernels": Path("output/kernels.csv")})
