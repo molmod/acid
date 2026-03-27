@@ -4,7 +4,7 @@ The information below describes how ACID 2 will be organized after the refactori
 
 You can view the latest version of the ACID 1 dataset and validation results at the following URLs:
 
-- https://github.com/molmod/acid/tree/v1.2.0
+- https://github.com/molmod/acid/tree/acid1
 - https://zenodo.org/records/18044643
 
 # The AutoCorrelation Integral Drill (ACID) 2 -- Dataset
