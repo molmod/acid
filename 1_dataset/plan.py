@@ -25,6 +25,7 @@ runpy(
     out=["output/codec.zip"],
 )
 
+zip_paths = []
 # Generate all ZIP files
 settings = loadns("settings.json", do_amend=True)
 for kernel in settings.kernels:
@@ -33,12 +34,14 @@ for kernel in settings.kernels:
         inp=["scripts/generate.py", "output/codec.zip", "settings.json"],
         out=[f"output/{kernel}.zip"],
     )
+    zip_paths.append(Path(f"output/{kernel}.zip"))
 
 # Generate summary plots, table and report.
 runpy("./${inp} ${out}", inp=["scripts/summarize.py", "settings.json"], out="output/kernels.csv")
+
 runpy(
     "./${inp} ${out}",
-    inp=["scripts/plot.py", "../matplotlibrc", "output/codec.zip", "settings.json"],
+    inp=["scripts/plot.py", "../matplotlibrc", "output/codec.zip", "settings.json", *zip_paths],
     out=["output/plot_seqs.svg", "output/plot_acs.svg", "output/plot_psds.svg"],
 )
 compile_typst("overview.typ", sysinp={"kernels": Path("output/kernels.csv")})

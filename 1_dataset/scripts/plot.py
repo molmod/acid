@@ -16,7 +16,9 @@ def main():
     for path_svg in [args.svg_seqs, args.svg_acs, args.svg_psds]:
         if not path_svg.endswith(".svg"):
             raise ValueError(f"Output path {path_svg} must end with .svg")
-    run(args.mplrc, args.codec, args.settings, args.svg_seqs, args.svg_acs, args.svg_psds)
+    run(
+        args.mplrc, args.codec, args.settings, args.zips, args.svg_seqs, args.svg_acs, args.svg_psds
+    )
 
 
 def parse_args():
@@ -37,6 +39,12 @@ def parse_args():
         "settings",
         type=Path,
         help="The settings.json file.",
+    )
+    parser.add_argument(
+        "zips",
+        type=Path,
+        nargs="+",
+        help="The input ZIP paths for each kernel.",
     )
     parser.add_argument(
         "svg_seqs",
@@ -60,6 +68,7 @@ def run(
     path_mplrc: Path,
     path_codec: Path,
     path_settings: Path,
+    paths_zip: Path,
     path_svg_seqs: Path,
     path_svg_acs: Path,
     path_svg_psds: Path,
@@ -75,8 +84,7 @@ def run(
     # Load the lookup table
     lookup_table = np.load(path_codec)["midpoint"]
 
-    for i, kernel in enumerate(settings["kernels"]):
-        path_kernel = Path(f"output/{kernel}.zip")
+    for i, path_kernel in enumerate(paths_zip):
         with zipfile.ZipFile(path_kernel) as zf, zf.open("meta.json") as f:
             meta = json.load(f)
         unzipped_kernel = np.load(path_kernel)

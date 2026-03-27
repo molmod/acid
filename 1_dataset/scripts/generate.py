@@ -73,8 +73,12 @@ def run(path_codec: Path, path_settings: Path, kernel: str, out: Path):
     nseqs = settings["nseqs"]
     nseed = settings["nseed"]
 
+    path_py = f"kernels/{kernel}.py"
+    amend(inp=path_py)
+    terms = run_path(path_py)["terms"]
+
     with zipfile.ZipFile(out, mode="w") as zf:
-        for istep, nstep in enumerate(nsteps):
+        for nstep in nsteps:
             nstep_path = Path(f"nstep{nstep:05d}/")
             if nstep % 2 != 0:
                 raise ValueError("Only an even nstep is supported.")
@@ -84,27 +88,7 @@ def run(path_codec: Path, path_settings: Path, kernel: str, out: Path):
             nfull = 2 * nstep
             times = np.arange(nfull, dtype=float)
             freqs = np.fft.rfftfreq(nfull)
-
-            path_py = f"kernels/{kernel}.py"
-            amend(inp=path_py)
-            terms = run_path(path_py)["terms"]
             psd, acf, corrtime_int, corrtime_exp, typst, latex = compute(terms, freqs, times)
-
-            if not istep:
-                dump_meta(
-                    "meta.json",
-                    zf,
-                    {
-                        "kernel": kernel,
-                        "nseed": nseed,
-                        "var": acf[0],
-                        "acint": psd[0],
-                        "corrtime_int": corrtime_int,
-                        "corrtime_exp": corrtime_exp,
-                        "typst": typst,
-                        "latex": latex,
-                    },
-                )
 
             dump_npy(nstep_path + "times.npy", zf, times[:nstep])
             dump_npy(nstep_path + "acf.npy", zf, acf[:nstep])
@@ -128,6 +112,21 @@ def run(path_codec: Path, path_settings: Path, kernel: str, out: Path):
                         raise ValueError("Negative ppfi values found")
                     ppfi = ppfi.astype(SEQ_DTYPE)
                     dump_npy(nseq_path + f"sequences_{iseed:02d}.npy", zf, ppfi)
+
+        dump_meta(
+            "meta.json",
+            zf,
+            {
+                "kernel": kernel,
+                "nseed": nseed,
+                "var": acf[0],
+                "acint": psd[0],
+                "corrtime_int": corrtime_int,
+                "corrtime_exp": corrtime_exp,
+                "typst": typst,
+                "latex": latex,
+            },
+        )
 
 
 if __name__ == "__main__":
