@@ -16,7 +16,9 @@ def main():
     for path_svg in [args.svg_seqs, args.svg_acs, args.svg_psds]:
         if not path_svg.endswith(".svg"):
             raise ValueError(f"Output path {path_svg} must end with .svg")
-    run(args.mplrc, args.codec, args.zips, args.svg_seqs, args.svg_acs, args.svg_psds)
+    run(
+        args.mplrc, args.codec, args.settings, args.zips, args.svg_seqs, args.svg_acs, args.svg_psds
+    )
 
 
 def parse_args():
@@ -34,10 +36,15 @@ def parse_args():
         help="The codec zip to decode the integers to floats",
     )
     parser.add_argument(
+        "settings",
+        type=Path,
+        help="The settings.json file.",
+    )
+    parser.add_argument(
         "zips",
         type=Path,
         nargs="+",
-        help="The input ZIP paths.",
+        help="The input ZIP paths for each kernel.",
     )
     parser.add_argument(
         "svg_seqs",
@@ -60,7 +67,8 @@ def parse_args():
 def run(
     path_mplrc: Path,
     path_codec: Path,
-    paths_zip: list[Path],
+    path_settings: Path,
+    paths_zip: Path,
     path_svg_seqs: Path,
     path_svg_acs: Path,
     path_svg_psds: Path,
@@ -70,25 +78,35 @@ def run(
     fig2, axs2 = plt.subplots(4, 3, figsize=(7, 10), sharex=True, sharey=True)
     fig3, axs3 = plt.subplots(4, 3, figsize=(7, 10), sharex=True, sharey=True)
 
+    with open(path_settings) as f0:
+        settings = json.load(f0)
+
     # Load the lookup table
     lookup_table = np.load(path_codec)["midpoint"]
 
-    for i, path_zip in enumerate(paths_zip):
-        with zipfile.ZipFile(path_zip) as zf, zf.open("meta.json") as f:
+    for i, path_kernel in enumerate(paths_zip):
+        with zipfile.ZipFile(path_kernel) as zf, zf.open("meta.json") as f:
             meta = json.load(f)
-        # Compute spectrum to be included in plot, only for first seed
+        unzipped_kernel = np.load(path_kernel)
+        sample_path = (
+            f"nstep{settings['nsteps'][0]:05d}/nseq{settings['nseqs'][-1]:04d}/sequences_00.npy"
+        )
+        step_path = f"nstep{settings['nsteps'][0]:05d}/"
+        times = unzipped_kernel[step_path + "times.npy"]
+        freqs = unzipped_kernel[step_path + "freqs.npy"]
+        acf = unzipped_kernel[step_path + "acf.npy"]
+        psd = unzipped_kernel[step_path + "psd.npy"]
         std = np.sqrt(meta["var"])
-        data = np.load(path_zip)
-        cdfi = data["sequences_00.npy"]
+        cdfi = unzipped_kernel[sample_path]
         sequences = lookup_table[cdfi] * std
         empirical_psd = compute_amplitudes(sequences)
         empirical_acf = np.fft.irfft(empirical_psd)
 
         row = i // 3
         col = i % 3
-        plot_seq(axs1[row, col], meta, data, sequences, row == 3, col == 0)
-        plot_ac(axs2[row, col], meta, data, empirical_acf, row == 3, col == 0)
-        plot_psd(axs3[row, col], meta, data, empirical_psd, row == 3, col == 0)
+        plot_seq(axs1[row, col], meta, times, sequences, row == 3, col == 0)
+        plot_ac(axs2[row, col], meta, times, acf, empirical_acf, row == 3, col == 0)
+        plot_psd(axs3[row, col], meta, freqs, psd, empirical_psd, row == 3, col == 0)
 
     fig1.savefig(path_svg_seqs)
     fig2.savefig(path_svg_acs)
@@ -139,9 +157,9 @@ def compute_amplitudes(sequences: NDArray[float], timestep: float = 1.0) -> NDAr
     return timestep * (abs(np.fft.rfft(sequences, axis=1)) ** 2).sum(axis=0) / (nstep * nindep)
 
 
-def plot_seq(ax, meta, data, sequences, xlabel, ylabel):
+def plot_seq(ax, meta, times, sequences, xlabel, ylabel):
     nstep = 150
-    times = data["times"][:nstep]
+    times = times[:nstep]
     ax.plot(times, sequences[0, :nstep])
     if xlabel:
         ax.set_xlabel("Time $t$")
@@ -150,10 +168,10 @@ def plot_seq(ax, meta, data, sequences, xlabel, ylabel):
     ax.set_title(meta["kernel"])
 
 
-def plot_ac(ax, meta, data, empirical_acf, xlabel, ylabel):
+def plot_ac(ax, meta, times, acf, empirical_acf, xlabel, ylabel):
     ndelta = 50
-    times = data["times"][:ndelta]
-    acf = data["acf"][:ndelta]
+    times = times[:ndelta]
+    acf = acf[:ndelta]
     ax.plot(times, acf, "k:", lw=2)
     ax.plot(times, empirical_acf[:ndelta], "r-")
     if xlabel:
@@ -163,11 +181,11 @@ def plot_ac(ax, meta, data, empirical_acf, xlabel, ylabel):
     ax.set_title(meta["kernel"])
 
 
-def plot_psd(ax, meta, data, empirical_psd, xlabel, ylabel):
-    freqs = data["freqs"][:]
+def plot_psd(ax, meta, freqs, psd, empirical_psd, xlabel, ylabel):
+    freqs = freqs[:]
     nfreq = freqs.searchsorted(0.1)
     freqs = freqs[:nfreq]
-    psd = data["psd"][:nfreq]
+    psd = psd[:nfreq]
     ax.plot(freqs, psd, "k:", lw=2)
     ax.plot(freqs, empirical_psd[:nfreq], "r-")
     if xlabel:

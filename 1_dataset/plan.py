@@ -14,7 +14,7 @@ wrap_git("git describe --tags", out="git-version.txt")
 wrap_git("git log -n1 --pretty='format:(%cs %h)'", out="git-date.txt")
 
 # Declare static files
-static("acid-dataset.typ", "settings.json", "../matplotlibrc", "kernels/", "lib/", "scripts/")
+static("overview.typ", "settings.json", "../matplotlibrc", "kernels/", "lib/", "scripts/")
 glob("kernels/*.py")
 glob("lib/*.py")
 glob("scripts/*.py")
@@ -25,26 +25,23 @@ runpy(
     out=["output/codec.zip"],
 )
 
+zip_paths = []
 # Generate all ZIP files
 settings = loadns("settings.json", do_amend=True)
-paths_examples = []
 for kernel in settings.kernels:
-    for nstep in settings.nsteps:
-        for nseq in settings.nseqs:
-            runpy(
-                f"./${{inp}} {kernel} {nstep} {nseq} {settings.nseed} ${{out}}",
-                inp=["scripts/generate.py", "output/codec.zip"],
-                out=f"output/{kernel}_nstep{nstep:05d}_nseq{nseq:04d}.zip",
-            )
-    paths_examples.append(
-        Path(f"output/{kernel}_nstep{settings.nsteps[0]:05d}_nseq{settings.nseqs[-1]:04d}.zip")
+    runpy(
+        f"./${{inp}} {kernel} ${{out}}",
+        inp=["scripts/generate.py", "output/codec.zip", "settings.json"],
+        out=[f"output/{kernel}.zip"],
     )
+    zip_paths.append(Path(f"output/{kernel}.zip"))
 
 # Generate summary plots, table and report.
 runpy("./${inp} ${out}", inp=["scripts/summarize.py", "settings.json"], out="output/kernels.csv")
+
 runpy(
     "./${inp} ${out}",
-    inp=["scripts/plot.py", "../matplotlibrc", "output/codec.zip", *paths_examples],
+    inp=["scripts/plot.py", "../matplotlibrc", "output/codec.zip", "settings.json", *zip_paths],
     out=["output/plot_seqs.svg", "output/plot_acs.svg", "output/plot_psds.svg"],
 )
-compile_typst("acid-dataset.typ", sysinp={"kernels": Path("output/kernels.csv")})
+compile_typst("overview.typ", sysinp={"kernels": Path("output/kernels.csv")})

@@ -16,7 +16,8 @@ A major refactoring of the ACID dataset.
 - More efficient storage of time series, using a customized integer encoding of real numbers.
   The encoding/decoding is stored in a file as part of the data generation.
 - Data is stored in ordinary ZIP files, mostly compatible with the NPZ format.
-  They also include a `meta.json` file with some metadata.
+- Data is now uploaded to Zenodo as one ZIP file per kernel instead of a single ZIP file containing the full dataset.
+  Each ZIP file also includes a `meta.json` file with metadata.
 
 ### Removed
 

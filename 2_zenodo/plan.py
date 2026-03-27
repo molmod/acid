@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-from stepup.core.api import glob, static
+from path import Path
+from stepup.core.api import glob, loadns, render_jinja, static
 from stepup.reprep.api import sync_zenodo, wrap_git
 
 glob("../.git/**", _defer=True)
@@ -8,14 +9,19 @@ wrap_git(
     out="2_zenodo/main.zip",
     workdir="../",
 )
+
+dataset_path = Path("../1_dataset/")
+output_path = Path("../1_dataset/output/")
+
 static(
     "zenodo.md",
-    "zenodo.yaml",
-    "../acid-dataset/",
-    "../acid-dataset/acid-dataset.pdf",
-    "../validation-stacie-report/",
-    "../validation-stacie-report/report-quad.pdf",
-    "../validation-stacie-report/report-lorentz.pdf",
+    "zenodo_yaml_template.yaml.jinja",
+    dataset_path,
+    dataset_path + "overview.pdf",
+    dataset_path + "settings.json",
+    output_path,
 )
+settings = loadns(dataset_path + "settings.json", do_amend=True)
+render_jinja("zenodo_yaml_template.yaml.jinja", {"kernels": settings.kernels}, "zenodo.yaml")
 glob("../LICENSE-*.txt")
 sync_zenodo("zenodo.yaml")

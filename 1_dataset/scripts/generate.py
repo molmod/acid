@@ -2,6 +2,7 @@
 """Generate test sets for a specific kernel, nstep and nseq."""
 
 import argparse
+import json
 import zipfile
 from runpy import run_path
 
@@ -18,7 +19,7 @@ IMAX = np.iinfo(SEQ_DTYPE).max + 1
 
 def main():
     args = parse_args()
-    run(args.codec, args.kernel, args.nstep, args.nseq, args.nseed, args.out)
+    run(args.codec, args.settings, args.kernel, args.out)
 
 
 def parse_args():
@@ -31,24 +32,14 @@ def parse_args():
         help="The codec zip to encode the floats into integers.",
     )
     parser.add_argument(
+        "settings",
+        type=str,
+        help="The settings.json that contains the nsteps, nseqs, and nseeds.",
+    )
+    parser.add_argument(
         "kernel",
         type=str,
         help="The kernel to use.",
-    )
-    parser.add_argument(
-        "nstep",
-        type=int,
-        help="The number of steps in a sequence.",
-    )
-    parser.add_argument(
-        "nseq",
-        type=int,
-        help="The number of sequences.",
-    )
-    parser.add_argument(
-        "nseed",
-        type=int,
-        help="The number of repeats with different seeds.",
     )
     parser.add_argument(
         "out",
@@ -58,53 +49,75 @@ def parse_args():
     return parser.parse_args()
 
 
-def run(path_codec: Path, kernel: str, nstep: int, nseq: int, nseed: int, out: Path):
+def run(path_codec: Path, path_settings: Path, kernel: str, out: Path):
     """Write synthetic time-correlated data to a ZIP file.
 
     Parameters
     ----------
-    path_lookup
-        The npy file that contains the lookup table to map the floats to integers
-    out
-        The output ZIP path.
+    path_codec
+        The npy file that contains the lookup table to map the floats to integers.
+    path_settings
+        The settings.json that contains the nsteps, nseqs, and nseeds.
     kernel
         The kernel to use.
-    nstep
-        The number of steps in a sequence.
-    nseq
-        The number of sequences.
-    nseed
-        The number of repeats with different seeds.
+    out
+        The output ZIP path.
     """
-    if nstep % 2 != 0:
-        raise ValueError("Only an even nstep is supported.")
+    # Load the lookup table
+    lookup_table = np.load(path_codec)["boundary"]
 
-    # Generate 2 times as much and discard the second half
-    # to create an aperiodic input with the right spectrum
-    nfull = 2 * nstep
-    times = np.arange(nfull, dtype=float)
-    freqs = np.fft.rfftfreq(nfull)
+    with open(path_settings) as f:
+        settings = json.load(f)
+
+    nsteps = settings["nsteps"]
+    nseqs = settings["nseqs"]
+    nseed = settings["nseed"]
 
     path_py = f"kernels/{kernel}.py"
     amend(inp=path_py)
     terms = run_path(path_py)["terms"]
-    psd, acf, corrtime_int, corrtime_exp, typst, latex = compute(terms, freqs, times)
-
-    # Create ZIP archive with data and metadata.
-    tmp_root = Path("./tmp/")
-    tmp_root.mkdir_p()
-
-    # Load the lookup table
-    lookup_table = np.load(path_codec)["boundary"]
 
     with zipfile.ZipFile(out, mode="w") as zf:
+        for nstep in nsteps:
+            nstep_path = Path(f"nstep{nstep:05d}/")
+            if nstep % 2 != 0:
+                raise ValueError("Only an even nstep is supported.")
+
+            # Generate 2 times as much and discard the second half
+            # to create an aperiodic input with the right spectrum
+            nfull = 2 * nstep
+            times = np.arange(nfull, dtype=float)
+            freqs = np.fft.rfftfreq(nfull)
+            psd, acf, corrtime_int, corrtime_exp, typst, latex = compute(terms, freqs, times)
+
+            dump_npy(nstep_path + "times.npy", zf, times[:nstep])
+            dump_npy(nstep_path + "acf.npy", zf, acf[:nstep])
+            dump_npy(nstep_path + "freqs.npy", zf, freqs[::2])
+            dump_npy(nstep_path + "psd.npy", zf, psd[::2])
+
+            std = np.sqrt(acf[0])
+
+            for nseq in nseqs:
+                nseq_path = nstep_path + f"nseq{nseq:04d}/"
+                for iseed in range(nseed):
+                    seed = np.frombuffer(f"{iseed:d}{out}".encode("ascii"), dtype=np.uint8)
+                    rng = np.random.default_rng(seed)
+                    # Generate the sequence
+                    sequence = generate(psd, 1.0, nseq, nstep, rng)
+                    # Map to uint16 representation
+                    ppfi = lookup_integer(sequence, std, lookup_table)
+                    if ppfi.max() >= IMAX:
+                        raise ValueError(f"ppfi exceeds {IMAX - 1}")
+                    if ppfi.min() < 0:
+                        raise ValueError("Negative ppfi values found")
+                    ppfi = ppfi.astype(SEQ_DTYPE)
+                    dump_npy(nseq_path + f"sequences_{iseed:02d}.npy", zf, ppfi)
+
         dump_meta(
             "meta.json",
             zf,
             {
                 "kernel": kernel,
-                "nstep": nstep,
-                "nseq": nseq,
                 "nseed": nseed,
                 "var": acf[0],
                 "acint": psd[0],
@@ -114,24 +127,6 @@ def run(path_codec: Path, kernel: str, nstep: int, nseq: int, nseed: int, out: P
                 "latex": latex,
             },
         )
-        dump_npy("times.npy", zf, times[:nstep])
-        dump_npy("acf.npy", zf, acf[:nstep])
-        dump_npy("freqs.npy", zf, freqs[::2])
-        dump_npy("psd.npy", zf, psd[::2])
-        std = np.sqrt(acf[0])
-        for iseed in range(nseed):
-            seed = np.frombuffer(f"{iseed:d}{out}".encode("ascii"), dtype=np.uint8)
-            rng = np.random.default_rng(seed)
-            # Generate the sequence
-            sequence = generate(psd, 1.0, nseq, nstep, rng)
-            # Map to uint16 representation
-            ppfi = lookup_integer(sequence, std, lookup_table)
-            if ppfi.max() >= IMAX:
-                raise ValueError(f"ppfi exceeds {IMAX - 1}")
-            if ppfi.min() < 0:
-                raise ValueError("Negative ppfi values found")
-            ppfi = ppfi.astype(SEQ_DTYPE)
-            dump_npy(f"sequences_{iseed:02d}.npy", zf, ppfi)
 
 
 if __name__ == "__main__":
