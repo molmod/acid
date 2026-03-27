@@ -103,7 +103,7 @@ $
       c(Delta_t) = C_0 pi f_0 Q exp(-(pi f_0 Delta_t)/Q) cases(
          cosh(eta 2 pi f_0 Delta_t) + 1/(2 eta Q) sinh(eta 2 pi f_0 Delta_t)
          & quad "if" quad 0 < Q < 1/2,
-         1 + 2 pi f_0 tau
+         1 + 2 pi f_0 Delta_t
          & quad "if" quad Q = 1/2,
          cos(eta 2 pi f_0 Delta_t) + 1/(2 eta Q) sin(eta 2 pi f_0 Delta_t)
          &quad "if" quad Q > 1/2
@@ -123,7 +123,7 @@ $
    $
 
    where $Q$ represents the quality of the oscillator, $f_0$ is the angular resonant frequency, and $C_0$ is the zero-frequency limit of the spectrum.
-   (Note that Foreman-Mackeyet al. use a parameter $S_0=2C_0$, a unitary normalization convention for the Fourier transform and an angular frequency. These differences are only a matter of notation.)
+   (Note that Foreman-Mackey et al. use a parameter $S_0=C_0/2$, a unitary normalization convention for the Fourier transform and an angular frequency. These differences are only a matter of notation.)
 
    This model will be denoted as $upright(S)(C_0, f_0, Q)$
 
