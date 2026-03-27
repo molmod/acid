@@ -123,7 +123,7 @@ $
    $
 
    where $Q$ represents the quality of the oscillator, $f_0$ is the angular resonant frequency, and $C_0$ is the zero-frequency limit of the spectrum.
-   (Note that Foreman-Mackeyet al. use a parameter $S_0=2C_0$, a unitary normalization convention for the Fourier transform and an angular frequency. These differences are only a matter of notation.)
+   (Note that Foreman-Mackeyet al. use a parameter $S_0=C_0/2$, a unitary normalization convention for the Fourier transform and an angular frequency. These differences are only a matter of notation.)
 
    This model will be denoted as $upright(S)(C_0, f_0, Q)$
 
