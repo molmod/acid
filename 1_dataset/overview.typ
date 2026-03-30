@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: © 2026 ACID Contributors <https://doi.org/10.5281/zenodo.15722902>
+// SPDX-License-Identifier: CC-BY-SA-4.0
+
 #set page("a4", margin: 2cm, numbering: "1 / 1")
 #show link: set text(blue)
 #show table.cell.where(y: 0): set text(weight: "bold")

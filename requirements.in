@@ -1,7 +1,11 @@
+# SPDX-FileCopyrightText: © 2026 ACID Contributors <https://doi.org/10.5281/zenodo.15722902>
+# SPDX-License-Identifier: CC-BY-SA-4.0
+
 matplotlib==3.10.8
 numpy==2.4.2
 path==17.1.1
 pre-commit==4.5.1
+reuse==6.2.0
 scipy==1.17.1
 stepup==3.2.2
 stepup-reprep==3.1.8
