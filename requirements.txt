@@ -13,6 +13,7 @@ attrs==25.4.0
     #   cattrs
     #   jsonschema
     #   referencing
+    #   reuse
     #   stacie
     #   stepup
     #   stepup-reprep
@@ -20,6 +21,8 @@ beautifulsoup4==4.14.3
     # via nbconvert
 bleach[css]==6.3.0
     # via nbconvert
+boolean-py==5.0
+    # via license-expression
 brotli==1.2.0
     # via fonttools
 cattrs==26.1.0
@@ -31,9 +34,13 @@ cffi==2.0.0
 cfgv==3.5.0
     # via pre-commit
 charset-normalizer==3.4.5
-    # via requests
+    # via
+    #   python-debian
+    #   requests
 click==8.3.1
-    # via papermill
+    # via
+    #   papermill
+    #   reuse
 comm==0.2.3
     # via ipykernel
 contourpy==1.3.3
@@ -87,6 +94,7 @@ jedi==0.19.2
 jinja2==3.1.6
     # via
     #   nbconvert
+    #   reuse
     #   stepup
 jsonschema==4.26.0
     # via nbformat
@@ -109,6 +117,8 @@ kiwisolver==1.5.0
     # via matplotlib
 lark==1.3.1
     # via stepup-reprep
+license-expression==30.4.4
+    # via reuse
 markdown-it-py==4.0.0
     # via
     #   mdit-py-plugins
@@ -222,8 +232,12 @@ python-dateutil==2.9.0.post0
     # via
     #   jupyter-client
     #   matplotlib
+python-debian==1.1.0
+    # via reuse
 python-discovery==1.1.2
     # via virtualenv
+python-magic==0.4.27
+    # via reuse
 pyyaml==6.0.3
     # via
     #   papermill
@@ -242,6 +256,8 @@ requests==2.32.5
     # via
     #   papermill
     #   stepup-reprep
+reuse==6.2.0
+    # via -r requirements.in
 rich==14.3.3
     # via stepup
 rpds-py==0.30.0
@@ -280,6 +296,8 @@ tinycss2==1.4.0
     #   weasyprint
 tinyhtml5==2.1.0
     # via weasyprint
+tomlkit==0.14.0
+    # via reuse
 tornado==6.5.4
     # via
     #   ipykernel

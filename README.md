@@ -1,3 +1,8 @@
+<!--
+SPDX-FileCopyrightText: © 2026 ACID Contributors <https://doi.org/10.5281/zenodo.15722902>
+SPDX-License-Identifier: CC-BY-SA-4.0
+-->
+
 :rotating_light:
 This repository is being refactored to prepare for the next major release, ACID 2.
 The information below describes how ACID 2 will be organized after the refactoring has been completed.
@@ -31,16 +36,21 @@ A description, the full data and and an archived copy of this repository can be 
 
 ## License
 
-All files in this dataset are distributed under a choice of license:
-either the Creative Commons Attribution-ShareAlike 4.0 International license (CC BY-SA 4.0)
-or the GNU Lesser General Public License, version 3 or later (LGPL-v3+).
-The SPDX License Expression for the documentation is `CC-BY-SA-4.0 OR LGPL-3.0-or-later`.
+## License
 
-You should have received a copy of the CC BY-SA 4.0 and LGPL-v3+ licenses along with the data set.
-If not, see:
+The copyright disclaimer and license conditions are specified at the beginning of each file in the repository,
+or, when the header cannot be edited, in the `RESUSE.toml` file.
+
+In summary, the majority of the files in this repository are licensed under
+the Creative Commons Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0).
+The main exceptions are the Python files, which have a choice of license between
+CC BY-SA 4.0 and the GNU Lesser General Public License v3.0 or later (LGPL-3.0-or-later).
+
+License deeds and legal code for all licenses used in this repository are available in the `LICENSES/` directory.
+They can also be consulted online at the following URLs:
 
 - <https://creativecommons.org/licenses/by-sa/4.0/>
-- <https://www.gnu.org/licenses/>
+- <https://www.gnu.org/licenses/lgpl-3.0.html>
 
 ## Citation
 

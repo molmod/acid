@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: © 2026 ACID Contributors <https://doi.org/10.5281/zenodo.15722902>
+# SPDX-License-Identifier: CC-BY-SA-4.0
+
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v6.0.0
@@ -39,3 +42,7 @@ repos:
   rev: 1.0.0  # Use the ref you want to point at
   hooks:
   - id: mdformat
+- repo: https://github.com/fsfe/reuse-tool
+  rev: v6.2.0
+  hooks:
+  - id: reuse
