@@ -9,9 +9,8 @@ import zipfile
 from runpy import run_path
 
 import numpy as np
-from kernels import compute
+from kernels import compute, sample
 from path import Path
-from stacie.synthetic import generate
 from stepup.core.api import amend
 from utils import dump_meta, dump_npy, lookup_integer
 
@@ -105,7 +104,7 @@ def run(path_codec: Path, path_settings: Path, kernel: str, out: Path):
                     seed = np.frombuffer(f"{iseed:d}{out}".encode("ascii"), dtype=np.uint8)
                     rng = np.random.default_rng(seed)
                     # Generate the sequence
-                    sequence = generate(psd, 1.0, nseq, nstep, rng)
+                    sequence = sample(terms, nseq, nstep, rng)
                     # Map to uint16 representation
                     ppfi = lookup_integer(sequence, std, lookup_table)
                     if ppfi.max() >= IMAX:
