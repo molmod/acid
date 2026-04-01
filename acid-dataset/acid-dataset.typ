@@ -184,7 +184,7 @@ This has two important implications on the data:
 - It guarantees that also the shortest synthetic sequences (1024 steps) are just long enough
   to capture the slowest time correlations.
   (For longer sequences, the deviation from the quadratic fit are much smaller.)
-- For the spectra averaged over 256 sequences,   the relative error is about $1/sqrt(256)$, which corresponds to 6.25%.
+- For the spectra averaged over 256 sequences, the relative error is about $1/sqrt(256)$, which corresponds to 6.25%.
   This is larger than the systematic deviation between the quadratic model and the real PSD
   for the first 20 points.
 
