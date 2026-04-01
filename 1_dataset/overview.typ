@@ -61,7 +61,7 @@ If not, see:
 = Overview of the data
 
 Covariance kernels are constructed with one or two of the following three models.
-In all models, the parameter $C_0$ corresponds to the integral of the autocorrelation function for that specific contribution.
+In all models, the parameter $A_0$ corresponds to the integral of the autocorrelation function for that specific contribution.
 The three kernel models in continuous time and frequency domains are described by their autocorrelation function (ACF):
 
 $
@@ -77,40 +77,40 @@ $
 1. The *white noise* model consists of uncorrelated data and has the following ACF:
 
    $
-       c(Delta_t) = C_0 delta(Delta_t)
+       c(Delta_t) = A_0 delta(Delta_t)
    $
 
    The PSD is constant:
 
    $
-       C(f) = C_0
+       C(f) = A_0
    $
 
-   This model will be denoted as $upright(W)(C_0)$.
+   This model will be denoted as $upright(W)(A_0)$.
 
 2. The *exponential model* has an exponentially decaying ACF:
 
    $
-       c(Delta_t) = C_0/(2 tau) exp (-abs(Delta_t)/tau)
+       c(Delta_t) = A_0/(2 tau) exp (-abs(Delta_t)/tau)
    $
 
-   where $tau$ is the exponential autocorrelation time and $C_0$ is the integral of the autocorrelation function.
+   where $tau$ is the exponential autocorrelation time and $A_0$ is the integral of the autocorrelation function.
    The PSD is:
 
    $
-       C(f) = C_0/(1 + (2 pi f tau)^2)
+       C(f) = A_0/(1 + (2 pi f tau)^2)
    $
 
-   This model will be denoted as $upright(E)(C_0, tau)$.
+   This model will be denoted as $upright(E)(A_0, tau)$.
 
 3. The *stochastic harmonic oscillator* was adapted from #link("https://doi.org/10.3847/1538-3881/aa9332", [the work of Foreman-Mackey et al.])
    It's ACF (with modified normalization conventions) is:
 
    $
-      c(Delta_t) = C_0 pi f_0 Q exp(-(pi f_0 Delta_t)/Q) cases(
+      c(Delta_t) = A_0 pi f_0 Q exp(-(pi f_0 Delta_t)/Q) cases(
          cosh(eta 2 pi f_0 Delta_t) + 1/(2 eta Q) sinh(eta 2 pi f_0 Delta_t)
          & quad "if" quad 0 < Q < 1/2,
-         1 + 2 pi f_0 tau
+         1 + 2 pi f_0 Delta_t
          & quad "if" quad Q = 1/2,
          cos(eta 2 pi f_0 Delta_t) + 1/(2 eta Q) sin(eta 2 pi f_0 Delta_t)
          &quad "if" quad Q > 1/2
@@ -126,13 +126,13 @@ $
    The PSD is:
 
    $
-       C(f) = (C_0 f_0^4)/((f^2 - f_0^2)^2 + (f f_0\/Q)^2)
+       C(f) = (A_0 f_0^4)/((f^2 - f_0^2)^2 + (f f_0\/Q)^2)
    $
 
-   where $Q$ represents the quality of the oscillator, $f_0$ is the angular resonant frequency, and $C_0$ is the zero-frequency limit of the spectrum.
-   (Note that Foreman-Mackeyet al. use a parameter $S_0=2C_0$, a unitary normalization convention for the Fourier transform and an angular frequency. These differences are only a matter of notation.)
+   where $Q$ represents the quality of the oscillator, $f_0$ is the angular resonant frequency, and $A_0$ is the zero-frequency limit of the spectrum.
+   (Note that Foreman-Mackeyet al. use a parameter $S_0=A_0/2$, a unitary normalization convention for the Fourier transform and an angular frequency. These differences are only a matter of notation.)
 
-   This model will be denoted as $upright(S)(C_0, f_0, Q)$
+   This model will be denoted as $upright(S)(A_0, f_0, Q)$
 
 Using these three models, 12 covariance kernels are defined in @tab-summary and were used to generated time-correlated sequences.
 
@@ -191,7 +191,7 @@ This has two important implications on the data:
 - It guarantees that also the shortest synthetic sequences (1024 steps) are just long enough
   to capture the slowest time correlations.
   (For longer sequences, the deviation from the quadratic fit are much smaller.)
-- For the spectra averaged over 256 sequences,   the relative error is about $1/sqrt(256)$, which corresponds to 6.25%.
+- For the spectra averaged over 256 sequences, the relative error is about $1/sqrt(256)$, which corresponds to 6.25%.
   This is larger than the systematic deviation between the quadratic model and the real PSD
   for the first 20 points.
 
