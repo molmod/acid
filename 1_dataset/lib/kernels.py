@@ -81,20 +81,14 @@ class SHOTerm(BaseTerm):
         return acf, psd
 
     def sample(self, nseq: int, nstep: int, rng: np.random.Generator) -> NDArray[float]:
-        x0 = rng.normal(0, np.sqrt(self.c0), size=nseq)
-        v0 = rng.normal(0, np.sqrt(self.c0 / 2 * (2 * np.pi * self.f0) ** 3), size=nseq)
-
-        traj = np.zeros((2, nseq, nstep))
-        traj[0, :, 0] = x0
-        traj[1, :, 0] = v0
-
         noise = rng.multivariate_normal(np.zeros(2), self.covar, size=(nseq, nstep)).transpose(
             2, 0, 1
         )
+        traj = np.zeros((2, nseq, nstep))
+        traj[:, :, 0] = noise[:, :, 0]
 
         for istep in range(1, nstep):
             traj[:, :, istep] = noise[:, :, istep] + self.matexp @ traj[:, :, istep - 1]
-
         return traj[0, :, :]
 
 
@@ -118,13 +112,9 @@ class ExpTerm(BaseTerm):
     def sample(self, nseq: int, nstep: int, rng: np.random.Generator) -> NDArray[float]:
         traj = np.zeros((nseq, nstep))
         var = self.c0 / (2 * self.tau)
-        x0 = rng.normal(0, self.c0 / (2 * self.tau), size=(nseq))
-
-        traj[:, 0] = x0
-
-        prop = np.exp(-1 / self.tau)
         noise = rng.normal(0, np.sqrt(var * (1 - np.exp(-2 / self.tau))), size=(nseq, nstep))
-
+        traj[:, 0] = noise[:, 0]
+        prop = np.exp(-1 / self.tau)
         for istep in range(1, nstep):
             traj[:, istep] = noise[:, istep] + prop * traj[:, istep - 1]
 
