@@ -62,6 +62,7 @@ If not, see:
 
 Covariance kernels are constructed with one or two of the following three models.
 In all models, the parameter $A_0$ corresponds to the integral of the autocorrelation function for that specific contribution.
+This value is equal to the zero-frequency limit of the power spectral density.
 The three kernel models in continuous time and frequency domains are described by their autocorrelation function (ACF):
 
 $
@@ -94,7 +95,7 @@ $
        c(Delta_t) = A_0/(2 tau) exp (-abs(Delta_t)/tau)
    $
 
-   where $tau$ is the exponential autocorrelation time and $A_0$ is the integral of the autocorrelation function.
+   where $tau$ is the exponential autocorrelation time.
    The PSD is:
 
    $
@@ -129,7 +130,7 @@ $
        C(f) = (A_0 f_0^4)/((f^2 - f_0^2)^2 + (f f_0\/Q)^2)
    $
 
-   where $Q$ represents the quality of the oscillator, $f_0$ is the resonant frequency, and $A_0$ is the zero-frequency limit of the spectrum.
+   where $Q$ represents the quality of the oscillator and $f_0$ is the resonant frequency.
    (Note that Foreman-Mackey et al. use a parameter $S_0=A_0/2$, a unitary normalization convention for the Fourier transform, and an angular frequency. These differences are only a matter of notation.)
 
    This model will be denoted as $upright(S)(A_0, f_0, Q)$.
@@ -184,7 +185,8 @@ Example sequences, ACFs and PSDs for all kernels are shown in @fig-seqs, @fig-ac
 ) <fig-psds>
 
 All kernels have an autocorrelation integral of 1.
-They are parametrized to have an almost quadratic PSD close to zero frequency, with deviations less than 2.5% RMS for the first 20 grid points of the spectrum and less than 10% for the first 40 points.
+This is achieved by choosing the $A_0$ parameters of the models used in each kernel such that the sum of their autocorrelation integrals equals one.
+The kernels are parametrized to have an almost quadratic PSD close to zero frequency, with deviations less than 2.5% RMS for the first 20 grid points of the spectrum and less than 10% for the first 40 points.
 This has two important implications on the data:
 
 - It guarantees that also the shortest synthetic sequences (1024 steps) are just long enough
