@@ -24,8 +24,8 @@
 
   Robbe Bohy,#super[†¶] Gözdenur Toraman,#super[†] Dieter Fauconnier,#super[†⁰] and Toon Verstraelen#super[✶¶]
 
-  † Soete Laboratory, Ghent University, Technologiepark-Zwijnaarde 46, 9052 Ghent, Belgium\
-  ⁰ FlandersMake\@UGent, Core Lab MIRO, 3001 Leuven, Belgium\
+  † Soete Laboratory, Ghent University, Technologiepark-Zwijnaarde 46, B-9052 Ghent, Belgium\
+  ⁰ FlandersMake\@UGent, Core Lab MIRO, B-3001 Leuven, Belgium\
   ¶ Center for Molecular Modeling (CMM), Ghent University, Technologiepark-Zwijnaarde
   46, B-9052, Ghent, Belgium
 
@@ -56,7 +56,7 @@ You should have received a copy of the CC BY-SA 4.0 and LGPL-v3+ licenses along 
 If not, see:
 
 - https://creativecommons.org/licenses/by-sa/4.0/
-- https://www.gnu.org/licenses/
+- https://www.gnu.org/licenses/lgpl-3.0.html
 
 = Overview of the data
 
@@ -68,7 +68,7 @@ $
   c(Delta_t) = upright("COV")[ hat(x)(t), hat(x)(t + Delta_t)]
 $
 
-or equivalently their power spectral distribution (PSD):
+or equivalently their power spectral density (PSD):
 
 $
   C(f) = integral_(-infinity)^infinity c(Delta_t) e^(-2 pi i f Delta_t) dif Delta_t
@@ -104,7 +104,7 @@ $
    This model will be denoted as $upright(E)(A_0, tau)$.
 
 3. The *stochastic harmonic oscillator* was adapted from #link("https://doi.org/10.3847/1538-3881/aa9332", [the work of Foreman-Mackey et al.])
-   It's ACF (with modified normalization conventions) is:
+   Its ACF (with modified normalization conventions) is:
 
    $
       c(Delta_t) = A_0 pi f_0 Q exp(-(pi f_0 Delta_t)/Q) cases(
@@ -129,10 +129,10 @@ $
        C(f) = (A_0 f_0^4)/((f^2 - f_0^2)^2 + (f f_0\/Q)^2)
    $
 
-   where $Q$ represents the quality of the oscillator, $f_0$ is the angular resonant frequency, and $A_0$ is the zero-frequency limit of the spectrum.
-   (Note that Foreman-Mackeyet al. use a parameter $S_0=A_0/2$, a unitary normalization convention for the Fourier transform and an angular frequency. These differences are only a matter of notation.)
+   where $Q$ represents the quality of the oscillator, $f_0$ is the resonant frequency, and $A_0$ is the zero-frequency limit of the spectrum.
+   (Note that Foreman-Mackey et al. use a parameter $S_0=A_0/2$, a unitary normalization convention for the Fourier transform, and an angular frequency. These differences are only a matter of notation.)
 
-   This model will be denoted as $upright(S)(A_0, f_0, Q)$
+   This model will be denoted as $upright(S)(A_0, f_0, Q)$.
 
 Using these three models, 12 covariance kernels are defined in @tab-summary and were used to generated time-correlated sequences.
 
@@ -149,12 +149,11 @@ Using these three models, 12 covariance kernels are defined in @tab-summary and 
   caption: [Summary of kernels used in the ACID test set.]
 ) <tab-summary>
 
-For each kernel, sequences with $N =$ 1024, 4096, 16384 and 65536 steps are generated, using a dimensionless time step $h=1$.
-(In fact, sequences of double this length are generated with a discrete Fourier transform and the second half is discarded to obtain aperiodic sequences.)
+For each kernel, sequences with $N =$ 1024, 4096, 16384, and 65536 steps are generated, using a dimensionless time step $h=1$.
 For each kernel and each number of steps, independent test cases are created comprising $M =$ 1, 4, 16, 64, and 256 independent sequences.
 To ensure statistical robustness, 64 repetitions with unique random seeds are included for every combination of kernel, number of steps and number of sequences.
 
-Example sequences, ACFs and PSDs for all kernels are shown in Figures @fig-seqs, @fig-acs and @fig-psds, respectively.
+Example sequences, ACFs and PSDs for all kernels are shown in @fig-seqs, @fig-acs, and @fig-psds, respectively.
 
 #figure(
   image("output/plot_seqs.svg"),
@@ -170,17 +169,17 @@ Example sequences, ACFs and PSDs for all kernels are shown in Figures @fig-seqs,
     Autocorrelation functions of the kernels.
     The analytical model is plotted as a dotted black line.
     The empirical ACF derived from the first out of 64 test cases
-    for $N=1024$ and $M=256$ is plotted as a red solid line.
+    for $N=1024$ and $M=256$ is plotted as a solid red line.
   ]
 ) <fig-acs>
 
 #figure(
   image("output/plot_psds.svg"),
   caption: [
-    Power spectral distributions (PSDs) of the kernels.
+    Power spectral densities of the kernels.
     The analytical model is plotted as a dotted black line.
     The empirical PSD (periodogram) derived from the first out of 64 test cases
-    for $N=1024$ and $M=256$ is plotted as a red solid line.
+    for $N=1024$ and $M=256$ is plotted as a solid red line.
   ]
 ) <fig-psds>
 
@@ -195,7 +194,7 @@ This has two important implications on the data:
   This is larger than the systematic deviation between the quadratic model and the real PSD
   for the first 20 points.
 
-For each combination of kernel, sequence length and number of sequences, data are stored in uncompressed ZIP archives, using the pattern `{kernel_name}_nstep{nstep:05d}_nseq{nseq:04d}.zip`.
+For each combination of kernel, sequence length, and number of sequences, data are stored in uncompressed ZIP archives, using the pattern `{kernel_name}_nstep{nstep:05d}_nseq{nseq:04d}.zip`.
 (Due to the efficient encoding discussed below, compression saves less than 1%.)
 The data and metadata stored in each ZIP file are described in @tab-zip and @tab-meta, respectively.
 
@@ -204,7 +203,7 @@ The data and metadata stored in each ZIP file are described in @tab-zip and @tab
     columns: 2,
     align: left,
     table.header([filename], [Description]),
-    `meta.json`, [Metadate described in @tab-meta],
+    `meta.json`, [Metadata described in @tab-meta],
     `times.npy`, [The time axis of the sequences],
     `freqs.npy`, [The frequency axis of the power spectrum],
     `psd.npy`, [The reference power spectrum with normalization conventions given above],
@@ -223,8 +222,6 @@ The data and metadata stored in each ZIP file are described in @tab-zip and @tab
     align: left,
     table.header([key], [Description]),
     `kernel`, [The name of the kernel, e.g. `exp1w`],
-    `nstep`, [The number of steps in the sequences],
-    `nseq`, [The number of sequences],
     `nseed`, [The number of random seeds used for repetitions of the same test],
     `acint`, [The autocorrelation integral],
     `var`, [The variance of the sequences],
@@ -244,7 +241,7 @@ and is also equal to `psd[0]`.
 The sequences are encoded as unsigned integers.
 They can be converted back to floating-point numbers as shown in @code-decode.
 The ZIP file is also a valid NPZ file, and arrays (not metadata) can be accessed with `numpy.load`,
-as shown in @code-numpy
+as shown in @code-numpy.
 
 #figure(
   box(
@@ -280,7 +277,8 @@ as shown in @code-numpy
     ```python
     import numpy as np
 
-    freqs = np.load("exp1w_nstep01024_nseq0256.zip")["freqs.npy"]
+    freqs = np.load("exp1w.zip")["nstep_1024/freqs.npy"]
+    traj = np.load("exp1w.zip")["nstep_1024/nseq_64/sequences_00.npy"]
     ```
   ),
   caption: [
@@ -306,11 +304,13 @@ where `8` is the number of parallel workers.
 
 = Remark on determinism
 
-The data generation scripts are fully deterministic, meaning that running them multiple times on the same hardware and software environment will yield identical results.
-However, due to differences in floating-point arithmetic across different hardware architectures and software versions,
-running the StepUp workflow on different systems may lead to different time series.
-(Even with identical data, the hashes of the ZIP files may differ due to operating system details and software versions.)
-These differences should not affect the overall validity of the dataset, but they may impact the exact values derived from an analysis.
+The data generation scripts are fully deterministic,
+meaning that running them multiple times on the same hardware and software environment will yield identical results.
+However, differences in floating-point arithmetic across hardware architectures and software versions can cause the
+StepUp workflow to produce different time series on different systems.
+Even when the numerical results are identical,
+the hashes of the ZIP files may differ because of operating system details and software versions.
+These differences do not affect the overall validity of the dataset, but they may impact the exact numerical values derived from an analysis.
 
 = Software used
 
