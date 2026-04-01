@@ -196,25 +196,25 @@ This has two important implications on the data:
   This is larger than the systematic deviation between the quadratic model and the real PSD
   for the first 20 points.
 
-For each combination of kernel, sequence length, and number of sequences, data are stored in uncompressed ZIP archives, using the pattern `{kernel_name}_nstep{nstep:05d}_nseq{nseq:04d}.zip`.
-(Due to the efficient encoding discussed below, compression saves less than 1%.)
+For each kernel, data are stored in uncompressed ZIP archives, using the pattern `{kernel_name}.zip`.
+(Due to the efficient encoding discussed below, compression would save less than 1%.)
 The data and metadata stored in each ZIP file are described in @tab-zip and @tab-meta, respectively.
-
 #figure(
   table(
     columns: 2,
     align: left,
     table.header([filename], [Description]),
     `meta.json`, [Metadata described in @tab-meta],
-    `times.npy`, [The time axis of the sequences],
-    `freqs.npy`, [The frequency axis of the power spectrum],
-    `psd.npy`, [The reference power spectrum with normalization conventions given above],
-    `acf.npy`, [The reference autocorrelation function],
-    `sequences_00.npy`, [The stochastic time-dependent sequences, first seed],
-    [...],[],
-    `sequences_63.npy`, [The stochastic time-dependent sequences, last seed],
+    `nstepXXXXX/times.npy`, [Time axis for $N$ = `XXXXX`],
+    `nstepXXXXX/freqs.npy`, [Frequency axis of the power spectrum for $N$ = `XXXXX`],
+    `nstepXXXXX/psd.npy`, [Reference power spectral density for $N$ = `XXXXX`],
+    `nstepXXXXX/acf.npy`, [Reference autocorrelation function for $N$ = `XXXXX`],
+    `nstepXXXXX/nseqYYYY/sequences_ZZ.npy`,
+    [
+      Stochastic sequences for a given $N$ = `XXXXX`, $M$ = `YYYY`, and seed index `ZZ`
+    ],
   ),
-  caption: [Overview of data stored in each ZIP file.]
+  caption: [Overview of data stored in each ZIP file. The dataset is organized in subdirectories grouped by the number of steps (`nstepXXXXX`) and the number of sequences (`nseqYYYY`). Inside each `nstepXXXXX/nseqYYYY/` subfolder, the files `sequences_ZZ.npy` store the stochastic time-dependent sequences, with the seed index `ZZ` running from 00 to 63.],
 ) <tab-zip>
 
 
