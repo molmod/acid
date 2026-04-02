@@ -135,7 +135,12 @@ $
 
    This model will be denoted as $upright(S)(A_0, f_0, Q)$.
 
-Using these three models, 12 covariance kernels are defined in @tab-summary and were used to generated time-correlated sequences.
+Using these three models, 12 covariance kernels are defined in @tab-summary and were used to generate time-correlated sequences,
+where the integrated correlation times ($tau_"int"$) are calculated using
+
+$
+      1/2 C(f = 0) / c(Delta_t = 0)
+$
 
 #let kernels = csv(sys.inputs.kernels)
 #figure(
@@ -151,8 +156,8 @@ Using these three models, 12 covariance kernels are defined in @tab-summary and 
 ) <tab-summary>
 
 For each kernel, sequences with $N =$ 1024, 4096, 16384, and 65536 steps are generated, using a dimensionless time step $h=1$.
-For each kernel and each number of steps, independent test cases are created comprising $M =$ 1, 4, 16, 64, and 256 independent sequences.
-To ensure statistical robustness, 64 repetitions with unique random seeds are included for every combination of kernel, number of steps and number of sequences.
+For sequence length, test cases are created comprising $M =$ 1, 4, 16, 64, and 256 independent sequences.
+To ensure statistical robustness, each $("kernel", N, M)$ combination is repeated with 64 unique random seeds.
 
 Example sequences, ACFs and PSDs for all kernels are shown in @fig-seqs, @fig-acs, and @fig-psds, respectively.
 
@@ -238,7 +243,7 @@ The data and metadata stored in each ZIP file are described in @tab-zip and @tab
 All arrays, except `sequences_??` are 1D arrays.
 The sequences are stored in a 2D array with shape `(nseq, nstep)`, where `nseq` is the number of sequences ($M$) and `nstep` is the number of steps ($N$).
 The ground truth of the autocorrelation integral is stored in the metadata as `acint`
-and is also equal to `psd[0]`.
+and is equal to `psd[0]`.
 
 The sequences are encoded as unsigned integers.
 They can be converted back to floating-point numbers as shown in @code-decode.
