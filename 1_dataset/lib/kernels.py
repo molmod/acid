@@ -3,6 +3,7 @@
 
 import attrs
 import numpy as np
+import scipy as sp
 from numpy.typing import NDArray
 
 __all__ = ("compute",)
@@ -13,7 +14,7 @@ ACINT_REF = 1.0
 
 @attrs.define
 class BaseTerm:
-    c0: float = attrs.field(converter=float)
+    a0: float = attrs.field(converter=float)
 
     @property
     def typst(self):
@@ -31,17 +32,34 @@ class BaseTerm:
 class SHOTerm(BaseTerm):
     f0: float = attrs.field(converter=float)
     q: float = attrs.field(converter=float)
+    matexp: NDArray[float] = attrs.field(init=False)
+    covar: NDArray[float] = attrs.field(init=False)
+
+    def __attrs_post_init__(self):
+        omega0 = 2 * np.pi * self.f0
+
+        theta = np.array([[0, 1], [-(omega0**2), -omega0 / self.q]])
+        b = np.array([[0, 0], [0, 0.5 * self.a0 * omega0**4]])
+
+        matexp = sp.linalg.expm(theta)
+        self.matexp = matexp
+
+        upper = 2 * np.dot(matexp, np.dot(b, matexp.T))
+        lower = 2 * b
+
+        covar = sp.linalg.solve_continuous_lyapunov(theta, upper - lower)
+        self.covar = covar
 
     @property
     def typst(self):
-        return f"upright(S)({self.c0}, {self.f0}, {self.q})"
+        return f"upright(S)({self.a0}, {self.f0}, {self.q})"
 
     @property
     def latex(self):
-        return rf"\operatorname{{S}}({self.c0}, {self.f0}, {self.q})"
+        return rf"\operatorname{{S}}({self.a0}, {self.f0}, {self.q})"
 
     def compute(self, freqs: NDArray[float], times: NDArray[float]):
-        c0 = self.c0
+        a0 = self.a0
         f0 = self.f0
         q = self.q
         eta = np.sqrt(abs(1 / (4 * q**2) - 1))
@@ -49,9 +67,9 @@ class SHOTerm(BaseTerm):
         if 0 < q < 0.5:
             acf = q * (np.exp((eta - 0.5 / q) * ft) + np.exp((-eta - 0.5 / q) * ft))
             acf += (np.exp((eta - 0.5 / q) * ft) - np.exp((-eta - 0.5 / q) * ft)) / (2 * eta)
-            acf *= 0.5 * np.pi * c0 * f0
+            acf *= 0.5 * np.pi * a0 * f0
         elif q >= 0.5:
-            acf = c0 * np.pi * f0 * q * np.exp(-0.5 * ft / q)
+            acf = a0 * np.pi * f0 * q * np.exp(-0.5 * ft / q)
             if q == 0.5:
                 acf *= 1 + ft
             else:
@@ -59,8 +77,19 @@ class SHOTerm(BaseTerm):
                 acf *= np.cos(scarg) + np.sin(scarg) / (2 * eta * q)
         else:
             raise ValueError(f"Invalid {q=}")
-        psd = c0 * f0**4 / ((freqs**2 - f0**2) ** 2 + (freqs * f0 / q) ** 2)
+        psd = a0 * f0**4 / ((freqs**2 - f0**2) ** 2 + (freqs * f0 / q) ** 2)
         return acf, psd
+
+    def sample(self, nseq: int, nstep: int, rng: np.random.Generator) -> NDArray[float]:
+        noise = rng.multivariate_normal(np.zeros(2), self.covar, size=(nseq, nstep)).transpose(
+            2, 0, 1
+        )
+        traj = np.zeros((2, nseq, nstep))
+        traj[:, :, 0] = noise[:, :, 0]
+
+        for istep in range(1, nstep):
+            traj[:, :, istep] = noise[:, :, istep] + self.matexp @ traj[:, :, istep - 1]
+        return traj[0, :, :]
 
 
 @attrs.define
@@ -69,33 +98,47 @@ class ExpTerm(BaseTerm):
 
     @property
     def typst(self):
-        return f"upright(E)({self.c0}, {self.tau})"
+        return f"upright(E)({self.a0}, {self.tau})"
 
     @property
     def latex(self):
-        return rf"\operatorname{{E}}({self.c0}, {self.tau})"
+        return rf"\operatorname{{E}}({self.a0}, {self.tau})"
 
     def compute(self, freqs: NDArray[float], times: NDArray[float]):
-        acf = 0.5 * self.c0 / self.tau * np.exp(-abs(times / self.tau))
-        psd = self.c0 / (1 + (2 * np.pi * self.tau * freqs) ** 2)
+        acf = 0.5 * self.a0 / self.tau * np.exp(-abs(times / self.tau))
+        psd = self.a0 / (1 + (2 * np.pi * self.tau * freqs) ** 2)
         return acf, psd
+
+    def sample(self, nseq: int, nstep: int, rng: np.random.Generator) -> NDArray[float]:
+        traj = np.zeros((nseq, nstep))
+        var = self.a0 / (2 * self.tau)
+        noise = rng.normal(0, np.sqrt(var * (1 - np.exp(-2 / self.tau))), size=(nseq, nstep))
+        traj[:, 0] = noise[:, 0]
+        prop = np.exp(-1 / self.tau)
+        for istep in range(1, nstep):
+            traj[:, istep] = noise[:, istep] + prop * traj[:, istep - 1]
+
+        return traj
 
 
 @attrs.define
 class WhiteTerm(BaseTerm):
     @property
     def typst(self):
-        return f"upright(W)({self.c0})"
+        return f"upright(W)({self.a0})"
 
     @property
     def latex(self):
-        return rf"\operatorname{{W}}({self.c0})"
+        return rf"\operatorname{{W}}({self.a0})"
 
     def compute(self, freqs: NDArray[float], times: NDArray[float]):
         acf = np.zeros_like(times)
-        acf[0] = self.c0
-        psd = np.full_like(freqs, self.c0)
+        acf[0] = self.a0
+        psd = np.full_like(freqs, self.a0)
         return acf, psd
+
+    def sample(self, nseq: int, nstep: int, rng: np.random.Generator) -> NDArray[float]:
+        return rng.normal(loc=0.0, scale=np.sqrt(self.a0), size=(nseq, nstep))
 
 
 def compute(
@@ -154,6 +197,37 @@ def compute(
     return psd, acf, corrtime_int, corrtime_exp, " + ".join(typst_terms), " + ".join(latex_terms)
 
 
+def sample(
+    terms: list[BaseTerm], nseq: int, nstep: int, rng: np.random.Generator
+) -> NDArray[float]:
+    """Sample a trajectory following a given autocorrelation function kernel,
+    using linear stochastic differential equations.
+
+    Parameters
+    ----------
+    terms
+        Terms that contribute to the kernel.
+    nseq
+        Number of sequences.
+    nstep
+        Number of steps in a sequence.
+    rng
+        Random number generator.
+
+    Returns
+    -------
+    trajectory
+        A trajectory sampled according to the ACF kernel.
+
+    """
+    trajectory = np.zeros((nseq, nstep))
+
+    for term in terms:
+        trajectory += term.sample(nseq, nstep, rng)
+
+    return trajectory
+
+
 def check_quadratic(freqs, psd):
     """Check that the psd is approximately quadratic in the first 40 steps
 
@@ -174,13 +248,7 @@ def check_quadratic(freqs, psd):
         par = np.dot(quad, my_psd) / np.dot(quad, quad)
         fit_psd = par * quad
         relerr = float(np.linalg.norm(fit_psd - my_psd) / np.linalg.norm(my_psd))
-        if False:
-            import matplotlib.pyplot as plt
 
-            fig, ax = plt.subplots()
-            ax.plot(my_freqs, my_psd)
-            ax.plot(my_freqs, fit_psd)
-            fig.savefig(f"tmp{nfit}.pdf")
         # print(nfit, relerr)
         if relerr > threshold:
             raise ValueError(
