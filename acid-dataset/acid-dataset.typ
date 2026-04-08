@@ -100,12 +100,12 @@ $
    It's ACF (with modified normalization conventions) is:
 
    $
-      c(Delta_t) = A_0 pi f_0 Q exp(-(pi f_0 Delta_t)/Q) cases(
-         cosh(eta 2 pi f_0 Delta_t) + 1/(2 eta Q) sinh(eta 2 pi f_0 Delta_t)
+      c(Delta_t) = A_0 pi f_0 Q exp(-(pi f_0 |Delta_t|)/Q) cases(
+         cosh(eta 2 pi f_0 Delta_t) + 1/(2 eta Q) sinh(eta 2 pi f_0 |Delta_t|)
          & quad "if" quad 0 < Q < 1/2,
-         1 + 2 pi f_0 Delta_t
+         1 + 2 pi f_0 |Delta_t|
          & quad "if" quad Q = 1/2,
-         cos(eta 2 pi f_0 Delta_t) + 1/(2 eta Q) sin(eta 2 pi f_0 Delta_t)
+         cos(eta 2 pi f_0 Delta_t) + 1/(2 eta Q) sin(eta 2 pi f_0 |Delta_t|)
          &quad "if" quad Q > 1/2
        )
    $
