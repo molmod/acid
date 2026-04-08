@@ -140,7 +140,7 @@ Using these three models, 12 covariance kernels are defined in @tab-summary and 
 where the integrated correlation times ($tau_"int"$) are calculated using
 
 $
-      1/2 C(f = 0) / c(Delta_t = 0)
+      tau_"int" = 1/2 C(f = 0) / c(Delta_t = 0)
 $
 
 #let kernels = csv(sys.inputs.kernels)
@@ -261,12 +261,12 @@ as shown in @code-numpy.
 
     import numpy as np
 
-    with zipfile.ZipFile("exp1w_nstep01024_nseq0256.zip") as zf:
+    with zipfile.ZipFile("exp1w.zip") as zf:
         with zf.open("meta.json") as f:
             meta = json.load(f)
-        with zf.open("sequences_00.npy") as f:
+        with zf.open("nstep01024/nseq0256/sequences_00.npy") as f:
             cdfi = np.load(f)
-    lookup_table = np.load("output/codec.zip")["midpoint"]
+    lookup_table = np.load("codec.zip")["midpoint"]
     std = np.sqrt(meta["var"])
     sequences = lookup_table[cdfi] * std
     ```
@@ -285,8 +285,8 @@ as shown in @code-numpy.
     ```python
     import numpy as np
 
-    freqs = np.load("exp1w.zip")["nstep_1024/freqs.npy"]
-    traj = np.load("exp1w.zip")["nstep_1024/nseq_64/sequences_00.npy"]
+    freqs = np.load("exp1w.zip")["nstep01024/freqs.npy"]
+    traj = np.load("exp1w.zip")["nstep01024/nseq0064/sequences_00.npy"]
     ```
   ),
   caption: [
