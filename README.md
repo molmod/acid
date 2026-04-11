@@ -36,8 +36,6 @@ A description, the full data and and an archived copy of this repository can be 
 
 ## License
 
-## License
-
 The copyright disclaimer and license conditions are specified at the beginning of each file in the repository,
 or, when the header cannot be edited, in the `RESUSE.toml` file.
 
