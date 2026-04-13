@@ -89,10 +89,11 @@ def run(path_codec: Path, path_settings: Path, kernel: str, out: Path):
             nfull = 2 * nstep
             times = np.arange(nfull, dtype=float)
             freqs = np.fft.rfftfreq(nfull)
-            psd, acf, corrtime_int, corrtime_exp, typst, latex = compute(terms, freqs, times)
+            psd, acf, msd, corrtime_int, corrtime_exp, typst, latex = compute(terms, freqs, times)
 
             dump_npy(nstep_path + "times.npy", zf, times[:nstep])
             dump_npy(nstep_path + "acf.npy", zf, acf[:nstep])
+            dump_npy(nstep_path + "msd.npy", zf, msd[:nstep])
             dump_npy(nstep_path + "freqs.npy", zf, freqs[::2])
             dump_npy(nstep_path + "psd.npy", zf, psd[::2])
 

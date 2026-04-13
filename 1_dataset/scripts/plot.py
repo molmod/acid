@@ -15,11 +15,18 @@ from path import Path
 
 def main():
     args = parse_args()
-    for path_svg in [args.svg_seqs, args.svg_acs, args.svg_psds]:
+    for path_svg in [args.svg_seqs, args.svg_acs, args.svg_psds, args.svg_msds]:
         if not path_svg.endswith(".svg"):
             raise ValueError(f"Output path {path_svg} must end with .svg")
     run(
-        args.mplrc, args.codec, args.settings, args.zips, args.svg_seqs, args.svg_acs, args.svg_psds
+        args.mplrc,
+        args.codec,
+        args.settings,
+        args.zips,
+        args.svg_seqs,
+        args.svg_acs,
+        args.svg_psds,
+        args.svg_msds,
     )
 
 
@@ -63,6 +70,11 @@ def parse_args():
         type=Path,
         help="The output SVG path for power spectral densities.",
     )
+    parser.add_argument(
+        "svg_msds",
+        type=Path,
+        help="The output SVG path for mean-squared displacements.",
+    )
     return parser.parse_args()
 
 
@@ -74,11 +86,13 @@ def run(
     path_svg_seqs: Path,
     path_svg_acs: Path,
     path_svg_psds: Path,
+    path_svg_msds: Path,
 ):
     mpl.rc_file(path_mplrc)
     fig1, axs1 = plt.subplots(4, 3, figsize=(7, 10), sharex=True, sharey=True)
     fig2, axs2 = plt.subplots(4, 3, figsize=(7, 10), sharex=True, sharey=True)
     fig3, axs3 = plt.subplots(4, 3, figsize=(7, 10), sharex=True, sharey=True)
+    fig4, axs4 = plt.subplots(4, 3, figsize=(7, 10), sharex=True, sharey=True)
 
     with open(path_settings) as f0:
         settings = json.load(f0)
@@ -98,21 +112,25 @@ def run(
         freqs = unzipped_kernel[step_path + "freqs.npy"]
         acf = unzipped_kernel[step_path + "acf.npy"]
         psd = unzipped_kernel[step_path + "psd.npy"]
+        msd = unzipped_kernel[step_path + "msd.npy"]
         std = np.sqrt(meta["var"])
         cdfi = unzipped_kernel[sample_path]
         sequences = lookup_table[cdfi] * std
         empirical_psd = compute_amplitudes(sequences)
         empirical_acf = np.fft.irfft(empirical_psd)
+        empirical_msd = compute_msds(sequences)
 
         row = i // 3
         col = i % 3
         plot_seq(axs1[row, col], meta, times, sequences, row == 3, col == 0)
         plot_ac(axs2[row, col], meta, times, acf, empirical_acf, row == 3, col == 0)
         plot_psd(axs3[row, col], meta, freqs, psd, empirical_psd, row == 3, col == 0)
+        plot_msd(axs4[row, col], meta, times, msd, empirical_msd, row == 3, col == 0)
 
     fig1.savefig(path_svg_seqs)
     fig2.savefig(path_svg_acs)
     fig3.savefig(path_svg_psds)
+    fig4.savefig(path_svg_msds)
 
 
 def compute_amplitudes(sequences: NDArray[float], timestep: float = 1.0) -> NDArray[float]:
@@ -159,6 +177,34 @@ def compute_amplitudes(sequences: NDArray[float], timestep: float = 1.0) -> NDAr
     return timestep * (abs(np.fft.rfft(sequences, axis=1)) ** 2).sum(axis=0) / (nstep * nindep)
 
 
+def compute_msds(sequences: NDArray[float]) -> NDArray[float]:
+    """
+    Compute the mean-squared displacements (MSD) from a batch of sequences.
+
+    Parameters
+    ----------
+    sequences
+        The input sequences, which is an array with shape ``(nindep, nstep)``.
+        Each row is a time-dependent sequence.
+
+    Returns
+    -------
+    msds
+        A numpy array that contains the MSDs of the sequence.
+    """
+    nstep = sequences.shape[1]
+
+    # Integrated trajectories
+    antiderivatives = np.cumsum(sequences, axis=1)
+
+    msds = np.zeros(nstep)
+    for delta in range(nstep):
+        diffs = antiderivatives[:, delta:] - antiderivatives[:, : nstep - delta]
+        msds[delta] = np.mean(diffs**2)
+
+    return msds
+
+
 def plot_seq(ax, meta, times, sequences, xlabel, ylabel):
     nstep = 150
     times = times[:nstep]
@@ -194,6 +240,19 @@ def plot_psd(ax, meta, freqs, psd, empirical_psd, xlabel, ylabel):
         ax.set_xlabel(r"Frequency $f$")
     if ylabel:
         ax.set_ylabel(r"Amplitude")
+    ax.set_title(meta["kernel"])
+
+
+def plot_msd(ax, meta, times, msd, empirical_msd, xlabel, ylabel):
+    ndelta = 50
+    times = times[:ndelta]
+    msd = msd[:ndelta]
+    ax.plot(times, msd, "k:", lw=2)
+    ax.plot(times, empirical_msd[:ndelta], "r-")
+    if xlabel:
+        ax.set_xlabel(r"Time lag $\Delta_t$")
+    if ylabel:
+        ax.set_ylabel(r"MSD")
     ax.set_title(meta["kernel"])
 
 

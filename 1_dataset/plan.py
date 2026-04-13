@@ -44,6 +44,11 @@ runpy("./${inp} ${out}", inp=["scripts/summarize.py", "settings.json"], out="out
 runpy(
     "./${inp} ${out}",
     inp=["scripts/plot.py", "../matplotlibrc", "output/codec.zip", "settings.json", *zip_paths],
-    out=["output/plot_seqs.svg", "output/plot_acs.svg", "output/plot_psds.svg"],
+    out=[
+        "output/plot_seqs.svg",
+        "output/plot_acs.svg",
+        "output/plot_psds.svg",
+        "output/plot_msds.svg",
+    ],
 )
 compile_typst("overview.typ", sysinp={"kernels": Path("output/kernels.csv")})
