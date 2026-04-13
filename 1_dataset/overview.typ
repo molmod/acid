@@ -309,6 +309,11 @@ as shown in @code-numpy.
 The ground truth value of the autocorrelation integral is stored in the metadata as `acint`
 and is equal to `psd[0]`.
 Empirical MSDs are computed from the time integral of the trajectories as illustrated in @code-msd.
+The implementation in this example is intentionally kept simple to demonstrate data usage.
+More efficient strategies have been proposed,
+which avoid overlapping windows and evaluate only a selected subset of time lags,
+as described by e.g. #link("https://doi.org/10.1063/5.0188081",[Moustafa et al.])
+
 
 #figure(
   box(
