@@ -254,9 +254,13 @@ This has two important implications on the data:
   for the first 20 points.
 
 == Data Organization
-For each kernel, data are stored in uncompressed ZIP archives, using the pattern `{kernel_name}.zip`.
-(Due to the efficient encoding discussed below, compression would save less than 1%.)
-The data and metadata stored in each ZIP file are described in @tab-zip and @tab-meta, respectively.
+For each kernel, data are stored in an uncompressed ZIP archive following the pattern `{kernel_name}.zip`.
+Due to the efficient encoding discussed below,
+compression would reduce the file size by less than 1%.
+Each ZIP archive contains both data and metadata.
+An overview of the stored data is provided in @tab-zip,
+while the stored metadata are listed in @tab-meta.
+
 #figure(
   table(
     columns: 2,
@@ -273,7 +277,7 @@ The data and metadata stored in each ZIP file are described in @tab-zip and @tab
       Stochastic sequences for a given $N$ = `XXXXX`, $M$ = `YYYY`, and seed index `ZZ`
     ],
   ),
-  caption: [Overview of data stored in each ZIP file. The dataset is organized in subdirectories grouped by the number of steps (`nstepXXXXX`) and the number of sequences (`nseqYYYY`). Inside each `nstepXXXXX/nseqYYYY/` subfolder, the files `sequences_ZZ.npy` store the stochastic time-dependent sequences, with the seed index `ZZ` running from 00 to 63.],
+  caption: [Overview of data stored in each ZIP archive. The dataset is organized in subdirectories grouped by the number of steps (`nstepXXXXX`) and the number of sequences (`nseqYYYY`). Inside each `nstepXXXXX/nseqYYYY/` subfolder, the files `sequences_ZZ.npy` store the stochastic time-dependent sequences, with the seed index `ZZ` running from 00 to 63.],
 ) <tab-zip>
 
 
@@ -291,18 +295,20 @@ The data and metadata stored in each ZIP file are described in @tab-zip and @tab
     `typst`, [A typst equation describing the kernel],
     `latex`, [A latex equation describing the kernel],
   ),
-  caption: [Metadata stored in `meta.json` in each ZIP file.]
+  caption: [Metadata stored in `meta.json` in each ZIP archive.]
 ) <tab-meta>
 
-All arrays, except `sequences_??` are 1D arrays.
-The sequences are stored in a 2D array with shape `(nseq, nstep)`, where `nseq` is the number of sequences ($M$) and `nstep` is the number of steps ($N$).
-The ground truth of the autocorrelation integral is stored in the metadata as `acint`
-and is equal to `psd[0]`.
-
-The sequences are encoded as unsigned integers.
-They can be converted back to floating-point numbers as shown in @code-decode.
-The ZIP file is also a valid NPZ file, and arrays (not metadata) can be accessed with `numpy.load`,
+All data arrays are one-dimensional, except for `sequences_??`.
+The sequences are stored in a two-dimensional array with shape `(nseq, nstep)`,
+where `nseq` is the number of sequences ($M$) and `nstep` is the number of steps ($N$).
+The sequences are encoded as unsigned integers and can be converted back to floating-point values as shown in @code-decode.
+Each ZIP archive is also a valid NPZ file,
+and all data arrays (not metadata) can be accessed using `numpy.load`,
 as shown in @code-numpy.
+
+The ground truth value of the autocorrelation integral is stored in the metadata as `acint`
+and is equal to `psd[0]`.
+Empirical MSDs are computed from the time integral of the trajectories as illustrated in @code-msd.
 
 #figure(
   box(
@@ -350,7 +356,6 @@ as shown in @code-numpy.
 ) <code-numpy>
 
 
-// TODO: Integrate this example in the text.
 #figure(
   box(
     stroke: black,
@@ -373,7 +378,7 @@ as shown in @code-numpy.
   ],
   kind: "code",
   supplement: "Code",
-) <code-MSD>
+) <code-msd>
 
 
 = Trajectory generation
