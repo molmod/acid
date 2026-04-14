@@ -161,10 +161,10 @@ $
   The MSD is:
 
   $
-    "MSD" = A_0 Delta_t - ell + ell exp(- (pi f_0 Delta_t) / Q) cases(
-      cosh(b Delta_t) + 1/(2 eta Q) ((1 - 3 Q^2)/(1-Q^2)) sinh(b Delta_t) & quad "if" quad 0 < Q < 1/2,
-      1 + 2/3pi f_0 Delta_t & quad "if" quad Q = 1/2,
-      cos(b Delta_t) + 1/(2 eta Q)((1-3Q^2)/(1 - Q^2))sin(b Delta_t) & quad "if" quad Q > 1/2
+    "MSD" = A_0 abs(Delta_t) - ell + ell exp(- (pi f_0 abs(Delta_t)) / Q) cases(
+      cosh(b Delta_t) + 1/(2 eta Q) ((1 - 3 Q^2)/(1-Q^2)) sinh(b abs(Delta_t)) & quad "if" quad 0 < Q < 1/2,
+      1 + 2/3pi f_0 abs(Delta_t) & quad "if" quad Q = 1/2,
+      cos(b Delta_t) + 1/(2 eta Q)((1-3Q^2)/(1 - Q^2))sin(b abs(Delta_t)) & quad "if" quad Q > 1/2
     )
   $
   with
