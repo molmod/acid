@@ -127,7 +127,7 @@ $
    The MSD is:
 
    $
-       "MSD" = A_0 Delta_t + A_0 tau[exp(- abs(Delta_t)/tau) - 1]
+       "MSD" = A_0 abs(Delta_t) + A_0 tau[exp(- abs(Delta_t)/tau) - 1]
    $
 
    This model will be denoted as $upright(E)(A_0, tau)$.
