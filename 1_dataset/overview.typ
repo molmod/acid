@@ -106,7 +106,7 @@ $
    The MSD is:
 
    $
-       "MSD" = Delta_t A_0
+       "MSD" = A_0 abs(Delta_t)
    $
 
    This model will be denoted as $upright(W)(A_0)$.
