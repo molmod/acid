@@ -12,7 +12,7 @@ from kernels import ExpTerm, SHOTerm
 
 
 def make_wrappers(term):
-    """Return a functions that compute the ACF and MSD for a given term."""
+    """Return functions that compute the ACF and MSD for a given term."""
 
     def acf(times):
         freqs = np.ones_like(times)
