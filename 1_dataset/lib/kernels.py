@@ -51,34 +51,54 @@ class SHOTerm(BaseTerm):
         self.covar = covar
 
     @property
-    def typst(self):
+    def typst(self) -> str:
         return f"upright(S)({self.a0}, {self.f0}, {self.q})"
 
     @property
-    def latex(self):
+    def latex(self) -> str:
         return rf"\operatorname{{S}}({self.a0}, {self.f0}, {self.q})"
 
-    def compute(self, freqs: NDArray[float], times: NDArray[float]):
+    def compute(
+        self, freqs: NDArray[float], times: NDArray[float]
+    ) -> tuple[NDArray[float], NDArray[float], NDArray[float]]:
         a0 = self.a0
         f0 = self.f0
         q = self.q
         eta = np.sqrt(abs(1 / (4 * q**2) - 1))
         ft = 2 * np.pi * f0 * times
+        prefactor = a0 * (1 - q**2) / (2 * np.pi * f0 * q)
+        scarg = eta * ft
+
+        msd = prefactor * np.exp(-ft / (2 * q))
+
         if 0 < q < 0.5:
             acf = q * (np.exp((eta - 0.5 / q) * ft) + np.exp((-eta - 0.5 / q) * ft))
-            acf += (np.exp((eta - 0.5 / q) * ft) - np.exp((-eta - 0.5 / q) * ft)) / (2 * eta)
+            acf += (np.exp((eta - 0.5 / q) * abs(ft)) - np.exp((-eta - 0.5 / q) * abs(ft))) / (
+                2 * eta
+            )
             acf *= 0.5 * np.pi * a0 * f0
+
+            msd *= np.cosh(scarg) + 1 / (2 * eta * q) * ((1 - 3 * q**2) / (1 - q**2)) * np.sinh(
+                scarg
+            )
         elif q >= 0.5:
             acf = a0 * np.pi * f0 * q * np.exp(-0.5 * ft / q)
             if q == 0.5:
-                acf *= 1 + ft
+                acf *= 1 + abs(ft)
+                msd *= 1 + 2 / 3 * np.pi * f0 * times
             else:
                 scarg = eta * ft
-                acf *= np.cos(scarg) + np.sin(scarg) / (2 * eta * q)
+                acf *= np.cos(scarg) + np.sin(abs(scarg)) / (2 * eta * q)
+                msd *= np.cos(scarg) + 1 / (2 * eta * q) * ((1 - 3 * q**2) / (1 - q**2)) * np.sin(
+                    scarg
+                )
+
         else:
             raise ValueError(f"Invalid {q=}")
+
+        msd += a0 * times - prefactor
         psd = a0 * f0**4 / ((freqs**2 - f0**2) ** 2 + (freqs * f0 / q) ** 2)
-        return acf, psd
+        return acf, psd, msd
 
     def sample(self, nseq: int, nstep: int, rng: np.random.Generator) -> NDArray[float]:
         noise = rng.multivariate_normal(np.zeros(2), self.covar, size=(nseq, nstep)).transpose(
@@ -97,17 +117,20 @@ class ExpTerm(BaseTerm):
     tau: float = attrs.field(converter=float)
 
     @property
-    def typst(self):
+    def typst(self) -> str:
         return f"upright(E)({self.a0}, {self.tau})"
 
     @property
-    def latex(self):
+    def latex(self) -> str:
         return rf"\operatorname{{E}}({self.a0}, {self.tau})"
 
-    def compute(self, freqs: NDArray[float], times: NDArray[float]):
+    def compute(
+        self, freqs: NDArray[float], times: NDArray[float]
+    ) -> tuple[NDArray[float], NDArray[float], NDArray[float]]:
         acf = 0.5 * self.a0 / self.tau * np.exp(-abs(times / self.tau))
         psd = self.a0 / (1 + (2 * np.pi * self.tau * freqs) ** 2)
-        return acf, psd
+        msd = self.a0 * (times + self.tau * (np.exp(-abs(times) / self.tau) - 1))
+        return acf, psd, msd
 
     def sample(self, nseq: int, nstep: int, rng: np.random.Generator) -> NDArray[float]:
         traj = np.zeros((nseq, nstep))
@@ -124,18 +147,21 @@ class ExpTerm(BaseTerm):
 @attrs.define
 class WhiteTerm(BaseTerm):
     @property
-    def typst(self):
+    def typst(self) -> str:
         return f"upright(W)({self.a0})"
 
     @property
-    def latex(self):
+    def latex(self) -> str:
         return rf"\operatorname{{W}}({self.a0})"
 
-    def compute(self, freqs: NDArray[float], times: NDArray[float]):
+    def compute(
+        self, freqs: NDArray[float], times: NDArray[float]
+    ) -> tuple[NDArray[float], NDArray[float], NDArray[float]]:
         acf = np.zeros_like(times)
         acf[0] = self.a0
         psd = np.full_like(freqs, self.a0)
-        return acf, psd
+        msd = self.a0 * times
+        return acf, psd, msd
 
     def sample(self, nseq: int, nstep: int, rng: np.random.Generator) -> NDArray[float]:
         return rng.normal(loc=0.0, scale=np.sqrt(self.a0), size=(nseq, nstep))
@@ -143,7 +169,7 @@ class WhiteTerm(BaseTerm):
 
 def compute(
     terms: list[BaseTerm], freqs: NDArray[float], times: NDArray[float]
-) -> tuple[NDArray[float], NDArray[float], float, str, str]:
+) -> tuple[NDArray[float], NDArray[float], NDArray[float], float, float | None, str, str]:
     """Construct a power spectrum and autocorrelation function.
 
     Parameters
@@ -161,6 +187,8 @@ def compute(
         The power spectrum on the requested grid.
     acf
         The autocorrelation function.
+    msd
+        The mean-squared displacement.
     corrtime_int
         The integrated correlation time.
     corrtime_exp
@@ -172,13 +200,15 @@ def compute(
     """
     acf = 0
     psd = 0
+    msd = 0
     typst_terms = []
     latex_terms = []
     corrtimes_exp = []
     for term in terms:
-        my_acf, my_psd = term.compute(freqs, times)
+        my_acf, my_psd, my_msd = term.compute(freqs, times)
         acf += my_acf
         psd += my_psd
+        msd += my_msd
         typst_terms.append(term.typst)
         latex_terms.append(term.latex)
         if isinstance(term, ExpTerm):
@@ -194,7 +224,15 @@ def compute(
     if len(corrtimes_exp) == 1 and corrtimes_exp[0] is not None:
         corrtime_exp = corrtimes_exp[0]
     check_quadratic(freqs, psd)
-    return psd, acf, corrtime_int, corrtime_exp, " + ".join(typst_terms), " + ".join(latex_terms)
+    return (
+        psd,
+        acf,
+        msd,
+        corrtime_int,
+        corrtime_exp,
+        " + ".join(typst_terms),
+        " + ".join(latex_terms),
+    )
 
 
 def sample(
@@ -249,7 +287,6 @@ def check_quadratic(freqs, psd):
         fit_psd = par * quad
         relerr = float(np.linalg.norm(fit_psd - my_psd) / np.linalg.norm(my_psd))
 
-        # print(nfit, relerr)
         if relerr > threshold:
             raise ValueError(
                 "The PSD is not approximated well by a quadratic model in the low-frequency domain:"

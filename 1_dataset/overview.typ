@@ -76,6 +76,22 @@ $
   C(f) = integral_(-infinity)^infinity c(Delta_t) e^(-2 pi i f Delta_t) dif Delta_t
 $
 
+These autocorrelation functions can also be used to compute Mean-Squared Displacements (MSDs) of the integrated stochastic trajectory.
+The general link between squared displacements and autocorrelation functions follows from e.g. #link("https://doi.org/10.1016/C2009-0-63921-0", [the book by Frenkel and Smit]).
+Adopting this approach, the MSD can be written as
+
+$
+  "MSD"_y (Delta_t) & = chevron.l hat(y)(Delta_t)^2 chevron.r \
+                    & = lr(chevron.l (integral_0^Delta_t hat(x)(t) dif t)^2 chevron.r) \
+                    & = integral_0^Delta_t dif t_1 integral_0^Delta_t chevron.l hat(x)(t_1) hat(x)(t_2)chevron.r dif t_2 \
+                    & = 2 integral_0^Delta_t (Delta_t - u) c(u) dif u
+$
+where $hat(y)(t)$ is defined as the time integral of the stochastic trajectory $hat(x)(t)$
+$
+  hat(y)(t) = integral_0^t hat(x)(s) dif s
+$
+
+== ACF Models
 1. The *white noise* model consists of uncorrelated data and has the following ACF:
 
    $
@@ -87,6 +103,17 @@ $
    $
        C(f) = A_0
    $
+   The MSD is:
+
+   $
+       "MSD" = A_0 abs(Delta_t)
+   $
+
+   where we used the convention
+  $
+    integral_0^abs(Delta_t) delta(s) dif s = 1/2 integral_(-abs(Delta_t))^abs(Delta_t) delta(s) dif s = 1/2
+  $
+
 
    This model will be denoted as $upright(W)(A_0)$.
 
@@ -103,26 +130,29 @@ $
        C(f) = A_0/(1 + (2 pi f tau)^2)
    $
 
+   The MSD is:
+
+   $
+       "MSD" = A_0 abs(Delta_t) + A_0 tau[exp(- abs(Delta_t)/tau) - 1]
+   $
+
    This model will be denoted as $upright(E)(A_0, tau)$.
 
 3. The *stochastic harmonic oscillator* was adapted from #link("https://doi.org/10.3847/1538-3881/aa9332", [the work of Foreman-Mackey et al.])
    Its ACF (with modified normalization conventions) is:
 
    $
-      c(Delta_t) = A_0 pi f_0 Q exp(-(pi f_0 Delta_t)/Q) cases(
-         cosh(eta 2 pi f_0 Delta_t) + 1/(2 eta Q) sinh(eta 2 pi f_0 Delta_t)
-         & quad "if" quad 0 < Q < 1/2,
-         1 + 2 pi f_0 Delta_t
-         & quad "if" quad Q = 1/2,
-         cos(eta 2 pi f_0 Delta_t) + 1/(2 eta Q) sin(eta 2 pi f_0 Delta_t)
-         &quad "if" quad Q > 1/2
-       )
+     c(Delta_t) = A_0 pi f_0 Q exp(-(pi f_0 abs(Delta_t))/Q) cases(
+       cosh(b Delta_t) + 1/(2 eta Q) sinh(b abs(Delta_t)) & quad "if" quad 0 < Q < 1/2,
+       1 + 2 pi f_0 abs(Delta_t) & quad "if" quad Q = 1/2,
+       cos(b Delta_t) + 1/(2 eta Q) sin(b abs(Delta_t)) & quad "if" quad Q > 1/2
+     )
    $
 
    with
 
    $
-       eta = abs(1/(4 Q^2) - 1)^(1/2)
+     b = 2pi f_0 eta quad "and" quad eta = abs(1/(4 Q^2) - 1)^(1/2)
    $
 
    The PSD is:
@@ -134,7 +164,24 @@ $
    where $Q$ represents the quality of the oscillator and $f_0$ is the resonant frequency.
    (Note that Foreman-Mackey et al. use a parameter $S_0=A_0/2$, a unitary normalization convention for the Fourier transform, and an angular frequency. These differences are only a matter of notation.)
 
+  The MSD is:
+
+  $
+    "MSD" = A_0 abs(Delta_t) - ell + ell exp(- (pi f_0 abs(Delta_t)) / Q) cases(
+      cosh(b Delta_t) + 1/(2 eta Q) ((1 - 3 Q^2)/(1-Q^2)) sinh(b abs(Delta_t)) & quad "if" quad 0 < Q < 1/2,
+      1 + 2/3pi f_0 abs(Delta_t) & quad "if" quad Q = 1/2,
+      cos(b Delta_t) + 1/(2 eta Q)((1-3Q^2)/(1 - Q^2))sin(b abs(Delta_t)) & quad "if" quad Q > 1/2
+    )
+  $
+  with
+
+  $
+      ell = (A_0 (1 - Q^2))/(2 pi f_0 Q)
+  $
+
    This model will be denoted as $upright(S)(A_0, f_0, Q)$.
+
+== Kernel Construction
 
 Using these three models, 12 covariance kernels are defined in @tab-summary and were used to generate time-correlated sequences,
 where the integrated correlation times ($tau_"int"$) are calculated using
@@ -190,6 +237,16 @@ Example sequences, ACFs and PSDs for all kernels are shown in @fig-seqs, @fig-ac
   ]
 ) <fig-psds>
 
+#figure(
+  image("output/plot_msds.svg"),
+  caption: [
+    Mean-squared displacements of the kernels.
+    The analytical model is plotted as a dotted black line.
+    The empirical MSD derived from the first out of 64 test cases
+    for $N=1024$ and $M=256$ is plotted as a solid red line.
+  ],
+) <fig-msds>
+
 All kernels have an autocorrelation integral of 1.
 This is achieved by choosing the $A_0$ parameters of the models used in each kernel such that the sum of their autocorrelation integrals equals one.
 The kernels are parametrized to have an almost quadratic PSD close to zero frequency, with deviations less than 2.5% RMS for the first 20 grid points of the spectrum and less than 10% for the first 40 points.
@@ -202,9 +259,14 @@ This has two important implications on the data:
   This is larger than the systematic deviation between the quadratic model and the real PSD
   for the first 20 points.
 
-For each kernel, data are stored in uncompressed ZIP archives, using the pattern `{kernel_name}.zip`.
-(Due to the efficient encoding discussed below, compression would save less than 1%.)
-The data and metadata stored in each ZIP file are described in @tab-zip and @tab-meta, respectively.
+== Data Organization
+For each kernel, data are stored in an uncompressed ZIP archive following the pattern `{kernel_name}.zip`.
+Due to the efficient encoding discussed below,
+compression would reduce the file size by less than 1%.
+Each ZIP archive contains both data and metadata.
+An overview of the stored data is provided in @tab-zip,
+while the stored metadata are listed in @tab-meta.
+
 #figure(
   table(
     columns: 2,
@@ -215,12 +277,13 @@ The data and metadata stored in each ZIP file are described in @tab-zip and @tab
     `nstepXXXXX/freqs.npy`, [Frequency axis of the power spectrum for $N$ = `XXXXX`],
     `nstepXXXXX/psd.npy`, [Reference power spectral density for $N$ = `XXXXX`],
     `nstepXXXXX/acf.npy`, [Reference autocorrelation function for $N$ = `XXXXX`],
+    `nstepXXXXX/msd.npy`, [Reference mean-squared displacement function for $N$ = `XXXXX`],
     `nstepXXXXX/nseqYYYY/sequences_ZZ.npy`,
     [
       Stochastic sequences for a given $N$ = `XXXXX`, $M$ = `YYYY`, and seed index `ZZ`
     ],
   ),
-  caption: [Overview of data stored in each ZIP file. The dataset is organized in subdirectories grouped by the number of steps (`nstepXXXXX`) and the number of sequences (`nseqYYYY`). Inside each `nstepXXXXX/nseqYYYY/` subfolder, the files `sequences_ZZ.npy` store the stochastic time-dependent sequences, with the seed index `ZZ` running from 00 to 63.],
+  caption: [Overview of data stored in each ZIP archive. The dataset is organized in subdirectories grouped by the number of steps (`nstepXXXXX`) and the number of sequences (`nseqYYYY`). Inside each `nstepXXXXX/nseqYYYY/` subfolder, the files `sequences_ZZ.npy` store the stochastic time-dependent sequences, with the seed index `ZZ` running from 00 to 63.],
 ) <tab-zip>
 
 
@@ -238,18 +301,25 @@ The data and metadata stored in each ZIP file are described in @tab-zip and @tab
     `typst`, [A typst equation describing the kernel],
     `latex`, [A latex equation describing the kernel],
   ),
-  caption: [Metadata stored in `meta.json` in each ZIP file.]
+  caption: [Metadata stored in `meta.json` in each ZIP archive.]
 ) <tab-meta>
 
-All arrays, except `sequences_??` are 1D arrays.
-The sequences are stored in a 2D array with shape `(nseq, nstep)`, where `nseq` is the number of sequences ($M$) and `nstep` is the number of steps ($N$).
-The ground truth of the autocorrelation integral is stored in the metadata as `acint`
-and is equal to `psd[0]`.
-
-The sequences are encoded as unsigned integers.
-They can be converted back to floating-point numbers as shown in @code-decode.
-The ZIP file is also a valid NPZ file, and arrays (not metadata) can be accessed with `numpy.load`,
+All data arrays are one-dimensional, except for `sequences_??`.
+The sequences are stored in a two-dimensional array with shape `(nseq, nstep)`,
+where `nseq` is the number of sequences ($M$) and `nstep` is the number of steps ($N$).
+The sequences are encoded as unsigned integers and can be converted back to floating-point values as shown in @code-decode.
+Each ZIP archive is also a valid NPZ file,
+and all data arrays (not metadata) can be accessed using `numpy.load`,
 as shown in @code-numpy.
+
+The ground truth value of the autocorrelation integral is stored in the metadata as `acint`
+and is equal to `psd[0]`.
+Empirical MSDs are computed from the time integral of the trajectories as illustrated in @code-msd.
+The implementation in this example is intentionally kept simple to demonstrate data usage.
+More efficient strategies have been proposed,
+which avoid overlapping windows and evaluate only a selected subset of time lags,
+as described by e.g. #link("https://doi.org/10.1063/5.0188081",[Moustafa et al.])
+
 
 #figure(
   box(
@@ -295,6 +365,32 @@ as shown in @code-numpy.
   kind: "code",
   supplement: "Code",
 ) <code-numpy>
+
+
+#figure(
+  box(
+    stroke: black,
+    inset: 1em,
+    ```python
+    import numpy as np
+
+    sequences = np.load("exp1w.zip")["nstep01024/nseq0064/sequences_00.npy"]
+    antiderivatives = np.cumsum(sequences, axis=1)
+    nstep = sequences.shape[1]
+
+    msds = np.zeros(nstep)
+    for delta in range(nstep):
+        diffs = antiderivatives[:, delta:] - antiderivatives[:, : nstep - delta]
+        msds[delta] = np.mean(diffs**2)
+    ```,
+  ),
+  caption: [
+    Example Python code showing how to compute the mean-squared displacements of the trajectories.
+  ],
+  kind: "code",
+  supplement: "Code",
+) <code-msd>
+
 
 = Trajectory generation
 

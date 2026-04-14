@@ -157,11 +157,14 @@ nest-asyncio==1.6.0
     # via ipykernel
 nodeenv==1.10.0
     # via pre-commit
+numdifftools==0.9.42
+    # via -r requirements.in
 numpy==2.4.2
     # via
     #   -r requirements.in
     #   contourpy
     #   matplotlib
+    #   numdifftools
     #   scipy
     #   stacie
     #   stepup-reprep
@@ -267,6 +270,7 @@ rpds-py==0.30.0
 scipy==1.17.1
     # via
     #   -r requirements.in
+    #   numdifftools
     #   stacie
     #   stepup-reprep
 semver==3.0.4

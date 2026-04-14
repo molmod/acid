@@ -14,6 +14,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 A major refactoring of the ACID dataset.
 
+### Added
+
+- Added analytical mean-squared displacements (MSDs) for all covariance kernels to the dataset.
+- Added empirical MSD calculations from the trajectories.
+- Added a section on trajectory generation using linear stochastic differential equations in `overview.typ`.
+- Added a note on the calculation of `corrtime_int` in `overview.typ`.
+
 ### Changed
 
 - Renamed directories to make the order of execution more explicit.
@@ -25,6 +32,8 @@ A major refactoring of the ACID dataset.
 - Data is stored in ordinary ZIP files, mostly compatible with the NPZ format.
 - Data is now uploaded to Zenodo as one ZIP file per kernel instead of a single ZIP file containing the full dataset.
   Each ZIP file also includes a `meta.json` file with metadata.
+- Changed the file organization in `overview.typ`,
+  following the new structure introduced by this release.
 
 ### Removed
 
