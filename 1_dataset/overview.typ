@@ -109,6 +109,12 @@ $
        "MSD" = A_0 abs(Delta_t)
    $
 
+   where we used the convention
+  $
+    integral_0^abs(Delta_t) delta(s) dif s = 1/2 integral_(-abs(Delta_t))^abs(Delta_t) delta(s) dif s = 1/2
+  $
+
+
    This model will be denoted as $upright(W)(A_0)$.
 
 2. The *exponential model* has an exponentially decaying ACF:
