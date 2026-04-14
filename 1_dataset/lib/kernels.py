@@ -51,14 +51,16 @@ class SHOTerm(BaseTerm):
         self.covar = covar
 
     @property
-    def typst(self):
+    def typst(self) -> str:
         return f"upright(S)({self.a0}, {self.f0}, {self.q})"
 
     @property
-    def latex(self):
+    def latex(self) -> str:
         return rf"\operatorname{{S}}({self.a0}, {self.f0}, {self.q})"
 
-    def compute(self, freqs: NDArray[float], times: NDArray[float]):
+    def compute(
+        self, freqs: NDArray[float], times: NDArray[float]
+    ) -> tuple[NDArray[float], NDArray[float], NDArray[float]]:
         a0 = self.a0
         f0 = self.f0
         q = self.q
@@ -115,14 +117,16 @@ class ExpTerm(BaseTerm):
     tau: float = attrs.field(converter=float)
 
     @property
-    def typst(self):
+    def typst(self) -> str:
         return f"upright(E)({self.a0}, {self.tau})"
 
     @property
-    def latex(self):
+    def latex(self) -> str:
         return rf"\operatorname{{E}}({self.a0}, {self.tau})"
 
-    def compute(self, freqs: NDArray[float], times: NDArray[float]):
+    def compute(
+        self, freqs: NDArray[float], times: NDArray[float]
+    ) -> tuple[NDArray[float], NDArray[float], NDArray[float]]:
         acf = 0.5 * self.a0 / self.tau * np.exp(-abs(times / self.tau))
         psd = self.a0 / (1 + (2 * np.pi * self.tau * freqs) ** 2)
         msd = self.a0 * (times + self.tau * (np.exp(-abs(times) / self.tau) - 1))
@@ -143,14 +147,16 @@ class ExpTerm(BaseTerm):
 @attrs.define
 class WhiteTerm(BaseTerm):
     @property
-    def typst(self):
+    def typst(self) -> str:
         return f"upright(W)({self.a0})"
 
     @property
-    def latex(self):
+    def latex(self) -> str:
         return rf"\operatorname{{W}}({self.a0})"
 
-    def compute(self, freqs: NDArray[float], times: NDArray[float]):
+    def compute(
+        self, freqs: NDArray[float], times: NDArray[float]
+    ) -> tuple[NDArray[float], NDArray[float], NDArray[float]]:
         acf = np.zeros_like(times)
         acf[0] = self.a0
         psd = np.full_like(freqs, self.a0)
@@ -163,7 +169,7 @@ class WhiteTerm(BaseTerm):
 
 def compute(
     terms: list[BaseTerm], freqs: NDArray[float], times: NDArray[float]
-) -> tuple[NDArray[float], NDArray[float], float, str, str]:
+) -> tuple[NDArray[float], NDArray[float], NDArray[float], float, float | None, str, str]:
     """Construct a power spectrum and autocorrelation function.
 
     Parameters
