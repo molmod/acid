@@ -6,6 +6,8 @@ import numpy as np
 import scipy as sp
 from numpy.typing import NDArray
 
+np.seterr(over="raise", under="ignore", divide="raise", invalid="raise")
+
 __all__ = ("compute",)
 
 
@@ -65,38 +67,36 @@ class SHOTerm(BaseTerm):
         f0 = self.f0
         q = self.q
         eta = np.sqrt(abs(1 / (4 * q**2) - 1))
-        ft = 2 * np.pi * f0 * times
+        ft = 2 * np.pi * f0 * abs(times)
         prefactor = a0 * (1 - q**2) / (2 * np.pi * f0 * q)
         scarg = eta * ft
 
-        msd = prefactor * np.exp(-ft / (2 * q))
-
         if 0 < q < 0.5:
             acf = q * (np.exp((eta - 0.5 / q) * ft) + np.exp((-eta - 0.5 / q) * ft))
-            acf += (np.exp((eta - 0.5 / q) * abs(ft)) - np.exp((-eta - 0.5 / q) * abs(ft))) / (
-                2 * eta
-            )
+            acf += (np.exp((eta - 0.5 / q) * ft) - np.exp((-eta - 0.5 / q) * ft)) / (2 * eta)
             acf *= 0.5 * np.pi * a0 * f0
 
-            msd *= np.cosh(scarg) + 1 / (2 * eta * q) * ((1 - 3 * q**2) / (1 - q**2)) * np.sinh(
-                scarg
+            sinsinh_prefactor = 1 / (2 * eta * q) * ((1 - 3 * q**2) / (1 - q**2))
+            msd = np.exp(scarg - ft / (2 * q)) + np.exp(-scarg - ft / (2 * q))
+            msd += sinsinh_prefactor * (
+                np.exp(scarg - ft / (2 * q)) - np.exp(-scarg - ft / (2 * q))
             )
+            msd *= prefactor / 2
+
         elif q >= 0.5:
             acf = a0 * np.pi * f0 * q * np.exp(-0.5 * ft / q)
+            msd = prefactor * np.exp(-ft / (2 * q))
             if q == 0.5:
-                acf *= 1 + abs(ft)
-                msd *= 1 + 2 / 3 * np.pi * f0 * times
+                acf *= 1 + ft
+                msd *= 1 + 2 / 3 * np.pi * f0 * abs(times)
             else:
-                scarg = eta * ft
-                acf *= np.cos(scarg) + np.sin(abs(scarg)) / (2 * eta * q)
-                msd *= np.cos(scarg) + 1 / (2 * eta * q) * ((1 - 3 * q**2) / (1 - q**2)) * np.sin(
-                    scarg
-                )
-
+                sinsinh_prefactor = 1 / (2 * eta * q) * ((1 - 3 * q**2) / (1 - q**2))
+                acf *= np.cos(scarg) + np.sin(scarg) / (2 * eta * q)
+                msd *= np.cos(scarg) + sinsinh_prefactor * np.sin(scarg)
         else:
             raise ValueError(f"Invalid {q=}")
 
-        msd += a0 * times - prefactor
+        msd += a0 * abs(times) - prefactor
         psd = a0 * f0**4 / ((freqs**2 - f0**2) ** 2 + (freqs * f0 / q) ** 2)
         return acf, psd, msd
 
