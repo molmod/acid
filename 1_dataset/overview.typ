@@ -434,8 +434,8 @@ is given by $e^(bold(Theta) h) bold(X)(t)$.
 The second moment of this increment depends only on the stochastic term
 $
   chevron.l bold(X)(t) bold(X) (t) chevron.r &= integral_0^t integral_0^t e^(bold(Theta)(t-s)) chevron.l bold(F)(s) bold(F) (s')chevron.r e^(bold(Theta^dagger)(t-s')) dif s dif s' \
-  &= 2 integral_0^t e^(bold(Theta)(t-s)) bold(B) e^(bold(Theta^dagger)(t-s)) dif s \
-  &= 2 integral_0^t e^(bold(Theta)t) bold(B) e^(bold(Theta^dagger)t) dif s
+  &= 2 integral_0^t e^(bold(Theta)(t-s)) bold(B) e^(bold(Theta^dagger)(t-s)) dif t \
+  &= 2 integral_0^t e^(bold(Theta)t) bold(B) e^(bold(Theta^dagger)t) dif t
 $
 In Zwanzig's derivation,
 the second moment of the stationary distribution, $M=lim_(t->infinity) chevron.l bold(X)(t) bold(X) (t) chevron.r$, is obtained as the solution of this integral reformulated as a continuous-time Lyapunov equation
