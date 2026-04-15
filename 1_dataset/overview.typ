@@ -469,7 +469,7 @@ This represents a memoryless process,
 solely dependent on the stochastic force.
 Each timestep is an independent Gaussian increment with variance $A_0$.
 $
-  x(t+1) ~cal(N)(0,A_0)
+  x(t + h) ~cal(N)(0,A_0)
 $
 
 2. *Exponential model*:
@@ -478,7 +478,7 @@ $
   dv(x(t), t) = theta x(t) + F(t), quad theta = - 1/tau
 $
 $
-  x(t+1) ~ cal(N)(e^(theta h)x(t), sigma^2) ,quad sigma^2 = A_0/(2tau) (1 - e^(-(2h)/tau))
+  x(t + h) ~ cal(N)(e^(theta h)x(t), sigma^2) ,quad sigma^2 = A_0/(2tau) (1 - e^(-(2h)/tau))
 $
 3. *Stochastic Harmonic Oscillator*:
 The underlying set of linear SDEs for this two-dimensional system is given by
