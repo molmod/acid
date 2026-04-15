@@ -105,7 +105,7 @@ class SHOTerm(BaseTerm):
             0, 2, 1
         )
         traj = np.zeros((nstep, 2, nseq))
-        traj[:, :, 0] = noise[:, :, 0]
+        traj[0, :, :] = noise[0, :, :]
 
         for istep in range(1, nstep):
             traj[istep, :, :] = noise[istep, :, :] + self.matexp @ traj[istep - 1, :, :]
@@ -133,13 +133,12 @@ class ExpTerm(BaseTerm):
         return acf, psd, msd
 
     def sample(self, nseq: int, nstep: int, rng: np.random.Generator) -> NDArray[float]:
-        traj = np.zeros((nstep, nseq))
+        traj = np.zeros((nseq, nstep))
         var = self.a0 / (2 * self.tau)
-        noise = rng.normal(0, np.sqrt(var * (1 - np.exp(-2 / self.tau))), size=(nstep, nseq))
+        noise = rng.normal(0, np.sqrt(var * (1 - np.exp(-2 / self.tau))), size=(nseq, nstep))
         traj[:, 0] = noise[:, 0]
         prop = np.exp(-1 / self.tau)
-        traj = sp.signal.lfilter([1.0], [1.0, -prop], x=noise, axis=0)
-        return traj.transpose(1, 0)
+        return sp.signal.lfilter([1.0], [1.0, -prop], x=noise)
 
 
 @attrs.define
