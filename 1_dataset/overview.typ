@@ -42,7 +42,7 @@ The ACID data set consists of synthetic time-correlated sequences with different
 The purpose of the data set is to validate algorithms for estimating the integral of an autocorrelation function, which is relevant for uncertainty quantification and the estimation of transport properties.
 The first application was to validate the algorithm implemented in #link("https://molmod.github.io/stacie", [STACIE]).
 
-The set contains in total 15360 test cases, and each case consists of one or more time series.
+The set contains in total 19200 test cases, and each case consists of one or more time series.
 They are organized such that one can systematically study the convergence of the statistical estimate of the autocorrelation integral (and its uncertainty)
 with increasing sequence length ($N$) and increasing number of sequences used as input ($M$).
 
@@ -203,7 +203,7 @@ $
   caption: [Summary of kernels used in the ACID test set.]
 ) <tab-summary>
 
-For each kernel, sequences with $N =$ 1024, 4096, 16384, and 65536 steps are generated, using a dimensionless time step $h=1$.
+For each kernel, sequences with $N =$ 256, 1024, 4096, 16384, and 65536 steps are generated, using a dimensionless time step $h=1$.
 For sequence length, test cases are created comprising $M =$ 1, 4, 16, 64, and 256 independent sequences.
 To ensure statistical robustness, each $("kernel", N, M)$ combination is repeated with 64 unique random seeds.
 
@@ -249,15 +249,15 @@ Example sequences, ACFs and PSDs for all kernels are shown in @fig-seqs, @fig-ac
 
 All kernels have an autocorrelation integral of 1.
 This is achieved by choosing the $A_0$ parameters of the models used in each kernel such that the sum of their autocorrelation integrals equals one.
-The kernels are parametrized to have an almost quadratic PSD close to zero frequency, with deviations less than 2.5% RMS for the first 20 grid points of the spectrum and less than 10% for the first 40 points.
-This has two important implications on the data:
+// The kernels are parametrized to have an almost quadratic PSD close to zero frequency, with deviations less than 2.5% RMS for the first 20 grid points of the spectrum and less than 10% for the first 40 points.
+// This has two important implications on the data:
 
-- It guarantees that also the shortest synthetic sequences (1024 steps) are just long enough
-  to capture the slowest time correlations.
-  (For longer sequences, the deviation from the quadratic fit are much smaller.)
-- For the spectra averaged over 256 sequences, the relative error is about $1/sqrt(256)$, which corresponds to 6.25%.
-  This is larger than the systematic deviation between the quadratic model and the real PSD
-  for the first 20 points.
+// - It guarantees that also the shortest synthetic sequences (256 steps) are just long enough
+//   to capture the slowest time correlations.
+//   (For longer sequences, the deviation from the quadratic fit are much smaller.)
+// - For the spectra averaged over 256 sequences, the relative error is about $1/sqrt(256)$, which corresponds to 6.25%.
+//   This is larger than the systematic deviation between the quadratic model and the real PSD
+//   for the first 20 points.
 
 == Data Organization
 For each kernel, data are stored in an uncompressed ZIP archive following the pattern `{kernel_name}.zip`.
