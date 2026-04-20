@@ -4,14 +4,14 @@
     "exp1w",
     "exp2",
     "sho1pcrit",
-    "sho1pover",
     "sho1punder",
     "sho1wcrit",
-    "sho1wover",
     "sho1wunder",
     "sho2crit",
-    "sho2over",
-    "sho2under"
+    "sho2under",
+    "poly1p",
+    "poly1w",
+    "poly1exp"
   ],
   "nseqs": [
     1,
@@ -21,6 +21,7 @@
     256
   ],
   "nsteps": [
+    256,
     1024,
     4096,
     16384,
