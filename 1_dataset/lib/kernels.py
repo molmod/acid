@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: CC-BY-SA-4.0 OR LGPL-3.0-or-later
 
 import attrs
+import mpmath as mp
 import numpy as np
 import scipy as sp
 from numpy.typing import NDArray
@@ -28,6 +29,81 @@ class BaseTerm:
 
     def compute(self, freqs: NDArray[float], times: NDArray[float]):
         raise NotImplementedError
+
+
+@attrs.define
+class PolyTerm(BaseTerm):
+    alpha: float = attrs.field(converter=float)
+    theta: float = attrs.field(converter=float)
+
+    @property
+    def typst(self):
+        return f"upright(P)({self.a0}, {self.alpha}, {self.theta})"
+
+    @property
+    def latex(self):
+        return rf"\operatorname{{P}}({self.a0}, {self.alpha}, {self.theta})"
+
+    def compute(
+        self, freqs: NDArray[float], times: NDArray[float]
+    ) -> tuple[NDArray[float], NDArray[float], NDArray[float]]:
+        alpha = self.alpha
+        theta = self.theta
+        a0 = self.a0
+
+        if alpha <= 1 or alpha == 2:
+            raise ValueError(f"Invalid {alpha=}")
+
+        acf = a0 * (alpha - 1) / (2 * theta) * (1 + abs(times) / theta) ** (-alpha)
+
+        zs = 1j * 2 * np.pi * freqs * theta
+
+        def calculate_real_part_psd(alpha, zs):
+            real_parts_psd = np.zeros(zs.shape)
+            for index, z in enumerate(zs):
+                real_parts_psd[index] = float((mp.e ** (z) * mp.expint(alpha, z)).real)
+            return real_parts_psd
+
+        real_parts_psd = calculate_real_part_psd(alpha, zs)
+
+        psd = a0 * (alpha - 1) * real_parts_psd
+
+        msd = (alpha - 2) * abs(times) / theta - 1 + (1 + abs(times) / theta) ** (-alpha + 2)
+        msd *= a0 * theta / (alpha - 2)
+
+        return acf, psd, msd
+
+    def sample(self, nseq: int, nstep: int, rng: np.random.Generator) -> NDArray[float]:
+        alpha = self.alpha
+        order = 80
+        theta = self.theta
+
+        def make_grid_rational_chebyshev(order, theta, alpha):
+            i = np.arange(order)
+            x = -np.cos((2 * i + 1) / (2 * order) * np.pi)
+            wx = np.pi / order * np.sqrt(1 - x**2)
+            y = (1 + x) / (1 - x)
+            wy = wx * 2 / (1 - x) ** 2
+            pdf = y ** (alpha - 1) / sp.special.gamma(alpha) * np.exp(-y)
+            taus = theta / y
+            weights = wy * pdf
+            return taus, weights
+
+        taus, weights = make_grid_rational_chebyshev(order, theta, alpha)
+
+        # Prune quadrature grid.
+        mask = weights > weights.max() * 1e-34
+        taus = taus[mask]
+        print(f"The number of taus that we kept is{len(taus)}")
+        weights = weights[mask]
+
+        traj = np.zeros((nseq, nstep))
+
+        for tau, weight in zip(taus, weights, strict=True):
+            traj += np.sqrt(weight) * ExpTerm(self.a0 * (alpha - 1) / (theta) * tau, tau).sample(
+                nseq, nstep, rng
+            )
+        return traj
 
 
 @attrs.define
