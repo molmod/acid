@@ -185,7 +185,7 @@ $
   $
     c(Delta_t) = (A_0 (alpha -1))/(2 theta ) (1+ abs(Delta_t) / theta)^(-alpha)
   $
-  where $alpha gt 1$ represents the decay exponent, and $theta gt 0$ is a characteristic time scale.
+  where $alpha gt 1$ represents the power-law exponent, and $theta gt 0$ is a characteristic time scale.
 
   The PSD is:
   $

@@ -58,13 +58,28 @@ class PolyTerm(BaseTerm):
 
         zs = 1j * 2 * np.pi * freqs * theta
 
-        def calculate_real_part_psd(alpha, zs):
+        def _real_part_expintegral_psd(alpha: float, zs: NDArray[complex]) -> NDArray[float]:
+            r"""
+            Computes the real part of :math:`exp(z) E_\alpha(z)`, required for the PSD.
+
+            Parameters
+            ----------
+            alpha
+                Power-law exponent.
+            zs
+                Complex arguments for the PSD.
+
+            Returns
+            -------
+            real_parts_psd
+                The real part of :math:`exp(z) E_\alpha(z)` evaluated at each :math:`z`.
+            """
             real_parts_psd = np.zeros(zs.shape)
             for index, z in enumerate(zs):
                 real_parts_psd[index] = float((mp.e ** (z) * mp.expint(alpha, z)).real)
             return real_parts_psd
 
-        real_parts_psd = calculate_real_part_psd(alpha, zs)
+        real_parts_psd = _real_part_expintegral_psd(alpha, zs)
 
         psd = a0 * (alpha - 1) * real_parts_psd
 
@@ -75,10 +90,36 @@ class PolyTerm(BaseTerm):
 
     def sample(self, nseq: int, nstep: int, rng: np.random.Generator) -> NDArray[float]:
         alpha = self.alpha
-        order = 80
         theta = self.theta
 
-        def make_grid_rational_chebyshev(order, theta, alpha):
+        # Order of the numerical quadrature
+        order = 80
+
+        def make_grid_rational_chebyshev(
+            order: int, theta: float, alpha: float
+        ) -> tuple[NDArray[float], NDArray[float]]:
+            r"""
+            Constructs quadrature nodes and weights using rational Chebyshev quadrature.
+
+            The change of variables maps the semi-infinite interval :math:`tau \in \[0, \infty \)`
+            to :math:`x \in \[-1, 1\]`, enabling Chebyshev integration of the first kind.
+
+            Parameters
+            ----------
+            order
+                Order of the quadrature.
+            theta
+                The scaling factor of the polynomial kernel.
+            alpha
+                Power-law exponent.
+
+            Returns
+            -------
+            taus
+                The taus for which the exponentials are sampled.
+            weights
+                Quadrature weights associated with each tau.
+            """
             i = np.arange(order)
             x = -np.cos((2 * i + 1) / (2 * order) * np.pi)
             wx = np.pi / order * np.sqrt(1 - x**2)
@@ -94,7 +135,6 @@ class PolyTerm(BaseTerm):
         # Prune quadrature grid.
         mask = weights > weights.max() * 1e-34
         taus = taus[mask]
-        print(f"The number of taus that we kept is{len(taus)}")
         weights = weights[mask]
 
         traj = np.zeros((nseq, nstep))
