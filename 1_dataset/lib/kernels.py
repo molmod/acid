@@ -36,6 +36,21 @@ class BaseTerm:
 class PolyTerm(BaseTerm):
     alpha: float = attrs.field(converter=float)
     theta: float = attrs.field(converter=float)
+    taus: NDArray[float] = attrs.field(init=False)
+    weights: NDArray[float] = attrs.field(init=False)
+
+    def __attrs_post_init__(self):
+        # Order of the numerical quadrature
+        order = 80
+        taus, weights = make_grid_poly_rational_chebyshev(order, self.theta, self.alpha)
+
+        # Prune quadrature grid.
+        mask = weights > weights.max() * 1e-34
+        taus = taus[mask]
+        weights = weights[mask]
+
+        self.taus = taus
+        self.weights = weights
 
     @property
     def typst(self):
@@ -93,18 +108,9 @@ class PolyTerm(BaseTerm):
         alpha = self.alpha
         theta = self.theta
 
-        # Order of the numerical quadrature
-        order = 80
-        taus, weights = make_grid_poly_rational_chebyshev(order, theta, alpha)
-
-        # Prune quadrature grid.
-        mask = weights > weights.max() * 1e-34
-        taus = taus[mask]
-        weights = weights[mask]
-
         traj = np.zeros((nseq, nstep))
 
-        for tau, weight in zip(taus, weights, strict=True):
+        for tau, weight in zip(self.taus, self.weights, strict=True):
             traj += np.sqrt(weight) * ExpTerm(self.a0 * (alpha - 1) / (theta) * tau, tau).sample(
                 nseq, nstep, rng
             )
