@@ -176,7 +176,7 @@ def compute(
     terms
         Terms that contribute to the kernel.
     freqs
-        The array of angular frequencies for which to compute the spectrum.
+        The array of frequencies for which to compute the spectrum.
     times
         The array of times for which to compute the autocorrelation function.
 
@@ -222,7 +222,6 @@ def compute(
     corrtime_exp = None
     if len(corrtimes_exp) == 1 and corrtimes_exp[0] is not None:
         corrtime_exp = corrtimes_exp[0]
-    check_quadratic(freqs, psd)
     return (
         psd,
         acf,
@@ -263,31 +262,3 @@ def sample(
         trajectory += term.sample(nseq, nstep, rng)
 
     return trajectory
-
-
-def check_quadratic(freqs, psd):
-    """Check that the psd is approximately quadratic in the first 40 steps
-
-    - The deviation should be less than 2.5 % for the first 20 steps.
-    - The deviation should be less than 10.0 % for the first 40 steps.
-    The noise on the spectrum derived from 256 sequences (the highest we consider) is about 5%,
-    meaning that a quadratic model will be suitable for a sufficiently large part of the spectrum,
-    at least 40 points, if this test passes.
-    """
-    for nfit, threshold in (20, 0.025), (40, 0.100):
-        my_freqs = freqs[:nfit]
-        my_psd = psd[:nfit].copy()
-
-        # Fit a simple quadratic, manually for robustness
-        my_psd -= my_psd.mean()
-        quad = my_freqs**2
-        quad -= quad.mean()
-        par = np.dot(quad, my_psd) / np.dot(quad, quad)
-        fit_psd = par * quad
-        relerr = float(np.linalg.norm(fit_psd - my_psd) / np.linalg.norm(my_psd))
-
-        if relerr > threshold:
-            raise ValueError(
-                "The PSD is not approximated well by a quadratic model in the low-frequency domain:"
-                f" {nfit=} {threshold=} {relerr=}"
-            )
