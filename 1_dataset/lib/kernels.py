@@ -6,10 +6,11 @@ import mpmath as mp
 import numpy as np
 import scipy as sp
 from numpy.typing import NDArray
+from utils import make_grid_poly_rational_chebyshev
 
 np.seterr(over="raise", under="ignore", divide="raise", invalid="raise")
 
-__all__ = ("compute",)
+__all__ = ("compute", "sample")
 
 
 ACINT_REF = 1.0
@@ -94,43 +95,7 @@ class PolyTerm(BaseTerm):
 
         # Order of the numerical quadrature
         order = 80
-
-        def make_grid_rational_chebyshev(
-            order: int, theta: float, alpha: float
-        ) -> tuple[NDArray[float], NDArray[float]]:
-            r"""
-            Constructs quadrature nodes and weights using rational Chebyshev quadrature.
-
-            The change of variables maps the semi-infinite interval :math:`tau \in \[0, \infty \)`
-            to :math:`x \in \[-1, 1\]`, enabling Chebyshev integration of the first kind.
-
-            Parameters
-            ----------
-            order
-                Order of the quadrature.
-            theta
-                The scaling factor of the polynomial kernel.
-            alpha
-                Power-law exponent.
-
-            Returns
-            -------
-            taus
-                The taus for which the exponentials are sampled.
-            weights
-                Quadrature weights associated with each tau.
-            """
-            i = np.arange(order)
-            x = -np.cos((2 * i + 1) / (2 * order) * np.pi)
-            wx = np.pi / order * np.sqrt(1 - x**2)
-            y = (1 + x) / (1 - x)
-            wy = wx * 2 / (1 - x) ** 2
-            pdf = y ** (alpha - 1) / sp.special.gamma(alpha) * np.exp(-y)
-            taus = theta / y
-            weights = wy * pdf
-            return taus, weights
-
-        taus, weights = make_grid_rational_chebyshev(order, theta, alpha)
+        taus, weights = make_grid_poly_rational_chebyshev(order, theta, alpha)
 
         # Prune quadrature grid.
         mask = weights > weights.max() * 1e-34
