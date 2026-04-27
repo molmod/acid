@@ -84,18 +84,15 @@ def run(path_codec: Path, path_settings: Path, kernel: str, out: Path):
             if nstep % 2 != 0:
                 raise ValueError("Only an even nstep is supported.")
 
-            # Generate 2 times as much and discard the second half
-            # to create an aperiodic input with the right spectrum
-            nfull = 2 * nstep
-            times = np.arange(nfull, dtype=float)
-            freqs = np.fft.rfftfreq(nfull)
+            times = np.arange(nstep, dtype=float)
+            freqs = np.fft.rfftfreq(nstep)
             psd, acf, msd, corrtime_int, corrtime_exp, typst, latex = compute(terms, freqs, times)
 
-            dump_npy(nstep_path + "times.npy", zf, times[:nstep])
-            dump_npy(nstep_path + "acf.npy", zf, acf[:nstep])
-            dump_npy(nstep_path + "msd.npy", zf, msd[:nstep])
-            dump_npy(nstep_path + "freqs.npy", zf, freqs[::2])
-            dump_npy(nstep_path + "psd.npy", zf, psd[::2])
+            dump_npy(nstep_path + "times.npy", zf, times)
+            dump_npy(nstep_path + "acf.npy", zf, acf)
+            dump_npy(nstep_path + "msd.npy", zf, msd)
+            dump_npy(nstep_path + "freqs.npy", zf, freqs)
+            dump_npy(nstep_path + "psd.npy", zf, psd)
 
             std = np.sqrt(acf[0])
 
