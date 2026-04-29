@@ -36,6 +36,7 @@ class SHOTerm(BaseTerm):
     q: float = attrs.field(converter=float)
     matexp: NDArray[float] = attrs.field(init=False)
     covar: NDArray[float] = attrs.field(init=False)
+    stat_covar: NDArray[float] = attrs.field(init=False)
 
     def __attrs_post_init__(self):
         omega0 = 2 * np.pi * self.f0
@@ -49,8 +50,8 @@ class SHOTerm(BaseTerm):
         upper = 2 * np.dot(matexp, np.dot(b, matexp.T))
         lower = 2 * b
 
-        covar = sp.linalg.solve_continuous_lyapunov(theta, upper - lower)
-        self.covar = covar
+        self.covar = sp.linalg.solve_continuous_lyapunov(theta, upper - lower)
+        self.stat_covar = sp.linalg.solve_continuous_lyapunov(theta, -lower)
 
     @property
     def typst(self) -> str:
@@ -107,7 +108,7 @@ class SHOTerm(BaseTerm):
             0, 2, 1
         )
         traj = np.zeros((nstep, 2, nseq))
-        traj[0, :, :] = noise[0, :, :]
+        traj[0, :, :] = rng.multivariate_normal(np.zeros(2), self.stat_covar, size=nseq).T
 
         for istep in range(1, nstep):
             traj[istep, :, :] = noise[istep, :, :] + self.matexp @ traj[istep - 1, :, :]
@@ -135,12 +136,13 @@ class ExpTerm(BaseTerm):
         return acf, psd, msd
 
     def sample(self, nseq: int, nstep: int, rng: np.random.Generator) -> NDArray[float]:
-        traj = np.zeros((nseq, nstep))
         var = self.a0 / (2 * self.tau)
         noise = rng.normal(0, np.sqrt(var * (1 - np.exp(-2 / self.tau))), size=(nseq, nstep))
-        traj[:, 0] = noise[:, 0]
         prop = np.exp(-1 / self.tau)
-        return sp.signal.lfilter([1.0], [1.0, -prop], x=noise)
+        x0 = rng.normal(0, np.sqrt(var), size=nseq)
+        zi = (x0 * prop)[:, np.newaxis]  # shape (nseq, 1)
+        result, _ = sp.signal.lfilter([1.0], [1.0, -prop], x=noise, zi=zi)
+        return result
 
 
 @attrs.define
@@ -176,7 +178,7 @@ def compute(
     terms
         Terms that contribute to the kernel.
     freqs
-        The array of angular frequencies for which to compute the spectrum.
+        The array of frequencies for which to compute the spectrum.
     times
         The array of times for which to compute the autocorrelation function.
 
