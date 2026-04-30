@@ -71,32 +71,10 @@ class PolyTerm(BaseTerm):
             raise ValueError(f"Invalid {alpha=}")
 
         acf = a0 * (alpha - 1) / (2 * theta) * (1 + abs(times) / theta) ** (-alpha)
-
         zs = 1j * 2 * np.pi * freqs * theta
 
-        def _real_part_expintegral_psd(alpha: float, zs: NDArray[complex]) -> NDArray[float]:
-            r"""
-            Computes the real part of :math:`exp(z) E_\alpha(z)`, required for the PSD.
-
-            Parameters
-            ----------
-            alpha
-                Power-law exponent.
-            zs
-                Complex arguments for the PSD.
-
-            Returns
-            -------
-            real_parts_psd
-                The real part of :math:`exp(z) E_\alpha(z)` evaluated at each :math:`z`.
-            """
-            real_parts_psd = np.zeros(zs.shape)
-            for index, z in enumerate(zs):
-                real_parts_psd[index] = float((mp.e ** (z) * mp.expint(alpha, z)).real)
-            return real_parts_psd
-
-        real_parts_psd = _real_part_expintegral_psd(alpha, zs)
-
+        # Compute the real part of exp(z) * E_\alpha(z), required for the analytical PSD
+        real_parts_psd = np.array([float((mp.exp(z) * mp.expint(alpha, z)).real) for z in zs])
         psd = a0 * (alpha - 1) * real_parts_psd
 
         msd = (alpha - 2) * abs(times) / theta - 1 + (1 + abs(times) / theta) ** (-alpha + 2)
