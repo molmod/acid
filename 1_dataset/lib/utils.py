@@ -67,18 +67,18 @@ def make_grid_poly_rational_chebyshev(
     Parameters
     ----------
     order
-    Order of the quadrature.
+        Order of the quadrature.
     theta
-    The scaling factor of the polynomial kernel.
+        The scaling factor of the polynomial kernel.
     alpha
-    Power-law exponent.
+        Power-law exponent.
 
     Returns
     -------
     taus
-    The taus for which the exponentials are sampled.
+        The taus for which the exponentials are sampled.
     weights
-    Quadrature weights associated with each tau.
+        Quadrature weights associated with each tau.
     """
     i = np.arange(order)
     x = -np.cos((2 * i + 1) / (2 * order) * np.pi)
