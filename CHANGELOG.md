@@ -43,11 +43,12 @@ A major refactoring of the ACID dataset.
   and are no longer included here.
   See <https://github.com/molmod/acid-test>
 
-## [1.2.1] - 2026-04-01
+## [1.2.1] - 2026-05-04
 
 ### Fixed
 
-- Rename symbol `C_0` to `A_0` to avoid confusion with the Lorentz model parameter `C_0` in STACIE, which has a different meaning.
+- Rename symbol `C_0` to `A_0` to avoid confusion with the Lorentz model parameter `C_0` in STACIE,
+  which has a different meaning.
 - Fix mistake in the Typst equation for ACF of the stochastic harmonic oscillator.
 
 ## [1.2.0] - 2025-12-24
