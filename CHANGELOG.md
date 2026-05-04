@@ -7,9 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.1] - 2026-05-04
+
 ### Fixed
 
-- Rename symbol `C_0` to `A_0` to avoid confusion with the Lorentz model parameter `C_0` in STACIE, which has a different meaning.
+- Rename symbol `C_0` to `A_0` to avoid confusion with the Lorentz model parameter `C_0` in STACIE,
+  which has a different meaning.
 - Fix mistake in the Typst equation for ACF of the stochastic harmonic oscillator.
 
 ## [1.2.0] - 2025-12-24
@@ -55,4 +58,5 @@ Initial version released.
 [1.0.1]: https://doi.org/10.5281/zenodo.17387376
 [1.1.0]: https://doi.org/10.5281/zenodo.17573835
 [1.2.0]: https://doi.org/10.5281/zenodo.18044643
+[1.2.1]: https://doi.org/10.5281/zenodo.20026468
 [unreleased]: https://github.com/molmod/acid
