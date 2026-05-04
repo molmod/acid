@@ -3,4 +3,4 @@
 
 from kernels import PowTerm, WhiteTerm
 
-terms = [PowTerm(0.9, 1.5, 5.0), WhiteTerm(0.1)]
+terms = [PowTerm(0.9, 1.5, 2.0), WhiteTerm(0.1)]
