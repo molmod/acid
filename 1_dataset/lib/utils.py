@@ -55,7 +55,7 @@ def lookup_integer(sequence: NDArray[float], std: float, table: NDArray[float]) 
     return np.searchsorted(table, sequence / std)
 
 
-def make_grid_poly_rational_chebyshev(
+def make_grid_pow_rational_chebyshev(
     order: int, theta: float, alpha: float
 ) -> tuple[NDArray[float], NDArray[float]]:
     r"""
@@ -69,7 +69,7 @@ def make_grid_poly_rational_chebyshev(
     order
         Order of the quadrature.
     theta
-        The scaling factor of the polynomial kernel.
+        The scaling factor of the power-term kernel.
     alpha
         Power-law exponent.
 

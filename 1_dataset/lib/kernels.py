@@ -6,7 +6,7 @@ import mpmath as mp
 import numpy as np
 import scipy as sp
 from numpy.typing import NDArray
-from utils import make_grid_poly_rational_chebyshev
+from utils import make_grid_pow_rational_chebyshev
 
 np.seterr(over="raise", under="ignore", divide="raise", invalid="raise")
 
@@ -33,7 +33,7 @@ class BaseTerm:
 
 
 @attrs.define
-class PolyTerm(BaseTerm):
+class PowTerm(BaseTerm):
     alpha: float = attrs.field(converter=float)
     theta: float = attrs.field(converter=float)
     taus: NDArray[float] = attrs.field(init=False)
@@ -42,7 +42,7 @@ class PolyTerm(BaseTerm):
     def __attrs_post_init__(self):
         # Order of the numerical quadrature
         order = 80
-        taus, weights = make_grid_poly_rational_chebyshev(order, self.theta, self.alpha)
+        taus, weights = make_grid_pow_rational_chebyshev(order, self.theta, self.alpha)
 
         # Prune quadrature grid.
         mask = weights > weights.max() * 1e-34
