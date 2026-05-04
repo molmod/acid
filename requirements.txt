@@ -142,6 +142,8 @@ mdurl==0.1.2
     # via markdown-it-py
 mistune==3.2.0
     # via nbconvert
+mpmath==1.4.1
+    # via -r requirements.in
 nbclient==0.10.4
     # via
     #   nbconvert

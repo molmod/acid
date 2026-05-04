@@ -2,13 +2,15 @@
 # SPDX-License-Identifier: CC-BY-SA-4.0 OR LGPL-3.0-or-later
 
 import attrs
+import mpmath as mp
 import numpy as np
 import scipy as sp
 from numpy.typing import NDArray
+from utils import make_grid_pow_rational_chebyshev
 
 np.seterr(over="raise", under="ignore", divide="raise", invalid="raise")
 
-__all__ = ("compute",)
+__all__ = ("compute", "sample")
 
 
 ACINT_REF = 1.0
@@ -28,6 +30,69 @@ class BaseTerm:
 
     def compute(self, freqs: NDArray[float], times: NDArray[float]):
         raise NotImplementedError
+
+
+@attrs.define
+class PowTerm(BaseTerm):
+    alpha: float = attrs.field(converter=float)
+    theta: float = attrs.field(converter=float)
+    taus: NDArray[float] = attrs.field(init=False)
+    weights: NDArray[float] = attrs.field(init=False)
+
+    def __attrs_post_init__(self):
+        # Order of the numerical quadrature
+        order = 80
+        taus, weights = make_grid_pow_rational_chebyshev(order, self.theta, self.alpha)
+
+        # Prune quadrature grid.
+        mask = weights > weights.max() * 1e-34
+        taus = taus[mask]
+        weights = weights[mask]
+
+        self.taus = taus
+        self.weights = weights
+
+    @property
+    def typst(self):
+        return f"upright(P)({self.a0}, {self.alpha}, {self.theta})"
+
+    @property
+    def latex(self):
+        return rf"\operatorname{{P}}({self.a0}, {self.alpha}, {self.theta})"
+
+    def compute(
+        self, freqs: NDArray[float], times: NDArray[float]
+    ) -> tuple[NDArray[float], NDArray[float], NDArray[float]]:
+        alpha = self.alpha
+        theta = self.theta
+        a0 = self.a0
+
+        if alpha <= 1 or alpha == 2:
+            raise ValueError(f"Invalid {alpha=}")
+
+        acf = a0 * (alpha - 1) / (2 * theta) * (1 + abs(times) / theta) ** (-alpha)
+        zs = 1j * 2 * np.pi * freqs * theta
+
+        # Compute the real part of exp(z) * E_\alpha(z), required for the analytical PSD
+        real_parts_psd = np.array([float((mp.exp(z) * mp.expint(alpha, z)).real) for z in zs])
+        psd = a0 * (alpha - 1) * real_parts_psd
+
+        msd = (alpha - 2) * abs(times) / theta - 1 + (1 + abs(times) / theta) ** (-alpha + 2)
+        msd *= a0 * theta / (alpha - 2)
+
+        return acf, psd, msd
+
+    def sample(self, nseq: int, nstep: int, rng: np.random.Generator) -> NDArray[float]:
+        alpha = self.alpha
+        theta = self.theta
+
+        traj = np.zeros((nseq, nstep))
+
+        for tau, weight in zip(self.taus, self.weights, strict=True):
+            traj += np.sqrt(weight) * ExpTerm(self.a0 * (alpha - 1) / (theta) * tau, tau).sample(
+                nseq, nstep, rng
+            )
+        return traj
 
 
 @attrs.define

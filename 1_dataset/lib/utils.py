@@ -6,6 +6,7 @@ import json
 import zipfile
 
 import numpy as np
+import scipy as sp
 from numpy.typing import NDArray
 
 
@@ -52,3 +53,39 @@ def lookup_integer(sequence: NDArray[float], std: float, table: NDArray[float]) 
 
     """
     return np.searchsorted(table, sequence / std)
+
+
+def make_grid_pow_rational_chebyshev(
+    order: int, theta: float, alpha: float
+) -> tuple[NDArray[float], NDArray[float]]:
+    r"""
+    Constructs quadrature nodes and weights using rational Chebyshev quadrature.
+
+    The change of variables maps the semi-infinite interval :math:`tau \in \[0, \infty \)`
+    to :math:`x \in \[-1, 1\]`, enabling Chebyshev integration of the first kind.
+
+    Parameters
+    ----------
+    order
+        Order of the quadrature.
+    theta
+        The scaling factor of the power-term kernel.
+    alpha
+        Power-law exponent.
+
+    Returns
+    -------
+    taus
+        The taus for which the exponentials are sampled.
+    weights
+        Quadrature weights associated with each tau.
+    """
+    i = np.arange(order)
+    x = -np.cos((2 * i + 1) / (2 * order) * np.pi)
+    wx = np.pi / order * np.sqrt(1 - x**2)
+    y = (1 + x) / (1 - x)
+    wy = wx * 2 / (1 - x) ** 2
+    pdf = y ** (alpha - 1) / sp.special.gamma(alpha) * np.exp(-y)
+    taus = theta / y
+    weights = wy * pdf
+    return taus, weights

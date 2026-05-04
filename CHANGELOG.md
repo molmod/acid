@@ -16,6 +16,7 @@ A major refactoring of the ACID dataset.
 
 ### Added
 
+- Added the power-law kernel model.
 - Added analytical mean-squared displacements (MSDs) for all covariance kernels to the dataset.
 - Added empirical MSD calculations from the trajectories.
 - Added a section on trajectory generation using linear stochastic differential equations in `overview.typ`.
@@ -23,6 +24,7 @@ A major refactoring of the ACID dataset.
 
 ### Changed
 
+- Updated the kernel set to a new collection of 12 kernels, including the power-law kernel model.
 - Renamed directories to make the order of execution more explicit.
 - Included reference `acint` and `corrtime_exp` metadata in ZIP files.
 - All trajectories are sampled using linear stochastic differential equations.

@@ -8,7 +8,7 @@ Both tests simply check that the second derivative of the MSD divided by 2 match
 import numdifftools as nd
 import numpy as np
 import pytest
-from kernels import ExpTerm, SHOTerm
+from kernels import ExpTerm, PowTerm, SHOTerm
 
 
 def make_wrappers(term):
@@ -46,6 +46,23 @@ def test_sho_msd(a0, f0, q):
     sho = SHOTerm(a0, f0, q)
     acf, msd = make_wrappers(sho)
 
+    times = np.linspace(0.1, 10.0, 20)
+    acf_analytic = acf(times)
+    acf_numeric = nd.Derivative(msd, n=2)(times) / 2
+    assert acf_analytic == pytest.approx(acf_numeric, rel=1e-5)
+
+
+@pytest.mark.parametrize(
+    ("a0", "alpha", "theta"),
+    [
+        (1.2, 1.5, 0.2),
+        (1.2, 1.5, 1.0),
+        (1.2, 1.5, 2.5),
+    ],
+)
+def test_pow_msd(a0, alpha, theta):
+    power = PowTerm(a0, alpha, theta)
+    acf, msd = make_wrappers(power)
     times = np.linspace(0.1, 10.0, 20)
     acf_analytic = acf(times)
     acf_numeric = nd.Derivative(msd, n=2)(times) / 2

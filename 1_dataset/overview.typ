@@ -42,7 +42,7 @@ The ACID data set consists of synthetic time-correlated sequences with different
 The purpose of the data set is to validate algorithms for estimating the integral of an autocorrelation function, which is relevant for uncertainty quantification and the estimation of transport properties.
 The first application was to validate the algorithm implemented in #link("https://molmod.github.io/stacie", [STACIE]).
 
-The set contains in total 15360 test cases, and each case consists of one or more time series.
+The set contains in total 19200 test cases, and each case consists of one or more time series.
 They are organized such that one can systematically study the convergence of the statistical estimate of the autocorrelation integral (and its uncertainty)
 with increasing sequence length ($N$) and increasing number of sequences used as input ($M$).
 
@@ -61,10 +61,10 @@ If not, see:
 
 = Overview of the data
 
-Covariance kernels are constructed with one or two of the following three models.
+Covariance kernels are constructed with one or two of the following four models.
 In all models, the parameter $A_0$ corresponds to the integral of the autocorrelation function for that specific contribution.
 This value is equal to the zero-frequency limit of the power spectral density.
-The three kernel models in continuous time and frequency domains are described by their autocorrelation function (ACF):
+The four kernel models in continuous time and frequency domains are described by their autocorrelation function (ACF):
 
 $
   c(Delta_t) = upright("COV")[ hat(x)(t), hat(x)(t + Delta_t)]
@@ -181,9 +181,29 @@ $
 
    This model will be denoted as $upright(S)(A_0, f_0, Q)$.
 
+4. The *power-law model* has an ACF with power-law decay:
+  $
+    c(Delta_t) = (A_0 (alpha -1))/(2 theta ) (1+ abs(Delta_t) / theta)^(-alpha)
+  $
+  where $alpha gt 1$ represents the power-law exponent, and $theta gt 0$ is a characteristic time scale.
+
+  The PSD is:
+  $
+    C(f) = A_0 (alpha - 1) Re[e^(2 pi i f theta)E_alpha (2 pi i f theta)]
+  $
+  where $Re(z)$ denotes the real part and $E_p (z)$ represents the generalized exponential integral defined as
+  $
+    E_p (z) = integral_1^infinity (e^(-z t))/t^p dif t
+  $
+  The corresponding MSD is:
+  $
+    "MSD" = A_0 abs(Delta_t) + (A_0 theta) / (alpha - 2) [ -1 + (1+ abs(Delta_t)/ theta)^(-alpha + 2)]
+  $
+  This model will be denoted as $upright(P)(A_0, alpha, theta)$.
+
 == Kernel Construction
 
-Using these three models, 12 covariance kernels are defined in @tab-summary and were used to generate time-correlated sequences,
+Using these four models, 12 covariance kernels are defined in @tab-summary and were used to generate time-correlated sequences,
 where the integrated correlation times ($tau_"int"$) are calculated using
 
 $
@@ -203,7 +223,7 @@ $
   caption: [Summary of kernels used in the ACID test set.]
 ) <tab-summary>
 
-For each kernel, sequences with $N =$ 1024, 4096, 16384, and 65536 steps are generated, using a dimensionless time step $h=1$.
+For each kernel, sequences with $N =$ 256, 1024, 4096, 16384, and 65536 steps are generated, using a dimensionless time step $h=1$.
 For sequence length, test cases are created comprising $M =$ 1, 4, 16, 64, and 256 independent sequences.
 To ensure statistical robustness, each $("kernel", N, M)$ combination is repeated with 64 unique random seeds.
 
@@ -249,15 +269,15 @@ Example sequences, ACFs and PSDs for all kernels are shown in @fig-seqs, @fig-ac
 
 All kernels have an autocorrelation integral of 1.
 This is achieved by choosing the $A_0$ parameters of the models used in each kernel such that the sum of their autocorrelation integrals equals one.
-The kernels are parametrized to have an almost quadratic PSD close to zero frequency, with deviations less than 2.5% RMS for the first 20 grid points of the spectrum and less than 10% for the first 40 points.
-This has two important implications on the data:
+// The kernels are parametrized to have an almost quadratic PSD close to zero frequency, with deviations less than 2.5% RMS for the first 20 grid points of the spectrum and less than 10% for the first 40 points.
+// This has two important implications on the data:
 
-- It guarantees that also the shortest synthetic sequences (1024 steps) are just long enough
-  to capture the slowest time correlations.
-  (For longer sequences, the deviation from the quadratic fit are much smaller.)
-- For the spectra averaged over 256 sequences, the relative error is about $1/sqrt(256)$, which corresponds to 6.25%.
-  This is larger than the systematic deviation between the quadratic model and the real PSD
-  for the first 20 points.
+// - It guarantees that also the shortest synthetic sequences (256 steps) are just long enough
+//   to capture the slowest time correlations.
+//   (For longer sequences, the deviation from the quadratic fit are much smaller.)
+// - For the spectra averaged over 256 sequences, the relative error is about $1/sqrt(256)$, which corresponds to 6.25%.
+//   This is larger than the systematic deviation between the quadratic model and the real PSD
+//   for the first 20 points.
 
 == Data Organization
 For each kernel, data are stored in an uncompressed ZIP archive following the pattern `{kernel_name}.zip`.
@@ -461,7 +481,7 @@ $
 $
 
 
-Using this framework, trajectories for the three kernel models are
+Using this framework, trajectories for the four kernel models are
 generated using these linear SDEs as follows.
 
 1. *White noise*:
@@ -504,6 +524,53 @@ A closed-form expression exists,
 but is lengthy and depends on the damping regime,
 and is therefore not shown here.
 
+
+4. *Power-law model*:
+To the best of our knowledge,
+the power-law model cannot be represented exactly by any finite-dimensional linear SDE.
+Instead, the power-law decaying ACF can be represented as a superposition of exponentials,
+based on the following Laplace-type integral representation
+$
+  (1+ abs(Delta_t)/theta)^(-alpha) & = cal(L)[w(tau)] \
+                                   & = integral_0^infinity w(tau) exp(-abs(Delta_t)/tau) dif tau
+$
+with
+$
+  w(tau) & = theta^2/Gamma(alpha) tau^(-(alpha + 1)) exp(-theta/tau)
+$
+Using this identity,
+the power-law kernel can be rewritten as
+$
+  c(Delta_t) = (A_0 (alpha - 1))/(2 theta) integral_0^infinity w(tau) exp(-abs(Delta_t)/tau) dif tau
+$
+
+
+Using numerical quadrature,
+this integral can be approximated by a finite sum of exponentially decaying kernels:
+$
+  c(Delta_t) & approx sum_(i=1)^("order")w(tau_i) ((A_0(alpha-1))/(2theta)) exp(-abs(Delta_t)/tau_i) \
+             & approx sum_(i=1)^("order")w(tau_i) A_(0,i)^"exp"/(2tau_i) exp(-abs(Delta_t)/tau_i) \
+             & approx sum_(i=1)^("order")w(tau_i) upright(E)(A_(0,i)^"exp", tau_i) \
+$
+where $upright(E)(A_(0,i)^"exp", tau)$ is the previously defined exponential kernel and $A_(0,i)^"exp"$ is defined as
+$
+  A_(0,i)^"exp" = (A_0(alpha-1) tau_i)/(theta)
+$
+The semi-infinite integration domain $tau in [0, infinity)$ is mapped to a finite interval using the variable transformation:
+$
+  1/tau =(1 + k)/(1-k) quad k in[-1,1]
+$
+which introduces a Jacobian $2/(1-k^2)$.
+The quadrature nodes $tau_i$ and weights $w(tau_i)$ are obtained using Chebyshev quadrature of the first kind.
+By increasing the quadrature order,
+arbitrary accuracy can be reached.
+
+Finally, trajectories of the power-law model are generated by sampling a finite set of independent exponential kernels,
+and taking linear combinations of the resulting trajectories according to
+$
+  x^("pow")(t) = sum_i sqrt(w(tau_i)) space x_i^"exp" (t)
+$
+
 = Data generation
 
 All Python scripts required for data generation and analysis are included in the archive.
@@ -535,6 +602,7 @@ The following software is required to use the dataset:
 - Python >= 3.11
 - NumPy >= 2
 - SciPy >= 1.16
+- mpmath >= 1.4
 
 To fully reconstruct the dataset, the following additional Python packages are required:
 
