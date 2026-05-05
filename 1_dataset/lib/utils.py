@@ -56,7 +56,7 @@ def lookup_integer(sequence: NDArray[float], std: float, table: NDArray[float]) 
 
 
 def make_grid_pow_rational_chebyshev(
-    order: int, theta: float, alpha: float
+    order: int, theta: float, alpha: float, threshold: float = 1e-34
 ) -> tuple[NDArray[float], NDArray[float]]:
     r"""
     Constructs quadrature nodes and weights using rational Chebyshev quadrature.
@@ -72,6 +72,9 @@ def make_grid_pow_rational_chebyshev(
         The scaling factor of the power-term kernel.
     alpha
         Power-law exponent.
+    threshold
+        Relative threshold used to prune the quadrature grid,
+        using :math:`weights.max() * threshold`.
 
     Returns
     -------
@@ -88,4 +91,10 @@ def make_grid_pow_rational_chebyshev(
     pdf = y ** (alpha - 1) / sp.special.gamma(alpha) * np.exp(-y)
     taus = theta / y
     weights = wy * pdf
+
+    # Prune quadrature grid.
+    mask = weights > weights.max() * threshold
+    taus = taus[mask]
+    weights = weights[mask]
+
     return taus, weights

@@ -44,11 +44,6 @@ class PowTerm(BaseTerm):
         order = 80
         taus, weights = make_grid_pow_rational_chebyshev(order, self.theta, self.alpha)
 
-        # Prune quadrature grid.
-        mask = weights > weights.max() * 1e-34
-        taus = taus[mask]
-        weights = weights[mask]
-
         self.taus = taus
         self.weights = weights
 
