@@ -16,9 +16,9 @@ wrap_git("git describe --tags", out="git-version.txt")
 wrap_git("git log -n1 --pretty='format:(%cs %h)'", out="git-date.txt")
 
 # Declare static files
-static("overview.typ", "settings.json", "../matplotlibrc", "kernels/", "lib/", "scripts/")
+static("overview.typ", "settings.json", "../matplotlibrc", "kernels/", "../lib/", "scripts/")
 glob("kernels/*.py")
-glob("lib/*.py")
+glob("../lib/*.py")
 glob("scripts/*.py")
 mkdir("output/")
 runpy(
