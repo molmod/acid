@@ -60,9 +60,7 @@ class PowTerm(BaseTerm):
     def latex(self):
         return rf"\operatorname{{P}}({self.a0}, {self.alpha}, {self.theta})"
 
-    def compute(
-        self, freqs: NDArray[float], times: NDArray[float]
-    ) -> tuple[NDArray[float], NDArray[float], NDArray[float]]:
+    def compute_acf(self, times: NDArray[float], ml=np) -> NDArray[float]:
         alpha = self.alpha
         theta = self.theta
         a0 = self.a0
@@ -70,17 +68,33 @@ class PowTerm(BaseTerm):
         if alpha <= 1 or alpha == 2:
             raise ValueError(f"Invalid {alpha=}")
 
-        acf = a0 * (alpha - 1) / (2 * theta) * (1 + abs(times) / theta) ** (-alpha)
-        zs = 1j * 2 * np.pi * freqs * theta
+        return a0 * (alpha - 1) / (2 * theta) * (1 + abs(times) / theta) ** (-alpha)
 
+    def compute_psd(self, freqs: NDArray[float], ml=np) -> NDArray[float]:
+        alpha = self.alpha
+        theta = self.theta
+        a0 = self.a0
+
+        if alpha <= 1 or alpha == 2:
+            raise ValueError(f"Invalid {alpha=}")
+
+        zs = 1j * 2 * ml.pi * freqs * theta
         # Compute the real part of exp(z) * E_\alpha(z), required for the analytical PSD
+        # expint is always evaluated with mpmath
         real_parts_psd = np.array([float((mp.exp(z) * mp.expint(alpha, z)).real) for z in zs])
-        psd = a0 * (alpha - 1) * real_parts_psd
+        return a0 * (alpha - 1) * real_parts_psd
+
+    def compute_msd(self, times: NDArray[float], ml=np) -> NDArray[float]:
+        alpha = self.alpha
+        theta = self.theta
+        a0 = self.a0
+
+        if alpha <= 1 or alpha == 2:
+            raise ValueError(f"Invalid {alpha=}")
 
         msd = (alpha - 2) * abs(times) / theta - 1 + (1 + abs(times) / theta) ** (-alpha + 2)
         msd *= a0 * theta / (alpha - 2)
-
-        return acf, psd, msd
+        return msd
 
     def sample(self, nseq: int, nstep: int, rng: np.random.Generator) -> NDArray[float]:
         alpha = self.alpha
@@ -126,47 +140,69 @@ class SHOTerm(BaseTerm):
     def latex(self) -> str:
         return rf"\operatorname{{S}}({self.a0}, {self.f0}, {self.q})"
 
-    def compute(
-        self, freqs: NDArray[float], times: NDArray[float]
-    ) -> tuple[NDArray[float], NDArray[float], NDArray[float]]:
+    def compute_acf(self, times: NDArray[float], ml=np) -> NDArray[float]:
         a0 = self.a0
         f0 = self.f0
         q = self.q
-        eta = np.sqrt(abs(1 / (4 * q**2) - 1))
-        ft = 2 * np.pi * f0 * abs(times)
-        prefactor = a0 / (2 * np.pi * f0 * q)
+        eta = ml.sqrt(abs(1 / (4 * q**2) - 1))
+        ft = 2 * ml.pi * f0 * abs(times)
+
+        if 0 < q < 0.5:
+            exp_arg_plus = (eta - 0.5 / q) * ft
+            exp_arg_minus = (-eta - 0.5 / q) * ft
+
+            acf = q * (ml.exp(exp_arg_plus) + ml.exp(exp_arg_minus))
+            acf += (ml.exp(exp_arg_plus) - ml.exp(exp_arg_minus)) / (2 * eta)
+            acf *= 0.5 * ml.pi * a0 * f0
+
+        elif q >= 0.5:
+            acf = a0 * ml.pi * f0 * q * ml.exp(-0.5 * ft / q)
+            if q == 0.5:
+                acf *= 1 + ft
+            else:
+                scarg = eta * ft
+                acf *= ml.cos(scarg) + ml.sin(scarg) / (2 * eta * q)
+        else:
+            raise ValueError(f"Invalid {q=}")
+
+        return acf
+
+    def compute_psd(self, freqs: NDArray[float], ml=np) -> NDArray[float]:
+        return (
+            self.a0 * self.f0**4 / ((freqs**2 - self.f0**2) ** 2 + (freqs * self.f0 / self.q) ** 2)
+        )
+
+    def compute_msd(self, times: NDArray[float], ml=np) -> NDArray[float]:
+        a0 = self.a0
+        f0 = self.f0
+        q = self.q
+        eta = ml.sqrt(abs(1 / (4 * q**2) - 1))
+        ft = 2 * ml.pi * f0 * abs(times)
+        prefactor = a0 / (2 * ml.pi * f0 * q)
 
         if 0 < q < 0.5:
             exp_arg_plus = (eta - 0.5 / q) * ft
             exp_arg_minus = (-eta - 0.5 / q) * ft
             sinh_prefactor = 1 / (2 * eta * q) * (1 - 3 * q**2)
 
-            acf = q * (np.exp(exp_arg_plus) + np.exp(exp_arg_minus))
-            acf += (np.exp(exp_arg_plus) - np.exp(exp_arg_minus)) / (2 * eta)
-            acf *= 0.5 * np.pi * a0 * f0
-
-            msd = (1 - q**2) * (np.exp(exp_arg_plus) + np.exp(exp_arg_minus))
-            msd += sinh_prefactor * (np.exp(exp_arg_plus) - np.exp(exp_arg_minus))
+            msd = (1 - q**2) * (ml.exp(exp_arg_plus) + ml.exp(exp_arg_minus))
+            msd += sinh_prefactor * (ml.exp(exp_arg_plus) - ml.exp(exp_arg_minus))
             msd *= prefactor / 2
 
         elif q >= 0.5:
-            acf = a0 * np.pi * f0 * q * np.exp(-0.5 * ft / q)
-            msd = prefactor * np.exp(-ft / (2 * q))
+            msd = prefactor * ml.exp(-ft / (2 * q))
             if q == 0.5:
-                acf *= 1 + ft
-                msd *= 1 + 2 / 3 * np.pi * f0 * abs(times)
+                msd *= 1 + 2 / 3 * ml.pi * f0 * abs(times)
                 msd *= 1 - q**2
             else:
                 scarg = eta * ft
                 sin_prefactor = 1 / (2 * eta * q) * (1 - 3 * q**2)
-                acf *= np.cos(scarg) + np.sin(scarg) / (2 * eta * q)
-                msd *= (1 - q**2) * np.cos(scarg) + sin_prefactor * np.sin(scarg)
+                msd *= (1 - q**2) * ml.cos(scarg) + sin_prefactor * ml.sin(scarg)
         else:
             raise ValueError(f"Invalid {q=}")
 
         msd += a0 * abs(times) - prefactor * (1 - q**2)
-        psd = a0 * f0**4 / ((freqs**2 - f0**2) ** 2 + (freqs * f0 / q) ** 2)
-        return acf, psd, msd
+        return msd
 
     def sample(self, nseq: int, nstep: int, rng: np.random.Generator) -> NDArray[float]:
         noise = rng.multivariate_normal(np.zeros(2), self.covar, size=(nstep, nseq)).transpose(
@@ -192,13 +228,14 @@ class ExpTerm(BaseTerm):
     def latex(self) -> str:
         return rf"\operatorname{{E}}({self.a0}, {self.tau})"
 
-    def compute(
-        self, freqs: NDArray[float], times: NDArray[float]
-    ) -> tuple[NDArray[float], NDArray[float], NDArray[float]]:
-        acf = 0.5 * self.a0 / self.tau * np.exp(-abs(times / self.tau))
-        psd = self.a0 / (1 + (2 * np.pi * self.tau * freqs) ** 2)
-        msd = self.a0 * (times + self.tau * (np.exp(-abs(times) / self.tau) - 1))
-        return acf, psd, msd
+    def compute_acf(self, times: NDArray[float], ml=np) -> NDArray[float]:
+        return 0.5 * self.a0 / self.tau * ml.exp(-abs(times / self.tau))
+
+    def compute_psd(self, freqs: NDArray[float], ml=np) -> NDArray[float]:
+        return self.a0 / (1 + (2 * ml.pi * self.tau * freqs) ** 2)
+
+    def compute_msd(self, times: NDArray[float], ml=np) -> NDArray[float]:
+        return self.a0 * (times + self.tau * (ml.exp(-abs(times) / self.tau) - 1))
 
     def sample(self, nseq: int, nstep: int, rng: np.random.Generator) -> NDArray[float]:
         var = self.a0 / (2 * self.tau)
@@ -220,14 +257,16 @@ class WhiteTerm(BaseTerm):
     def latex(self) -> str:
         return rf"\operatorname{{W}}({self.a0})"
 
-    def compute(
-        self, freqs: NDArray[float], times: NDArray[float]
-    ) -> tuple[NDArray[float], NDArray[float], NDArray[float]]:
+    def compute_acf(self, times: NDArray[float], ml=np) -> NDArray[float]:
         acf = np.zeros_like(times)
         acf[0] = self.a0
-        psd = np.full_like(freqs, self.a0)
-        msd = self.a0 * times
-        return acf, psd, msd
+        return acf
+
+    def compute_psd(self, freqs: NDArray[float], ml=np) -> NDArray[float]:
+        return np.full_like(freqs, self.a0)
+
+    def compute_msd(self, times: NDArray[float], ml=np) -> NDArray[float]:
+        return self.a0 * times
 
     def sample(self, nseq: int, nstep: int, rng: np.random.Generator) -> NDArray[float]:
         return rng.normal(loc=0.0, scale=np.sqrt(self.a0), size=(nseq, nstep))
@@ -271,10 +310,9 @@ def compute(
     latex_terms = []
     corrtimes_exp = []
     for term in terms:
-        my_acf, my_psd, my_msd = term.compute(freqs, times)
-        acf += my_acf
-        psd += my_psd
-        msd += my_msd
+        acf += term.compute_acf(times)
+        psd += term.compute_psd(freqs)
+        msd += term.compute_msd(times)
         typst_terms.append(term.typst)
         latex_terms.append(term.latex)
         if isinstance(term, ExpTerm):

@@ -15,12 +15,10 @@ def make_wrappers(term):
     """Return functions that compute the ACF and MSD for a given term."""
 
     def acf(times):
-        freqs = np.ones_like(times)
-        return term.compute(freqs, times)[0]
+        return term.compute_acf(times)
 
     def msd(times):
-        freqs = np.ones_like(times)
-        return term.compute(freqs, times)[2]
+        return term.compute_msd(times)
 
     return acf, msd
 
