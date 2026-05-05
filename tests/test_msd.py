@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: © 2026 ACID Contributors <https://doi.org/10.5281/zenodo.15722902>
 # SPDX-License-Identifier: CC-BY-SA-4.0 OR LGPL-3.0-or-later
-"""Unit tests for the MSD and ACF computations of the Exp and SHO kernels.
+"""Unit tests for the MSD and ACF computations of the Exp, SHO, and Power-law kernels.
 
-Both tests simply check that the second derivative of the MSD divided by 2 matches the ACF.
+All tests check whether the second derivative of the MSD divided by 2 matches the ACF.
 """
 
 import numdifftools as nd
@@ -54,8 +54,8 @@ def test_sho_msd(a0, f0, q):
     ("a0", "alpha", "theta"),
     [
         (1.2, 1.5, 0.2),
+        (1.2, 1.5, 0.5),
         (1.2, 1.5, 1.0),
-        (1.2, 1.5, 2.5),
     ],
 )
 def test_pow_msd(a0, alpha, theta):
