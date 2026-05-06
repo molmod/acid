@@ -5,22 +5,12 @@
 All tests check whether the PSD can be obtained using the FT of the ACF.
 """
 
+from functools import partial
+
 import mpmath as mp
 import numpy as np
 import pytest
 from kernels import ExpTerm, PowTerm, SHOTerm
-
-
-def make_wrappers(term):
-    """Return functions that compute the ACF and MSD for a given term."""
-
-    def acf(time):
-        return term.compute_acf(time, ml=mp)
-
-    def psd(freqs):
-        return term.compute_psd(freqs, ml=mp)
-
-    return acf, psd
 
 
 def compute_quadosc_psd(freqs, acf):
@@ -37,10 +27,9 @@ def compute_quadosc_psd(freqs, acf):
 
 def test_exp_psd():
     exp = ExpTerm(1.2, 5.0)
-    acf, psd = make_wrappers(exp)
     freqs = np.linspace(0.1, 10.0, 20)
-    psd_num = compute_quadosc_psd(freqs, acf)
-    psd_analytic = psd(freqs)
+    psd_num = compute_quadosc_psd(freqs, partial(exp.compute_acf, ml=mp))
+    psd_analytic = exp.compute_psd(freqs, ml=mp)
     assert psd_analytic == pytest.approx(psd_num, rel=1e-5)
 
 
@@ -54,10 +43,9 @@ def test_exp_psd():
 )
 def test_sho_psd(a0, f0, q):
     sho = SHOTerm(a0, f0, q)
-    acf, psd = make_wrappers(sho)
     freqs = np.linspace(0.1, 10.0, 20)
-    psd_num = compute_quadosc_psd(freqs, acf)
-    psd_analytic = psd(freqs)
+    psd_num = compute_quadosc_psd(freqs, partial(sho.compute_acf, ml=mp))
+    psd_analytic = sho.compute_psd(freqs, ml=mp)
     assert psd_analytic == pytest.approx(psd_num, rel=1e-5)
 
 
@@ -71,8 +59,7 @@ def test_sho_psd(a0, f0, q):
 )
 def test_pow_psd(a0, alpha, theta):
     power = PowTerm(a0, alpha, theta)
-    acf, psd = make_wrappers(power)
     freqs = np.linspace(0.1, 10.0, 20)
-    psd_num = compute_quadosc_psd(freqs, acf)
-    psd_analytic = psd(freqs)
+    psd_num = compute_quadosc_psd(freqs, partial(power.compute_acf, ml=mp))
+    psd_analytic = power.compute_psd(freqs, ml=mp)
     assert psd_analytic == pytest.approx(psd_num, rel=1e-5)

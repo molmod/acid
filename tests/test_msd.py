@@ -11,24 +11,11 @@ import pytest
 from kernels import ExpTerm, PowTerm, SHOTerm
 
 
-def make_wrappers(term):
-    """Return functions that compute the ACF and MSD for a given term."""
-
-    def acf(times):
-        return term.compute_acf(times)
-
-    def msd(times):
-        return term.compute_msd(times)
-
-    return acf, msd
-
-
 def test_exp_msd():
     exp = ExpTerm(1.2, 5.0)
-    acf, msd = make_wrappers(exp)
     times = np.linspace(0.1, 10.0, 20)
-    acf_analytic = acf(times)
-    acf_numeric = nd.Derivative(msd, n=2)(times) / 2
+    acf_analytic = exp.compute_acf(times)
+    acf_numeric = nd.Derivative(exp.compute_msd, n=2)(times) / 2
     assert acf_analytic == pytest.approx(acf_numeric, rel=1e-5)
 
 
@@ -42,11 +29,9 @@ def test_exp_msd():
 )
 def test_sho_msd(a0, f0, q):
     sho = SHOTerm(a0, f0, q)
-    acf, msd = make_wrappers(sho)
-
     times = np.linspace(0.1, 10.0, 20)
-    acf_analytic = acf(times)
-    acf_numeric = nd.Derivative(msd, n=2)(times) / 2
+    acf_analytic = sho.compute_acf(times)
+    acf_numeric = nd.Derivative(sho.compute_msd, n=2)(times) / 2
     assert acf_analytic == pytest.approx(acf_numeric, rel=1e-5)
 
 
@@ -60,8 +45,7 @@ def test_sho_msd(a0, f0, q):
 )
 def test_pow_msd(a0, alpha, theta):
     power = PowTerm(a0, alpha, theta)
-    acf, msd = make_wrappers(power)
     times = np.linspace(0.1, 10.0, 20)
-    acf_analytic = acf(times)
-    acf_numeric = nd.Derivative(msd, n=2)(times) / 2
+    acf_analytic = power.compute_acf(times)
+    acf_numeric = nd.Derivative(power.compute_msd, n=2)(times) / 2
     assert acf_analytic == pytest.approx(acf_numeric, rel=1e-5)
