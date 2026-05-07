@@ -43,7 +43,8 @@ def run(inp: Path, out: Path):
             acint = 0
             variance = 0
             for term in terms:
-                acf, psd, _ = term.compute(np.zeros(1), np.zeros(1))
+                acf = term.compute_acf(np.zeros(1))
+                psd = term.compute_psd(np.zeros(1))
                 acint += psd[0]
                 variance += acf[0]
             corrtime_int = 0.5 * acint / variance
