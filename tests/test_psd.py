@@ -30,7 +30,7 @@ def test_exp_psd():
     freqs = np.linspace(0.1, 10.0, 20)
     psd_num = compute_quadosc_psd(freqs, partial(exp.compute_acf, ml=mp))
     psd_analytic = exp.compute_psd(freqs, ml=mp)
-    assert psd_analytic == pytest.approx(psd_num, rel=1e-5)
+    assert psd_analytic == pytest.approx(psd_num, rel=1e-15)
 
 
 @pytest.mark.parametrize(
@@ -46,7 +46,7 @@ def test_sho_psd(a0, f0, q):
     freqs = np.linspace(0.1, 10.0, 20)
     psd_num = compute_quadosc_psd(freqs, partial(sho.compute_acf, ml=mp))
     psd_analytic = sho.compute_psd(freqs, ml=mp)
-    assert psd_analytic == pytest.approx(psd_num, rel=1e-5)
+    assert psd_analytic == pytest.approx(psd_num, rel=1e-15)
 
 
 @pytest.mark.parametrize(
@@ -62,4 +62,4 @@ def test_pow_psd(a0, alpha, theta):
     freqs = np.linspace(0.1, 10.0, 20)
     psd_num = compute_quadosc_psd(freqs, partial(power.compute_acf, ml=mp))
     psd_analytic = power.compute_psd(freqs, ml=mp)
-    assert psd_analytic == pytest.approx(psd_num, rel=1e-5)
+    assert psd_analytic == pytest.approx(psd_num, rel=1e-15)
