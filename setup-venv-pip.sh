@@ -35,7 +35,7 @@ cat >> .loadvenv << 'EOF'
 export SOURCE_DATE_EPOCH=315532800
 source ${PWD}/venv/bin/activate
 export PATH=$(realpath ${PWD}/1_dataset/scripts/):${PATH}
-export PYTHONPATH=$(realpath ${PWD}/1_dataset/lib/):${PYTHONPATH}
+export PYTHONPATH=$(realpath ${PWD}/lib/):${PYTHONPATH}
 EOF
 
 # Load the environment and update installer tools

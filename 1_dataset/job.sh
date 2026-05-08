@@ -11,6 +11,4 @@
 cd ..
 source ./.loadvenv
 cd ${SLURM_SUBMIT_DIR}
-export PATH=$(realpath ${PWD}/scripts/):${PATH}
-export PYTHONPATH=$(realpath ${PWD}/lib/):${PYTHONPATH}
 time stepup boot -n ${SLURM_CPUS_PER_TASK}
