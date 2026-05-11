@@ -10,9 +10,9 @@ from utils import make_grid_pow_rational_chebyshev
 @pytest.mark.parametrize(
     ("a0", "alpha", "theta"),
     [
-        (1.2, 1.5, 0.2),
-        (1.2, 1.5, 0.5),
-        (1.2, 1.5, 1.0),
+        (1.0, 1.5, 2.0),
+        (1.0, 1.5, 3.5),
+        (1.0, 1.5, 5.0),
     ],
 )
 def test_power_law_kernel_quadrature(a0, alpha, theta):
@@ -24,15 +24,30 @@ def test_power_law_kernel_quadrature(a0, alpha, theta):
     compares it against the closed-form analytical expression.
     """
     # Quadrature order
-    order = 80
-    nstep = 2**18
+    order = 115
+    nstep = 2**16
     times = np.arange(nstep, dtype=float)
-    taus, weights = make_grid_pow_rational_chebyshev(order, theta, alpha)
+
+    # Scale factor is obtained empirically
+    scale = theta / (25 + 2 * theta)
+    taus, weights = make_grid_pow_rational_chebyshev(order, theta, alpha, scale)
 
     prefactor = a0 * (alpha - 1) / (2 * theta)
     quadrature_acf = (weights * prefactor) @ np.exp(-np.outer(1 / taus, times))
     analytical_acf = prefactor * (1 + abs(times) / theta) ** (-alpha)
-    diff = np.abs(quadrature_acf - analytical_acf)
-    assert max(diff) <= 1e-6, (
-        f"Quadrature does not reproduce analytical ACF within tolerance {max(diff)=}."
+    diff_acf = np.abs(quadrature_acf - analytical_acf)
+
+    analytical_psd = np.fft.rfft(analytical_acf)
+    quadrature_psd = np.fft.rfft(quadrature_acf)
+    diff_psd = np.abs(quadrature_psd - analytical_psd)
+
+    max_rel_diff = max(np.max(diff_acf / analytical_acf), np.max(diff_psd / analytical_psd))
+
+    assert max_rel_diff <= 1e-8, (
+        f"Quadrature does not reproduce analytical ACF within tolerance {max_rel_diff=}."
+    )
+
+    acfint_lico = 2 * np.dot(taus, prefactor * weights)
+    assert acfint_lico == pytest.approx(1.0, rel=1e-8), (
+        f"The ACF integral is not reproduced within tolerance: {acfint_lico=}."
     )

@@ -56,7 +56,7 @@ def lookup_integer(sequence: NDArray[float], std: float, table: NDArray[float]) 
 
 
 def make_grid_pow_rational_chebyshev(
-    order: int, theta: float, alpha: float, threshold: float = 1e-34
+    order: int, theta: float, alpha: float, scale: float = 1.0, threshold: float = 1e-34
 ) -> tuple[NDArray[float], NDArray[float]]:
     r"""
     Constructs quadrature nodes and weights using rational Chebyshev quadrature.
@@ -72,6 +72,9 @@ def make_grid_pow_rational_chebyshev(
         The scaling factor of the power-term kernel.
     alpha
         Power-law exponent.
+    scale
+        A scaling factor that controls the range of sampled gridpoints
+        to improve the resolution of the long-time tail.
     threshold
         Relative threshold used to prune the quadrature grid,
         using :math:`weights.max() * threshold`.
@@ -86,8 +89,8 @@ def make_grid_pow_rational_chebyshev(
     i = np.arange(order)
     x = -np.cos((2 * i + 1) / (2 * order) * np.pi)
     wx = np.pi / order * np.sqrt(1 - x**2)
-    y = (1 + x) / (1 - x)
-    wy = wx * 2 / (1 - x) ** 2
+    y = ((1 + x) / (1 - x)) * scale
+    wy = wx * 2 * scale / (1 - x) ** 2
     pdf = y ** (alpha - 1) / sp.special.gamma(alpha) * np.exp(-y)
     taus = theta / y
     weights = wy * pdf
