@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: CC-BY-SA-4.0 OR LGPL-3.0-or-later
 """Validate the quadrature-based representation of the power-law kernel."""
 
+import mpmath as mp
 import numpy as np
 import pytest
 from utils import make_grid_pow_rational_chebyshev
@@ -24,10 +25,13 @@ def test_power_law_kernel_quadrature(a0, alpha, theta):
     compares it against the closed-form analytical expression.
     """
     # Quadrature order
-    order = 115
+    order = 135
     nstep = 2**16
-    times = np.arange(nstep, dtype=float)
 
+    # The range from 0 to nstep is sampled using a sparse logarithmic grid
+    sample_points = 1000
+    times = 2.0 ** np.linspace(0, np.log2(nstep), sample_points)
+    freqs = 2.0 ** np.linspace(0, np.log2(nstep), sample_points)
     taus, weights = make_grid_pow_rational_chebyshev(order, theta, alpha)
 
     prefactor = a0 * (alpha - 1) / (2 * theta)
@@ -36,8 +40,13 @@ def test_power_law_kernel_quadrature(a0, alpha, theta):
     diff_acf = np.abs(quadrature_acf - analytical_acf)
     max_rel_diff_acf = np.max(diff_acf / analytical_acf)
 
-    analytical_psd = np.fft.rfft(analytical_acf)
-    quadrature_psd = np.fft.rfft(quadrature_acf)
+    zs = 1j * 2 * np.pi * freqs * theta
+    analytical_psd = (
+        a0 * (alpha - 1) * np.array([float((mp.exp(z) * mp.expint(alpha, z)).real) for z in zs])
+    )
+    quadrature_psd = (weights * a0 * (alpha - 1) / theta * taus) @ (
+        1 / (1 + (2 * np.pi * np.outer(taus, freqs)) ** 2)
+    )
     diff_psd = np.abs(quadrature_psd - analytical_psd)
     max_rel_diff_psd = np.max(diff_psd / analytical_psd)
 
