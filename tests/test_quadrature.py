@@ -28,9 +28,7 @@ def test_power_law_kernel_quadrature(a0, alpha, theta):
     nstep = 2**16
     times = np.arange(nstep, dtype=float)
 
-    # Scale factor is obtained empirically
-    scale = theta / (25 + 2 * theta)
-    taus, weights = make_grid_pow_rational_chebyshev(order, theta, alpha, scale)
+    taus, weights = make_grid_pow_rational_chebyshev(order, theta, alpha)
 
     prefactor = a0 * (alpha - 1) / (2 * theta)
     quadrature_acf = (weights * prefactor) @ np.exp(-np.outer(1 / taus, times))
