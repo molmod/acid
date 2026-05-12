@@ -36,15 +36,18 @@ def test_power_law_kernel_quadrature(a0, alpha, theta):
     quadrature_acf = (weights * prefactor) @ np.exp(-np.outer(1 / taus, times))
     analytical_acf = prefactor * (1 + abs(times) / theta) ** (-alpha)
     diff_acf = np.abs(quadrature_acf - analytical_acf)
+    max_rel_diff_acf = np.max(diff_acf / analytical_acf)
 
     analytical_psd = np.fft.rfft(analytical_acf)
     quadrature_psd = np.fft.rfft(quadrature_acf)
     diff_psd = np.abs(quadrature_psd - analytical_psd)
+    max_rel_diff_psd = np.max(diff_psd / analytical_psd)
 
-    max_rel_diff = max(np.max(diff_acf / analytical_acf), np.max(diff_psd / analytical_psd))
-
-    assert max_rel_diff <= 1e-8, (
-        f"Quadrature does not reproduce analytical ACF within tolerance {max_rel_diff=}."
+    assert max_rel_diff_acf <= 1e-8, (
+        f"Quadrature does not reproduce analytical ACF within tolerance {max_rel_diff_acf=}."
+    )
+    assert max_rel_diff_psd <= 1e-8, (
+        f"Quadrature does not reproduce analytical PSD within tolerance {max_rel_diff_psd=}."
     )
 
     acfint_lico = 2 * np.dot(taus, prefactor * weights)
