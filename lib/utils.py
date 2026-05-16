@@ -103,7 +103,7 @@ def make_grid_pow_rational_chebyshev(
     # across the relevant range of thetas [2.0, 5.0]:
     # a value that works well for smaller theta leads to insufficient resolution
     # for larger theta (and vice versa).
-    # The chosen theta-dependent scaling is provides a more consistent scaling
+    # The chosen theta-dependent scaling provides a more consistent scaling
     # by modifying the proportionality of the taus to 25 + 2 theta,
     # thereby significantly reducing the theta-dependence.
     scale = theta / (25 + 2 * theta)
