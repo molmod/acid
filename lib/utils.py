@@ -86,8 +86,29 @@ def make_grid_pow_rational_chebyshev(
     i = np.arange(order)
     x = -np.cos((2 * i + 1) / (2 * order) * np.pi)
     wx = np.pi / order * np.sqrt(1 - x**2)
-    y = (1 + x) / (1 - x)
-    wy = wx * 2 / (1 - x) ** 2
+
+    # The distribution of the mapped variable y = (1+x)/(1-x)
+    # is fixed by the quadrature order.
+    # However, this mapping provides limited resolution at long time scales (small y).
+    #
+    # To improve coverage in this regime,
+    # we introduce a dimensionless scaling factor (0 < scale <= 1),
+    # which shifts more quadrature nodes toward the small-y (large-τ) region.
+    # This scaling is empirically tuned to obtain accurate results
+    # within a fixed maximum nstep of 2**16.
+    #
+    # Without this scaling, taus are directly proportional to theta,
+    # so variations in theta strongly shift the quadrature grid.
+    # As a result, a fixed scale would not perform consistently
+    # across the relevant range of thetas [2.0, 5.0]:
+    # a value that works well for smaller theta leads to insufficient resolution
+    # for larger theta (and vice versa).
+    # The chosen theta-dependent scaling provides a more consistent scaling
+    # by modifying the proportionality of the taus to 25 + 2 theta,
+    # thereby significantly reducing the theta-dependence.
+    scale = theta / (25 + 2 * theta)
+    y = ((1 + x) / (1 - x)) * scale
+    wy = wx * 2 * scale / (1 - x) ** 2
     pdf = y ** (alpha - 1) / sp.special.gamma(alpha) * np.exp(-y)
     taus = theta / y
     weights = wy * pdf

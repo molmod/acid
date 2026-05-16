@@ -41,7 +41,7 @@ class PowTerm(BaseTerm):
 
     def __attrs_post_init__(self):
         # Order of the numerical quadrature
-        order = 80
+        order = 135
         taus, weights = make_grid_pow_rational_chebyshev(order, self.theta, self.alpha)
 
         self.taus = taus
