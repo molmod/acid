@@ -199,6 +199,9 @@ $
   $
     "MSD" = A_0 abs(Delta_t) + (A_0 theta) / (alpha - 2) [ -1 + (1+ abs(Delta_t)/ theta)^(-alpha + 2)]
   $
+  This expression for the MSD is only well-defined for $alpha eq.not 2$,
+  due to the denominator of $(alpha - 2)$.
+
   This model will be denoted as $upright(P)(A_0, alpha, theta)$.
 
 == Kernel Construction
@@ -269,15 +272,29 @@ Example sequences, ACFs and PSDs for all kernels are shown in @fig-seqs, @fig-ac
 
 All kernels have an autocorrelation integral of 1.
 This is achieved by choosing the $A_0$ parameters of the models used in each kernel such that the sum of their autocorrelation integrals equals one.
-// The kernels are parametrized to have an almost quadratic PSD close to zero frequency, with deviations less than 2.5% RMS for the first 20 grid points of the spectrum and less than 10% for the first 40 points.
-// This has two important implications on the data:
 
-// - It guarantees that also the shortest synthetic sequences (256 steps) are just long enough
-//   to capture the slowest time correlations.
-//   (For longer sequences, the deviation from the quadratic fit are much smaller.)
-// - For the spectra averaged over 256 sequences, the relative error is about $1/sqrt(256)$, which corresponds to 6.25%.
-//   This is larger than the systematic deviation between the quadratic model and the real PSD
-//   for the first 20 points.
+The kernels are parametrized such that the low-frequency part of the PSD remains smooth and can be approximated by either a quadratic dependence or a power-law dependence with exponent $1/2$.
+The deviation from the best of these fits is constrained to remain below 2.5% RMS for the first 10 frequency points (for $N = 1024$) and below 10% for the first 20 points.
+As a result,
+even short sequences ($N = 1024$) remain long enough to capture the slowest time correlations.
+
+For comparison,
+the relative error when averaging over $M = 256$ independent sequences is on the order of $1/sqrt(256) = 6.25%$,
+which is larger than the imposed deviation threshold for the 10 lowest frequency points.
+
+The power-law kernels are further controlled through the parameter $alpha$,
+which directly affects the second term of their MSD:
+  - For $alpha gt 2$,
+    the MSD rapidly approaches its asymptotic linear scaling,
+    and corresponding MSD fits are well-behaved.
+  - For $1 lt alpha lt 2$,
+    the convergence toward the linear regime is significantly slower,
+    making MSD-based analysis more challenging.
+
+The $1 lt alpha lt 2$ regime therefore provides the most challenging and informative test cases,
+and all power-law kernels are defined within it.
+The choice $alpha = 3/2$ is motivated by its physical relevance for diffusion in dense three-dimensional fluids, as discussed by #link("https://doi.org/10.1103/PhysRevA.1.18", [Alder and Wainwright]).
+
 
 == Data Organization
 For each kernel, data are stored in an uncompressed ZIP archive following the pattern `{kernel_name}.zip`.
