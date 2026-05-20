@@ -573,11 +573,12 @@ where $upright(E)(A_(0,i)^"exp", tau)$ is the previously defined exponential ker
 $
   A_(0,i)^"exp" = (A_0(alpha-1) tau_i)/(theta)
 $
-The semi-infinite integration domain $tau in [0, infinity)$ is mapped to a finite interval using the variable transformation:
+To construct the quadrature grid,
+the semi-infinite integration domain $tau in [0, infinity)$ is mapped to a finite interval using the variable transformation:
 $
-  1/tau =(1 + k)/(1-k) quad k in[-1,1]
+  1/tau = s((1 + k)/(1 - k)) quad k in[-1,1]
 $
-which introduces a Jacobian $2/(1-k^2)$.
+with $s$ a dimensionless scaling factor to improve the coverage of large time lags.
 The quadrature nodes $tau_i$ and weights $w(tau_i)$ are obtained using Chebyshev quadrature of the first kind.
 By increasing the quadrature order,
 arbitrary accuracy can be reached.
