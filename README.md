@@ -84,6 +84,8 @@ This repository consits of two parts:
    A workflow to generate the ACID 2 dataset.
 1. [`2_zenodo/`](2_zenodo/):
    A workflow to package and upload the generated data to Zenodo.
+1. [`3_validation/`](3_validation):
+   A workflow to validate the generated dataset.
 
 ## How to Run the Workflows
 
@@ -104,7 +106,7 @@ sbatch setup-venv-pip.sh
 ```
 
 After the virtual environment has been created,
-you can run or submit the script `job.sh` in `1_dataset/` or `2_zenodo/`.
+you can run or submit the script `job.sh` in `1_dataset/`, `2_zenodo/`, or `3_validation/`.
 If you want to work interactively within the virtual environment,
 you can source the `.loadvenv` script.
 
