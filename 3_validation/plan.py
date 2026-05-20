@@ -45,5 +45,5 @@ for kernel in settings.kernels:
             dataset_output_path + "codec.zip",
             dataset_path + "settings.json",
         ],
-        out=[f"output/{kernel}_covar.svg"],
+        out=[f"output/{kernel}_acf_consistency.svg"],
     )
