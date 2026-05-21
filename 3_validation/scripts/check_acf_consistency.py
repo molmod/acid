@@ -150,10 +150,10 @@ def run(
             f"for n_pvals = {len(filtered_pvals)}, p-value = {p_distr_test.pvalue:.6f}."
         )
 
-    plot_pvals(results, path_svg)
+    plot_pvals(results, path_svg, p_distr_test.pvalue)
 
 
-def plot_pvals(results, path_svg):
+def plot_pvals(results, path_svg, p_distr_pvalue):
 
     # Split data based on the covar
     low_covar = [r for r in results if r["low_covar"]]
@@ -173,12 +173,26 @@ def plot_pvals(results, path_svg):
     ax_p.set_ylabel(r"$p$-value")
     ax_p.legend(fontsize="x-small", loc="right", framealpha=0.6)
     ax_p.set_xscale("log")
+    ax_p.set_xlabel("Time lag")
 
     # p-dist histogram
     ax_hist.hist(pvals_normal, bins=10, range=(0, 1), color="k", density=True, alpha=0.8)
     ax_hist.axhline(1.0, color="red", linestyle="--", label="Uniform density")
-    ax_hist.set_xlabel("p-value")
+    ax_hist.set_xlabel(r"$p$-value")
     ax_hist.set_ylabel("Density")
+    ax_hist.text(
+        0.03,
+        0.95,
+        rf"$p_{{U(0,1)}} = {p_distr_pvalue:.3f}$",
+        transform=ax_hist.transAxes,
+        fontsize="small",
+        va="top",
+        bbox={
+            "facecolor": "white",
+            "edgecolor": "lightgrey",
+            "alpha": 0.8,
+        },
+    )
 
     fig.savefig(path_svg)
     plt.close(fig)
