@@ -64,18 +64,18 @@ def run(
         settings = json.load(f)
 
     nseed = settings["nseed"]
-    nseqs_list = settings["nseqs"]
-    nsteps_list = settings["nsteps"]
+    nseqs = settings["nseqs"]
+    nsteps = settings["nsteps"]
 
     with zipfile.ZipFile(path_kernel) as zf, zf.open("meta.json") as f:
         meta = json.load(f)
 
     var = meta["var"]
     std = np.sqrt(var)
-    dt_max = max(nsteps_list) - 1
+    dt_max = max(nsteps) - 1
 
     # Small time lags have the largest covariances and are therefore sampled more densely.
-    dt_list = np.unique(
+    dts = np.unique(
         np.concatenate(
             (
                 np.linspace(1, 50, 50),
@@ -85,19 +85,19 @@ def run(
         ).astype(int)
     )
 
-    acf_path = f"nstep{max(nsteps_list):05d}/acf.npy"
+    acf_path = f"nstep{max(nsteps):05d}/acf.npy"
 
     unzipped_kernel = np.load(path_kernel)
     acf = unzipped_kernel[acf_path]
 
-    pool = [[] for _ in range(len(dt_list))]
+    pool = [[] for _ in range(len(dts))]
 
-    for nstep in nsteps_list:
-        valid_dt_indices = np.where(dt_list < nstep)[0]
+    for nstep in nsteps:
+        valid_dt_indices = np.where(dts < nstep)[0]
         if len(valid_dt_indices) == 0:
             continue
 
-        for nseq in nseqs_list:
+        for nseq in nseqs:
             for iseed in range(nseed):
                 seq_path = f"nstep{nstep:05d}/nseq{nseq:04d}/sequences_{iseed:02d}.npy"
                 cdfi = unzipped_kernel[seq_path]
@@ -106,13 +106,13 @@ def run(
                 seed = np.frombuffer(seq_path.encode("ascii"), dtype=np.uint8)
                 rng = np.random.default_rng(seed)
                 for i in valid_dt_indices:
-                    dt = int(dt_list[i])
+                    dt = int(dts[i])
                     t0 = rng.integers(0, nstep - dt)
                     pool[i].append(traj[:, t0 + dt] - traj[:, t0])
 
     results = []
 
-    for i, dt in enumerate(dt_list):
+    for i, dt in enumerate(dts):
         y = np.concatenate(pool[i])
         cov = acf[dt]
         var_y = 2 * (var - cov)
