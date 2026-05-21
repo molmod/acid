@@ -146,10 +146,11 @@ def run(
 
     # Test whether the p-values follow the U(0,1) distribution
     p_distr_test = cramervonmises(filtered_pvals, "uniform")
-    assert p_distr_test.pvalue > 0.05, (
-        "The p-values do not follow the uniform distribution U(0,1),\n"
-        f"for n_pvals = {len(filtered_pvals)} with a uniform p-value = {p_distr_test.pvalue:.6f}."
-    )
+    if p_distr_test.pvalue < 0.05:
+        raise RuntimeError(
+            "The p-values do not follow the uniform distribution U(0,1),\n"
+            f"for n_pvals = {len(filtered_pvals)}, p-value = {p_distr_test.pvalue:.6f}."
+        )
 
     plot_pvals(results, path_svg)
 
