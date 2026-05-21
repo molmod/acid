@@ -90,13 +90,12 @@ def run(
     unzipped_kernel = np.load(path_kernel)
     acf = unzipped_kernel[acf_path]
 
-    pool = [[] for _ in range(len(dts))]
+    pool = {dt: [] for dt in dts}
 
     for nstep in nsteps:
-        valid_dt_indices = np.where(dts < nstep)[0]
-        if len(valid_dt_indices) == 0:
+        valid_dts = dts[dts < nstep]
+        if len(valid_dts) == 0:
             continue
-
         for nseq in nseqs:
             for iseed in range(nseed):
                 seq_path = f"nstep{nstep:05d}/nseq{nseq:04d}/sequences_{iseed:02d}.npy"
@@ -105,15 +104,14 @@ def run(
 
                 seed = np.frombuffer(seq_path.encode("ascii"), dtype=np.uint8)
                 rng = np.random.default_rng(seed)
-                for i in valid_dt_indices:
-                    dt = int(dts[i])
+                for dt in valid_dts:
                     t0 = rng.integers(0, nstep - dt)
-                    pool[i].append(traj[:, t0 + dt] - traj[:, t0])
+                    pool[dt].append(traj[:, t0 + dt] - traj[:, t0])
 
     results = []
 
-    for i, dt in enumerate(dts):
-        y = np.concatenate(pool[i])
+    for dt, samples in pool.items():
+        y = np.concatenate(samples)
         cov = acf[dt]
         var_y = 2 * (var - cov)
 
