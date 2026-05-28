@@ -28,7 +28,16 @@ class BaseTerm:
     def latex(self):
         raise NotImplementedError
 
-    def compute(self, freqs: NDArray[float], times: NDArray[float]):
+    def compute_acf(self, times: NDArray[float], ml=np) -> NDArray[float]:
+        raise NotImplementedError
+
+    def compute_psd(self, freqs: NDArray[float], ml=np) -> NDArray[float]:
+        raise NotImplementedError
+
+    def compute_msd(self, times: NDArray[float], ml=np) -> NDArray[float]:
+        raise NotImplementedError
+
+    def sample(self, nseq: int, nstep: int, rng: np.random.Generator) -> NDArray[float]:
         raise NotImplementedError
 
 
