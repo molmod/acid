@@ -630,6 +630,20 @@ Even when the numerical results are identical,
 the hashes of the ZIP files may differ because of operating system details and software versions.
 These differences do not affect the overall validity of the dataset, but they may impact the exact numerical values derived from an analysis.
 
+= Unit tests
+To ensure the correctness of the implementations and analytical expressions,
+a comprehensive set of unit tests is included in the repository.
+In particular,
+these tests verify:
+- The low-frequency part of the PSD,
+  as discussed above.
+- The correctness of the lookup table used for encoding and decoding the trajectories.
+- Consistency between derived quantities.
+  The ACF is recovered from the MSD by differentiation, and the PSD from the ACF by Fourier transformation.
+- The accuracy of the quadrature-based approximation of the power-law kernel.
+
+All tests can be executed using the `pytest` command in the top-level directory.
+
 = Software used
 
 The following software is required to use the dataset:
