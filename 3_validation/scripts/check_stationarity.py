@@ -88,7 +88,7 @@ def run(
                 cdfi = unzipped_kernel[seq_path]
                 traj = lookup_table[cdfi] * std
                 for frac, idx in times.items():
-                    pool[frac].append(traj[:, idx])
+                    pool[frac].append(traj[:, idx].copy())
 
     results = []
 
