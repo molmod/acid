@@ -47,3 +47,14 @@ for kernel in settings.kernels:
         ],
         out=[f"output/{kernel}_acf_consistency.svg"],
     )
+    runpy(
+        "./${inp} ${out}",
+        inp=[
+            "scripts/check_stationarity.py",
+            "../matplotlibrc",
+            dataset_output_path + f"{kernel}.zip",
+            dataset_output_path + "codec.zip",
+            dataset_path + "settings.json",
+        ],
+        out=[f"output/{kernel}_qq_stationarity.svg"],
+    )
