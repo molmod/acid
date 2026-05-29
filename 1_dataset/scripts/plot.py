@@ -105,9 +105,9 @@ def run(
             meta = json.load(f)
         unzipped_kernel = np.load(path_kernel)
         sample_path = (
-            f"nstep{settings['nsteps'][0]:05d}/nseq{settings['nseqs'][-1]:04d}/sequences_00.npy"
+            f"nstep{settings['nsteps'][1]:05d}/nseq{settings['nseqs'][-1]:04d}/sequences_00.npy"
         )
-        step_path = f"nstep{settings['nsteps'][0]:05d}/"
+        step_path = f"nstep{settings['nsteps'][1]:05d}/"
         times = unzipped_kernel[step_path + "times.npy"]
         freqs = unzipped_kernel[step_path + "freqs.npy"]
         acf = unzipped_kernel[step_path + "acf.npy"]
