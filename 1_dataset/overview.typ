@@ -273,7 +273,9 @@ Example sequences, ACFs and PSDs for all kernels are shown in @fig-seqs, @fig-ac
 All kernels have an autocorrelation integral of 1.
 This is achieved by choosing the $A_0$ parameters of the models used in each kernel such that the sum of their autocorrelation integrals equals one.
 
-The kernels are parametrized such that the low-frequency part of the PSD remains smooth and can be approximated by either a quadratic dependence or a power-law dependence with exponent $1/2$.
+The kernels are parametrized such that the low-frequency region of the PSD can be approximated by either a quadratic dependence or a power-law dependence with exponent $1/2$.
+The inclusion of the $f^(1/2)$ term parallels an early discussion by #link("https://doi.org/10.1063/1.445384", [Holian and Evans]), who argued that a long-time tail in the ACF proportional to $t^(-3/2)$ is expected to give rise to a $-f^(1/2)$ cusp in the low-frequency PSD.
+
 The deviation from the best of these fits is constrained to remain below 2.5% RMS for the first 10 frequency points (for $N = 1024$) and below 10% for the first 20 points.
 As a result,
 even short sequences ($N = 1024$) remain long enough to capture the slowest time correlations.
@@ -417,8 +419,6 @@ as described by e.g. #link("https://doi.org/10.1063/5.0188081",[Moustafa et al.]
   kind: "code",
   supplement: "Code",
 ) <code-decode>
-
-
 
 
 #figure(
