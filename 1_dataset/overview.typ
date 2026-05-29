@@ -297,12 +297,14 @@ The choice $alpha = 3/2$ is motivated by its physical relevance for diffusion in
 
 
 == Data Organization
-For each kernel, data are stored in an uncompressed ZIP archive following the pattern `{kernel_name}.zip`.
-Due to the efficient encoding discussed below,
-compression would reduce the file size by less than 1%.
+For each kernel, the data are stored in an uncompressed ZIP archive following the pattern `{kernel_name}.zip`.
+
 Each ZIP archive contains both data and metadata.
 An overview of the stored data is provided in @tab-zip,
-while the stored metadata are listed in @tab-meta.
+while the metadata are listed in @tab-meta.
+The archive is also a valid NPZ file,
+so all data arrays (excluding metadata) can be accessed directly using `numpy.load`,
+as shown in @code-numpy.
 
 #figure(
   table(
@@ -341,21 +343,52 @@ while the stored metadata are listed in @tab-meta.
   caption: [Metadata stored in `meta.json` in each ZIP archive.]
 ) <tab-meta>
 
-All data arrays are one-dimensional, except for `sequences_??`.
-The sequences are stored in a two-dimensional array with shape `(nseq, nstep)`,
+
+All data arrays are one-dimensional except for `sequences_??.npy`,
+which are stored as two-dimensional arrays with shape `(nseq, nstep)`,
 where `nseq` is the number of sequences ($M$) and `nstep` is the number of steps ($N$).
-The sequences are encoded as unsigned integers and can be converted back to floating-point values as shown in @code-decode.
-Each ZIP archive is also a valid NPZ file,
-and all data arrays (not metadata) can be accessed using `numpy.load`,
-as shown in @code-numpy.
+
+To reduce storage requirements,
+the sequences are not stored as floating-point values,
+but as unsigned integers.
+Each floating-point value is mapped through the Cumulative Distribution Function (CDF) of a Gaussian distribution
+and discretized on a uniform grid of $2^{16}$ points in $[0,1]$.
+This discretization yields an integer representing the corresponding index on the grid.
+A fixed lookup table,
+constructed from the corresponding percent point function (inverse of the CDF),
+assigns a corresponding floating-point value to each index for decoding,
+as demonstrated in @code-decode.
+
+As a result of this integer encoding,
+further compression of the ZIP archives yields less than 1% reduction and is therefore not applied.
 
 The ground truth value of the autocorrelation integral is stored in the metadata as `acint`
 and is equal to `psd[0]`.
-Empirical MSDs are computed from the time integral of the trajectories as illustrated in @code-msd.
-The implementation in this example is intentionally kept simple to demonstrate data usage.
+Empirical MSDs are computed from the time integral of the trajectories,
+as illustrated in @code-msd.
+The implementation here is intentionally kept simple to demonstrate data usage.
 More efficient strategies have been proposed,
 which avoid overlapping windows and evaluate only a selected subset of time lags,
 as described by e.g. #link("https://doi.org/10.1063/5.0188081",[Moustafa et al.])
+
+
+#figure(
+  box(
+    stroke: black,
+    inset: 1em,
+    ```python
+    import numpy as np
+
+    freqs = np.load("exp1w.zip")["nstep01024/freqs.npy"]
+    traj = np.load("exp1w.zip")["nstep01024/nseq0064/sequences_00.npy"]
+    ```,
+  ),
+  caption: [
+    Example Python code showing how to access arrays in the ZIP files with `numpy.load`.
+  ],
+  kind: "code",
+  supplement: "Code",
+) <code-numpy>
 
 
 #figure(
@@ -385,23 +418,7 @@ as described by e.g. #link("https://doi.org/10.1063/5.0188081",[Moustafa et al.]
   supplement: "Code",
 ) <code-decode>
 
-#figure(
-  box(
-    stroke: black,
-    inset: 1em,
-    ```python
-    import numpy as np
 
-    freqs = np.load("exp1w.zip")["nstep01024/freqs.npy"]
-    traj = np.load("exp1w.zip")["nstep01024/nseq0064/sequences_00.npy"]
-    ```
-  ),
-  caption: [
-    Example Python code showing how to access arrays in the ZIP files with `numpy.load`.
-  ],
-  kind: "code",
-  supplement: "Code",
-) <code-numpy>
 
 
 #figure(
