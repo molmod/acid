@@ -13,11 +13,13 @@ along with the corresponding validation results, can be found in the [acid-test 
 
 The copyright disclaimer and license conditions are specified at the beginning of each file in the `main.zip`,
 or, when the header cannot be edited, in the `RESUSE.toml` file in `main.zip`.
+The generated time series are licensed under Creative Commons Zero 1.0 Universal License (CC0-1.0).
 
-You should have received a copy of the CC BY-SA 4.0 and LGPL-v3+ licenses along with the data set.
+You should have received a copy of the CC BY-SA 4.0, LGPL-v3+, and CC0-1.0 licenses along with the data set.
 If not, see:
 
 - <https://creativecommons.org/licenses/by-sa/4.0/>
 - <https://www.gnu.org/licenses/lgpl-3.0.html>
+- <https://creativecommons.org/publicdomain/zero/1.0/>
 
 Corresponding author: Toon Verstraelen <toon.verstraelen@ugent.be>
