@@ -146,6 +146,7 @@ def plot_acf_consist(ax_p, ax_hist, npz, ylabel, legend):
     if len(dts_low):
         ax_p.scatter(dts_low, pvals_low, marker="o", s=2, color="lightgray", label="low covar")
     ax_p.axhline(0.05, color="red", linestyle="--", linewidth=0.8, label=r"$\alpha = 0.05$")
+
     if ylabel:
         ax_p.set_ylabel(r"$p$-value")
 
@@ -243,6 +244,8 @@ def plot_codec(ax_rmse, ax_diff, npz, xlabel, ylabel, legend):
         ax_rmse.set_ylabel("Absolute RMSE")
     ax_rmse.set_xticks(resolutions)
     ax_rmse.set_xticklabels([f"$2^{{{int(np.log2(r))}}}$" for r in resolutions])
+    ax_rmse.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
+
     if legend:
         ax_rmse.legend()
 
