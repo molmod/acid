@@ -37,6 +37,7 @@ settings = loadns(dataset_path + "settings.json", do_amend=True)
 
 acf_consist_paths = []
 stat_paths = []
+codec_paths = []
 for kernel in settings.kernels:
     runpy(
         "./${inp} ${out}",
@@ -64,14 +65,14 @@ for kernel in settings.kernels:
         f"./${{inp}} {kernel} ${{out}}",
         inp=[
             "scripts/check_codec.py",
-            "../matplotlibrc",
         ],
-        out=[f"output/{kernel}_codec_conv.svg"],
+        out=[f"output/{kernel}_codec.npz"],
     )
+    codec_paths.append(f"output/{kernel}_codec.npz")
 
 runpy(
     f"./scripts/plot.py ../matplotlibrc --acf_consist {' '.join(acf_consist_paths)} "
-    f"--stat {' '.join(stat_paths)} -- ${{out}}",
-    inp=["scripts/plot.py", "../matplotlibrc", *acf_consist_paths, *stat_paths],
-    out=["output/acf_consist.svg", "output/stationarity.svg"],
+    f"--stat {' '.join(stat_paths)} --codec {' '.join(codec_paths)} -- ${{out}}",
+    inp=["scripts/plot.py", "../matplotlibrc", *acf_consist_paths, *stat_paths, *codec_paths],
+    out=["output/acf_consist.svg", "output/stationarity.svg", "output/codec.svg"],
 )
