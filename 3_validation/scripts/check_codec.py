@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: © 2026 ACID Contributors <https://doi.org/10.5281/zenodo.15722902>
 # SPDX-License-Identifier: CC-BY-SA-4.0 OR LGPL-3.0-or-later
 """Validate the encoding and decoding scheme by comparing sampled PSDs against
-the analytical PSD derived from the Toeplitz covariance matrix.
+the analytical PSD derived from the covariance matrix.
 """
 
 import argparse
@@ -58,10 +58,10 @@ def run(kernel_name: str, path_npz: Path):
     std = np.sqrt(acf_anal[0])
 
     covar = scipy.linalg.toeplitz(acf_anal)
-    # Compute F ACF F^dagger via two FFTs:
+    # Compute F ACF F^dagger via two FFTs
     transformed_covar = np.fft.fft(np.fft.ifft(covar, axis=1), axis=0)
 
-    # Keep only positive-frequency terms
+    # Keep only positive-frequency terms of the diagonal
     psd_anal = np.real(np.diag(transformed_covar))[: NSTEP // 2 + 1]
 
     # Sample trajectories
@@ -71,7 +71,7 @@ def run(kernel_name: str, path_npz: Path):
 
     # PSD of raw float trajectories
     psd_raw = compute_amplitudes(traj_raw)
-    rmse_raw = float(np.sqrt(np.mean((psd_raw - psd_anal) ** 2)))
+    rmse_raw = np.sqrt(np.mean((psd_raw - psd_anal) ** 2))
 
     # PSD of codec-encoded trajectories at each resolution
     rmse_per_resolution = {}
@@ -80,7 +80,7 @@ def run(kernel_name: str, path_npz: Path):
         indices = lookup_integer(traj_raw, std, boundary)
         traj_coded = midpoint[indices] * std
         psd_coded = compute_amplitudes(traj_coded)
-        rmse_per_resolution[resolution] = float(np.sqrt(np.mean((psd_coded - psd_anal) ** 2)))
+        rmse_per_resolution[resolution] = np.sqrt(np.mean((psd_coded - psd_anal) ** 2))
 
     np.savez(path_npz, rmse_per_resolution=rmse_per_resolution, rmse_raw=rmse_raw)
 
