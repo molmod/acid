@@ -9,7 +9,6 @@ import json
 import zipfile
 
 import matplotlib as mpl
-import matplotlib.pyplot as plt
 import numpy as np
 from path import Path
 from scipy.stats import cramervonmises
@@ -17,7 +16,7 @@ from scipy.stats import cramervonmises
 
 def main():
     args = parse_args()
-    run(args.mplrc, args.zip_in, args.codec, args.settings, args.svg_out)
+    run(args.mplrc, args.zip_in, args.codec, args.settings, args.npz_out)
 
 
 def parse_args():
@@ -28,7 +27,7 @@ def parse_args():
     parser.add_argument("zip_in", type=Path, help="The kernel ZIP archive.")
     parser.add_argument("codec", type=Path, help="The codec ZIP to decode integers to floats.")
     parser.add_argument("settings", type=Path, help="The settings.json file.")
-    parser.add_argument("svg_out", type=Path, help="Output SVG path for the Cramér-von Mises plot.")
+    parser.add_argument("npz_out", type=Path, help="The output NPZ path.")
     return parser.parse_args()
 
 
@@ -37,7 +36,7 @@ def run(
     path_kernel: Path,
     path_codec: Path,
     path_settings: Path,
-    path_svg: Path,
+    path_npz: Path,
 ):
     """
     Pool trajectories across all nsteps, nseqs, and seeds, then run the
@@ -53,8 +52,8 @@ def run(
         Codec ZIP used to decode integer sequences to floating-point values.
     path_settings
         JSON file with nseed, nseqs, nsteps.
-    path_svg
-        Output SVG path for the Cramér-von Mises p-values.
+    path_npz
+        Output NPZ path to store the results.
     """
     mpl.rc_file(path_mplrc)
 
@@ -150,52 +149,7 @@ def run(
             f"for n_pvals = {len(filtered_pvals)}, p-value = {p_distr_test.pvalue:.6f}."
         )
 
-    plot_pvals(results, path_svg, p_distr_test.pvalue)
-
-
-def plot_pvals(results, path_svg, p_distr_pvalue):
-
-    # Split data based on the covar
-    low_covar = [r for r in results if r["low_covar"]]
-    normal_covar = [r for r in results if not r["low_covar"]]
-
-    dts_normal = np.array([r["dt"] for r in normal_covar])
-    pvals_normal = np.array([r["pvalue"] for r in normal_covar])
-    dts_low = np.array([r["dt"] for r in low_covar])
-    pvals_low = np.array([r["pvalue"] for r in low_covar])
-
-    fig, (ax_p, ax_hist) = plt.subplots(2, 1)
-
-    ax_p.scatter(dts_normal, pvals_normal, marker="o", color="k", s=2)
-    if len(dts_low):
-        ax_p.scatter(dts_low, pvals_low, marker="o", s=2, color="lightgray", label="low covar")
-    ax_p.axhline(0.05, color="red", linestyle="--", linewidth=0.8, label=r"$\alpha = 0.05$")
-    ax_p.set_ylabel(r"$p$-value")
-    ax_p.legend(fontsize="x-small", loc="right", framealpha=0.6)
-    ax_p.set_xscale("log")
-    ax_p.set_xlabel("Time lag")
-
-    # p-dist histogram
-    ax_hist.hist(pvals_normal, bins=10, range=(0, 1), color="k", density=True, alpha=0.8)
-    ax_hist.axhline(1.0, color="red", linestyle="--", label="Uniform density")
-    ax_hist.set_xlabel(r"$p$-value")
-    ax_hist.set_ylabel("Density")
-    ax_hist.text(
-        0.03,
-        0.95,
-        rf"$p_{{U(0,1)}} = {p_distr_pvalue:.3f}$",
-        transform=ax_hist.transAxes,
-        fontsize="small",
-        va="top",
-        bbox={
-            "facecolor": "white",
-            "edgecolor": "lightgrey",
-            "alpha": 0.8,
-        },
-    )
-
-    fig.savefig(path_svg)
-    plt.close(fig)
+    np.savez(path_npz, results=results, p_value=p_distr_test.pvalue)
 
 
 if __name__ == "__main__":

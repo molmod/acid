@@ -35,6 +35,7 @@ glob("scripts/*.py")
 mkdir("output/")
 settings = loadns(dataset_path + "settings.json", do_amend=True)
 
+acf_consist_paths = []
 for kernel in settings.kernels:
     runpy(
         "./${inp} ${out}",
@@ -45,8 +46,9 @@ for kernel in settings.kernels:
             dataset_output_path + "codec.zip",
             dataset_path + "settings.json",
         ],
-        out=[f"output/{kernel}_acf_consistency.svg"],
+        out=[f"output/{kernel}_acf_consist.npz"],
     )
+    acf_consist_paths.append(f"output/{kernel}_acf_consist.npz")
     runpy(
         "./${inp} ${out}",
         inp=[
@@ -58,3 +60,9 @@ for kernel in settings.kernels:
         ],
         out=[f"output/{kernel}_qq_stationarity.svg"],
     )
+
+runpy(
+    "./${inp} ${out}",
+    inp=["scripts/plot.py", "../matplotlibrc", *acf_consist_paths],
+    out=["output/acf_consist.svg"],
+)
