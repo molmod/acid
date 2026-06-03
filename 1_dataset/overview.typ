@@ -40,7 +40,7 @@
 The ACID data set consists of synthetic time-correlated sequences with different lengths and covariance kernels.
 
 The purpose of the data set is to validate algorithms for estimating the integral of an autocorrelation function, which is relevant for uncertainty quantification and the estimation of transport properties.
-The first application was to validate the algorithm implemented in #link("https://molmod.github.io/stacie", [STACIE]).
+The first application was to validate the algorithm implemented in #link("https://molmod.github.io/stacie", [STACIE]) @toraman2025stable.
 
 The set contains in total 19200 test cases, and each case consists of one or more time series.
 They are organized such that one can systematically study the convergence of the statistical estimate of the autocorrelation integral (and its uncertainty)
@@ -77,7 +77,7 @@ $
 $
 
 These autocorrelation functions can also be used to compute Mean-Squared Displacements (MSDs) of the integrated stochastic trajectory.
-The general link between squared displacements and autocorrelation functions follows from e.g. #link("https://doi.org/10.1016/C2009-0-63921-0", [the book by Frenkel and Smit]).
+The general link between squared displacements and autocorrelation functions follows from e.g. the book by Frenkel and Smit @frenkel2023understanding.
 Adopting this approach, the MSD can be written as
 
 $
@@ -138,7 +138,7 @@ $
 
    This model will be denoted as $upright(E)(A_0, tau)$.
 
-3. The *stochastic harmonic oscillator* was adapted from #link("https://doi.org/10.3847/1538-3881/aa9332", [the work of Foreman-Mackey et al.])
+3. The *stochastic harmonic oscillator* was adapted from the work of Foreman-Mackey et al. @foreman2017fast
    Its ACF (with modified normalization conventions) is:
 
    $
@@ -293,7 +293,7 @@ which directly affects the second term of their MSD:
 
 The $1 lt alpha lt 2$ regime therefore provides the most challenging and informative test cases,
 and all power-law kernels are defined within it.
-The choice $alpha = 3/2$ is motivated by its physical relevance for diffusion in dense three-dimensional fluids, as discussed by #link("https://doi.org/10.1103/PhysRevA.1.18", [Alder and Wainwright]).
+The choice $alpha = 3/2$ is motivated by its physical relevance for diffusion in dense three-dimensional fluids, as discussed by Alder and Wainwright @alder1970decay.
 
 
 == Data Organization
@@ -369,7 +369,7 @@ as illustrated in @code-msd.
 The implementation here is intentionally kept simple to demonstrate data usage.
 More efficient strategies have been proposed,
 which avoid overlapping windows and evaluate only a selected subset of time lags,
-as described by e.g. #link("https://doi.org/10.1063/5.0188081",[Moustafa et al.])
+as described by e.g. Moustafa et al. @moustafa2024efficient
 
 
 #figure(
@@ -449,7 +449,7 @@ as described by e.g. #link("https://doi.org/10.1063/5.0188081",[Moustafa et al.]
 = Trajectory generation
 
 Synthetic trajectories consistent with the predefined autocorrelation kernels are generated using linear Stochastic Differential Equations (SDEs),
-following the methodology of #link("https://doi.org/10.1093/oso/9780195140187.001.0001", [Zwanzig]).
+following the methodology of Zwanzig @zwanzig2001nonequilibrium.
 The most general second-order representation relevant here is
 $
   dv(x(t), t, deg: 2) = theta_1 x + theta_2 dv(x (t), t) + F_v (t)
@@ -657,3 +657,5 @@ To fully reconstruct the dataset, the following additional Python packages are r
 
 - StepUp >= 3.2.2
 - StepUp RepRep >= 3.1.8
+
+#bibliography("references.bib")
