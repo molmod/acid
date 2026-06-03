@@ -60,6 +60,14 @@ for kernel in settings.kernels:
         out=[f"output/{kernel}_stationarity.npz"],
     )
     stat_paths.append(f"output/{kernel}_stationarity.npz")
+    runpy(
+        f"./${{inp}} {kernel} ${{out}}",
+        inp=[
+            "scripts/check_codec.py",
+            "../matplotlibrc",
+        ],
+        out=[f"output/{kernel}_codec_conv.svg"],
+    )
 
 runpy(
     f"./scripts/plot.py ../matplotlibrc --acf_consist {' '.join(acf_consist_paths)} "
