@@ -8,7 +8,6 @@ import argparse
 import json
 import zipfile
 
-import matplotlib as mpl
 import numpy as np
 from path import Path
 from scipy.stats import cramervonmises
@@ -16,14 +15,13 @@ from scipy.stats import cramervonmises
 
 def main():
     args = parse_args()
-    run(args.mplrc, args.zip_in, args.codec, args.settings, args.npz_out)
+    run(args.zip_in, args.codec, args.settings, args.npz_out)
 
 
 def parse_args():
     parser = argparse.ArgumentParser(
         description="Cramér-von Mises test on the sampled trajectories."
     )
-    parser.add_argument("mplrc", type=Path, help="The matplotlibrc path.")
     parser.add_argument("zip_in", type=Path, help="The kernel ZIP archive.")
     parser.add_argument("codec", type=Path, help="The codec ZIP to decode integers to floats.")
     parser.add_argument("settings", type=Path, help="The settings.json file.")
@@ -32,7 +30,6 @@ def parse_args():
 
 
 def run(
-    path_mplrc: Path,
     path_kernel: Path,
     path_codec: Path,
     path_settings: Path,
@@ -44,8 +41,6 @@ def run(
 
     Parameters
     ----------
-    path_mplrc
-        Path to the matplotlib configuration file.
     path_kernel
         ZIP archive containing the sequences and reference ACFs.
     path_codec
@@ -55,8 +50,6 @@ def run(
     path_npz
         Output NPZ path to store the results.
     """
-    mpl.rc_file(path_mplrc)
-
     lookup_table = np.load(path_codec)["midpoint"]
 
     with open(path_settings) as f:

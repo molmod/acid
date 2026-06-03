@@ -7,36 +7,32 @@ import argparse
 import json
 import zipfile
 
-import matplotlib as mpl
-import matplotlib.pyplot as plt
 import numpy as np
 from path import Path
-from scipy.stats import cramervonmises, norm
+from scipy.stats import cramervonmises
 
 
 def main():
     args = parse_args()
-    run(args.mplrc, args.zip_in, args.codec, args.settings, args.svg_out)
+    run(args.zip_in, args.codec, args.settings, args.npz_out)
 
 
 def parse_args():
     parser = argparse.ArgumentParser(
         description="Stationarity test via CvM at relative time points."
     )
-    parser.add_argument("mplrc", type=Path, help="The matplotlibrc path.")
     parser.add_argument("zip_in", type=Path, help="The kernel ZIP archive.")
     parser.add_argument("codec", type=Path, help="The codec ZIP to decode integers to floats.")
     parser.add_argument("settings", type=Path, help="The settings.json file.")
-    parser.add_argument("svg_out", type=Path, help="Output SVG path for the QQ plot.")
+    parser.add_argument("npz_out", type=Path, help="The output NPZ path.")
     return parser.parse_args()
 
 
 def run(
-    path_mplrc: Path,
     path_kernel: Path,
     path_codec: Path,
     path_settings: Path,
-    path_svg: Path,
+    path_npz: Path,
 ):
     """
     Pool trajectories across all nsteps, nseqs, and seeds, then run the
@@ -45,19 +41,15 @@ def run(
 
     Parameters
     ----------
-    path_mplrc
-        Path to the matplotlib configuration file.
     path_kernel
         ZIP archive containing the sequences and reference ACFs.
     path_codec
         Codec ZIP used to decode integer sequences to floating-point values.
     path_settings
         JSON file with nseed, nseqs, nsteps.
-    path_svg
-        Output SVG path for the QQ plots.
+    path_npz
+        Output NPZ path to store the results.
     """
-    mpl.rc_file(path_mplrc)
-
     lookup_table = np.load(path_codec)["midpoint"]
 
     with open(path_settings) as f:
@@ -106,43 +98,7 @@ def run(
             }
         )
 
-    plot_qq(results, std, path_svg)
-
-
-def plot_qq(results, std, path_svg):
-    fig, ax = plt.subplots()
-
-    # Upper limit on the number of points in the plot
-    max_points = 5000
-
-    for result in results:
-        empirical_qs = result["x_sorted"]
-        label = (
-            rf"$t/N = {result['time']:.2f}$  "
-            rf"($p = {result['pvalue']:.3f}$, "
-            rf"$T = {result['statistic']:.3f}$)"
-        )
-
-        nsamples = len(empirical_qs)
-        probs = (np.arange(1, nsamples + 1) - 0.5) / nsamples
-        theoretical_qs = norm(scale=std).ppf(probs)
-
-        # Reduce the number of datapoints in the plot
-        if nsamples > max_points:
-            idx = np.linspace(0, nsamples - 1, max_points).astype(int)
-            empirical_qs = empirical_qs[idx]
-            theoretical_qs = theoretical_qs[idx]
-
-        ax.scatter(theoretical_qs, empirical_qs, s=0.5, label=label, alpha=0.6)
-
-    lim = np.max(np.abs(ax.get_xlim() + ax.get_ylim()))
-    ax.plot([-lim, lim], [-lim, lim], color="black", linewidth=0.6, linestyle=":", label="y=x")
-    ax.set_xlabel("Theoretical quantiles")
-    ax.set_ylabel("Empirical quantiles")
-    ax.legend(fontsize="x-small", markerscale=1)
-
-    fig.savefig(path_svg)
-    plt.close(fig)
+    np.savez(path_npz, results=results, std=std)
 
 
 if __name__ == "__main__":
