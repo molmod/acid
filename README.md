@@ -49,6 +49,7 @@ They can also be consulted online at the following URLs:
 
 - <https://creativecommons.org/licenses/by-sa/4.0/>
 - <https://www.gnu.org/licenses/lgpl-3.0.html>
+- <https://creativecommons.org/publicdomain/zero/1.0/>
 
 ## Citation
 
