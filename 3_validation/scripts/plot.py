@@ -218,23 +218,23 @@ def plot_stat(ax, npz, xlabel, ylabel):
 def plot_codec(ax_rmse, ax_diff, npz, xlabel, ylabel, legend):
     data = np.load(npz, allow_pickle=True)
     rmse_raw = data["rmse_raw"]
-    rmse_anal_per_resolution = data["rmse_anal_per_resolution"].item()
+    rmse_ref_per_resolution = data["rmse_ref_per_resolution"].item()
     rmse_raw_per_resolution = data["rmse_raw_per_resolution"].item()
 
     # Production resolution (uint16)
     production_resolution = 2**16
 
-    resolutions = list(rmse_anal_per_resolution.keys())
-    rmses_anal = np.array([rmse_anal_per_resolution[r] for r in resolutions])
+    resolutions = list(rmse_ref_per_resolution.keys())
+    rmses_ref = np.array([rmse_ref_per_resolution[r] for r in resolutions])
     rmses_raw = np.array([rmse_raw_per_resolution[r] for r in resolutions])
 
     prod_idx = list(resolutions).index(production_resolution)
 
     ax_rmse.axhline(rmse_raw, color="r", linestyle="--", linewidth=0.8, label="Float precision")
-    ax_rmse.plot(resolutions, rmses_anal, marker="o", markersize=4, linewidth=1, color="k")
+    ax_rmse.plot(resolutions, rmses_ref, marker="o", markersize=4, linewidth=1, color="k")
     ax_rmse.plot(
         production_resolution,
-        rmses_anal[prod_idx],
+        rmses_ref[prod_idx],
         marker="o",
         markersize=4,
         color="r",
@@ -243,7 +243,7 @@ def plot_codec(ax_rmse, ax_diff, npz, xlabel, ylabel, legend):
     ax_rmse.set_title(npz.stem.split("_")[0])
     ax_rmse.set_xscale("log", base=2)
     if ylabel:
-        ax_rmse.set_ylabel(r"$\mathrm{RMSE}_{\mathrm{codec, anal}}$")
+        ax_rmse.set_ylabel(r"$\mathrm{RMSE}_{\mathrm{codec, ref}}$")
     ax_rmse.set_xticks(resolutions)
     ax_rmse.set_xticklabels([f"$2^{{{int(np.log2(r))}}}$" for r in resolutions])
     ax_rmse.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))

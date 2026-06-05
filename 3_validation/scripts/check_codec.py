@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: © 2026 ACID Contributors <https://doi.org/10.5281/zenodo.15722902>
 # SPDX-License-Identifier: CC-BY-SA-4.0 OR LGPL-3.0-or-later
 """Validate the encoding and decoding scheme by comparing sampled PSDs against
-the analytical PSD derived from the covariance matrix.
+the reference PSD derived from the covariance matrix.
 """
 
 import argparse
@@ -27,9 +27,7 @@ def main():
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(
-        description="Validate codec via Toeplitz-based analytical PSD."
-    )
+    parser = argparse.ArgumentParser(description="Validate codec via Toeplitz-based reference PSD.")
     parser.add_argument("kernel_name", type=str, help="The kernel name.")
     parser.add_argument("npz_out", type=Path, help="The output NPZ path.")
     return parser.parse_args()
@@ -37,7 +35,7 @@ def parse_args():
 
 def run(kernel_name: str, path_npz: Path):
     """
-    Compare the PSD of sampled trajectories with the analytical PSD,
+    Compare the PSD of sampled trajectories with the reference PSD,
     and quantify the error introduced by the codec at different resolutions.
 
     Parameters
@@ -62,7 +60,7 @@ def run(kernel_name: str, path_npz: Path):
     transformed_covar = np.fft.fft(np.fft.ifft(covar, axis=1), axis=0)
 
     # Keep only positive-frequency terms of the diagonal
-    psd_anal = np.real(np.diag(transformed_covar))[: NSTEP // 2 + 1]
+    psd_ref = np.real(np.diag(transformed_covar))[: NSTEP // 2 + 1]
 
     # Sample trajectories
     seed = np.frombuffer(kernel_name.encode("ascii"), dtype=np.uint8)
@@ -71,22 +69,22 @@ def run(kernel_name: str, path_npz: Path):
 
     # PSD of raw float trajectories
     psd_raw = compute_amplitudes(traj_raw)
-    rmse_raw = np.sqrt(np.mean((psd_raw - psd_anal) ** 2))
+    rmse_raw = np.sqrt(np.mean((psd_raw - psd_ref) ** 2))
 
     # PSD of codec-encoded trajectories at each resolution
-    rmse_anal_per_resolution = {}
+    rmse_ref_per_resolution = {}
     rmse_raw_per_resolution = {}
     for resolution in RESOLUTIONS:
         boundary, midpoint = generate_codec(resolution)
         indices = lookup_integer(traj_raw, std, boundary)
         traj_coded = midpoint[indices] * std
         psd_coded = compute_amplitudes(traj_coded)
-        rmse_anal_per_resolution[resolution] = np.sqrt(np.mean((psd_coded - psd_anal) ** 2))
+        rmse_ref_per_resolution[resolution] = np.sqrt(np.mean((psd_coded - psd_ref) ** 2))
         rmse_raw_per_resolution[resolution] = np.sqrt(np.mean((psd_coded - psd_raw) ** 2))
 
     np.savez(
         path_npz,
-        rmse_anal_per_resolution=rmse_anal_per_resolution,
+        rmse_ref_per_resolution=rmse_ref_per_resolution,
         rmse_raw=rmse_raw,
         rmse_raw_per_resolution=rmse_raw_per_resolution,
     )
