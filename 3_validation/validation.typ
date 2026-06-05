@@ -56,9 +56,8 @@ $
 $
 In contrast to $x(t)$,
 whose distribution depends only on the variance,
-the distribution of $y(Delta_t)$ is directly determined by the ACF.
-
-The variance of $y$ is given by
+the distribution of $y(Delta_t)$ is dependent on the ACF.
+Its variance is given by
 $
   "Var"[y] = "Var"[x(t + Delta_t)] + "Var"[x(t)] - 2 "Cov"[x(t + Delta_t),x(t)]
 $
@@ -77,18 +76,18 @@ A normalized variable $z$ is introduced
 $
   z(Delta_t) = y(Delta_t) / "Std"[y],
 $
-which should follow a standard normal distribution if the trajectories are sampled from the correct distribution.
+which follows a standard normal distribution if the trajectories are sampled from the correct distribution.
 
-This hypothesis is tested using the one-sample Cramér-von Mises (CvM) goodness-of-fit test with
+This hypothesis is tested using the one-sample Cramér-von Mises (CvM) test with
 $
   H_0 : z_i tilde.op cal(N)(0, 1)
 $
 The test statistic is calculated using
 $
-T = 1/(12 n) + sum_(i = 1)^n [(2i-1)/(2n) - F^*(x_i)]^2
+T = 1/(12 N_"samples") + sum_(i = 1)^N_"samples" [(2i-1)/(2N_"samples") - F^*(z_i)]^2
 $
-where $F^*(x_i)$ is the theoretical distribution evaluated at the empirical data points.
-The well-tested SciPy implementation of this test is used (`scipy.stats.cramervonmises`).
+where $F^*(z_i)$ is the theoretical distribution evaluated at the empirical data points,
+and $N_"samples"$ is the number of samples $z_i$ at a given $Delta_t$.
 
 The resulting $p$-values are evaluated as a function of $Delta_t$ in @fig-acf-consist.
 Comparison of these $p$-values against a conventional threshold such as $alpha = 0.05$ provides a first indication of agreement with the expected distribution.
@@ -96,24 +95,21 @@ Comparison of these $p$-values against a conventional threshold such as $alpha =
 However, individual $p$-values must be interpreted with care.
 Even when the null hypothesis is correct,
 $p$-values are random variables that are uniformly distributed on $[0,1]$,
-so that a fraction $alpha$ of all tests will yield $p lt alpha$ purely by construction @murdoch2008p @wasserstein2016asa.
+so that a fraction $alpha$ of all tests will yield $p lt alpha$ @murdoch2008p @wasserstein2016asa.
 Consequently, isolated "significant" values are expected and do not in themselves indicate a deviation from the model.
 Likewise,
 large $p$-values correspond to observations that are not unusual under the assumed distribution,
-but they should not be interpreted as evidence for its correctness @greenland2016statistical.
+but they should not be interpreted as direct evidence for its correctness @greenland2016statistical.
 
 For this reason,
-the validation focuses on the distribution of $p$-values across $Delta_t$.
+the validation focuses on the distribution of $p$-values across all considered $Delta_t$.
 Under $H_0$,
-these should follow a uniform distribution.
-
-To verify this,
-the hypothesis
+these should follow a uniform distribution
 $
-  H_0 : p_i tilde.op U(0, 1)
+  H_0 : p_i tilde.op U(0, 1),
 $
-is tested using a second Cramér-von Mises test applied to the set of all $p$-values across all $Delta_t$.
-The results of this second test are shown in @fig-acf-consist.
+which is tested using a second CvM test,
+shown in the bottom panel of @fig-acf-consist.
 
 
 #figure(
@@ -130,14 +126,13 @@ and $p_(U(0,1))$ corresponds to the CvM test for $U(0,1)$.
 ) <fig-acf-consist>
 
 = Stationarity
-Stationarity is assessed by evaluating the distribution of $x(t)$ at different relative times along the trajectory.
-Samples are extracted at relative times $t/N = 0.01$, $0.5$, and $0.9$,
+Stationarity is assessed by evaluating the distribution of $x(t)$ at different relative times $t/N = 0.01$, $0.5$, and $0.9$,
 probing early, intermediate, and late stages of the trajectories.
-
-For each relative time point,
+For each relative time,
 samples are pooled across all trajectories.
+
 Under stationarity,
-the distribution of $x(t)$ should be independent of $t$ and given by
+the distribution of $x(t)$ must be independent of $t$ and follow
 $
   x_i tilde.op cal(N)(0, sigma^2)
 $
@@ -152,23 +147,21 @@ $
   H_0 : z_i tilde.op cal(N)(0, 1)
 $
 
-The resulting test statistics and $p$-values are reported for each relative time point (see @fig-stat), together with corresponding Q-Q plots comparing empirical and theoretical quantiles.
+The resulting test statistics and $p$-values are reported for each relative time,
+together with corresponding Q-Q plots comparing empirical and theoretical quantiles in @fig-stat.
 
 As in the ACF consistency analysis,
 individual $p$-values should be interpreted with care:
 even under $H_0$,
 the $p$-values follow a $U(0,1)$ distribution.
 As a result,
-a fraction $alpha$ of all tests are expected to have $p lt alpha$ by construction.
+a fraction $alpha$ of all tests are expected to have $p lt alpha$.
 Consequently,
-the occurrence of $p$-values below,
-for example, $0.05$ does not in itself indicate a violation of stationarity.
-
+the occurrence of a $p$-value below $0.05$ does not in itself indicate a violation of stationarity.
 
 Instead of relying on these individual $p$-values,
 the assessment focuses on consistency across early, intermediate, and late times,
-together with the agreement observed in the Q-Q plots,
- which provide a direct comparison of the empirical and theoretical distributions.
+together with the agreement observed in the Q-Q plots.
 
 #figure(
   image("output/stationarity.svg"),
@@ -182,7 +175,6 @@ The dotted line indicates perfect agreement.
 
 
 = Encoding/decoding scheme
-This validation assesses whether the encoding and decoding scheme introduces a measurable bias in the PSD of the trajectories.
 
 To reduce storage requirements,
 the sequences are not stored as floating-point values,
@@ -192,35 +184,32 @@ This discretization yields an integer index representing the position on the gri
 
 Decoding is performed using a fixed lookup table constructed from the corresponding percent point function (inverse CDF).
 Each stored index is mapped back to a floating-point value via the midpoint of the associated bin,
-yielding a reconstructed trajectory $hat(x)$.
+yielding a reconstructed trajectory $x_"codec" (t)$.
 
 To quantify the impact of this discretization,
-the power spectral density (PSD) of the trajectories is considered.
+the power spectral density (PSD) of the trajectories is compared against a reference PSD.
 
-A reference PSD is constructed for the same finite trajectory length,
-representing the expected PSD under the discrete sampling and subsequent FFT.
 Using the analytical ACF,
-the covariance matrix ($C$) is constructed as
+the covariance matrix ($bold(C)$) is constructed as
 $
-  bold(C)_(i j) = "ACF"(abs(i-j))
+  bold(C)_(i j) = "ACF"(abs(i-j)),
 $
-The PSD is obtained from the diagonal of the Fourier-transformed covariance matrix
+with dimensions $N times N$.
+The resulting reference PSD is obtained from the diagonal of the Fourier-transformed covariance matrix
 $
   "PSD" = diag(bold(F)bold(C)bold(F)^dagger)
 $
-where $bold(F)$ denotes the discrete Fourier transform matrix,
-such that $bold(F) bold(C) bold(F)^dagger$ yields the covariance matrix in the frequency domain.
-
+where $bold(F)$ denotes the discrete Fourier transform matrix.
 Consequently,
-this PSD construction incorporates the same FFT-related artifacts as the sampled trajectories.
+this reference PSD construction incorporates the same finite-size and FFT-related artifacts as the sampled trajectories.
 
-Independently,
+In parallel,
 sampled trajectories are generated in full floating-point precision,
 and their PSD is estimated.
 This provides a baseline error,
 defined as the root-mean-square error (RMSE) with respect to the reference PSD,
 $
-  "RMSE"_"float,ref" = sqrt(1/(M N_f) sum_(f=1)^N_f sum_(k=1)^M ("PSD"_("float")^((k)) (f) - "PSD"_("reference") (f))^2).
+  "RMSE"_"float,ref" = sqrt(1/(M N_f) sum_(f=1)^N_f sum_(k=1)^M ("PSD"_("float")^((k)) (f) - "PSD"_("reference") (f))^2)
 $
 where $"PSD"_("float")^((k)) (f)$ is the floating-point precision PSD of sequence $k$ at frequency $f$,
 $M$ is the number of independent sequences,
@@ -229,28 +218,24 @@ and $N_f$ is the number of non-negative frequency points.
 
 The same procedure is then applied after encoding and decoding the floating-point trajectories using different codec resolutions.
 For a given number of bins $R$,
-the codec produces reconstructed trajectories $hat(x)^((R))$,
-from which the PSD and corresponding RMSE are computed
+the codec produces reconstructed trajectories from which the PSD and corresponding RMSE are computed relative to the reference PSD
 $
-  "RMSE"_"codec,ref"^((R)) = sqrt(1/(M N_f) sum_(f=1)^N_f sum_(k=1)^M ("PSD"_("codec")^((k,R))(f) - "PSD"_("reference")(f))^2).
+  "RMSE"_"codec,ref"^((R)) = sqrt(1/(M N_f) sum_(f=1)^N_f sum_(k=1)^M ("PSD"_("codec")^((k,R))(f) - "PSD"_("reference")(f))^2)
 $
-The dependence of the RMSE on the resolution is shown in @fig-codec.
+The dependence of the $"RMSE"_"codec,ref"$ on the resolution is shown in the top panels of @fig-codec.
 In addition,
-the RMSE between the codec and the floating-point PSD is evaluated.
+the $"RMSE"$ between the codec and the floating-point PSD is evaluated.
 $
-  "RMSE"_"codec,float"^((R)) = sqrt(1/(M N_f) sum_(f=1)^N_f sum_(k=1)^M ("PSD"_("codec")^((k,R))(f) - "PSD"_("float")^((k))(f))^2).
+  "RMSE"_"codec,float"^((R)) = sqrt(1/(M N_f) sum_(f=1)^N_f sum_(k=1)^M ("PSD"_("codec")^((k,R))(f) - "PSD"_("float")^((k))(f))^2)
 $
 This measure isolates the deviations introduced by the codec itself,
 independently of sampling noise.
-If the encoding and decoding scheme introduces negligible bias,
-the RMSE should converge to the floating-point baseline as the resolution increases.
+The $"RMSE"_"codec,float"$ should converge to the floating-point baseline as the resolution increases.
 
-The plots in @fig-codec demonstrate the scenario with the largest number of independent sequences considered in ACID 2: $M = 256$ and $"nseed" = 64$.
+The bottom panels of @fig-codec demonstrate the scenario with the largest number of independent sequences considered in ACID 2: $M = 256$ and $"nseed" = 64$.
 Even under these conditions,
-the error introduced by the codec remains significantly smaller than the intrinsic sampling error.
-
-This comparison ensures that the codec preserves the spectral properties of the trajectories,
-and that any residual discrepancies are dominated by finite-sampling effects rather than by the discretization itself.
+the error introduced by the codec using $2^16$ bins remains significantly smaller than the intrinsic sampling error.
+This comparison ensures that residual discrepancies are dominated by finite-sampling effects rather than by the discretization itself.
 
 #figure(
   image("output/codec.svg"),
