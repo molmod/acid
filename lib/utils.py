@@ -121,6 +121,63 @@ def compute_amplitudes(sequences: NDArray[float], timestep: float = 1.0) -> NDAr
     return timestep * (abs(np.fft.rfft(sequences, axis=1)) ** 2).sum(axis=0) / (nstep * nindep)
 
 
+def compute_acfs(sequences: NDArray[float]) -> NDArray[float]:
+    """
+    Compute the autocorrelation function (ACF) from a batch of sequences.
+
+    Parameters
+    ----------
+    sequences
+        The input sequences, which is an array with shape ``(nindep, nstep)``.
+        Each row is a time-dependent sequence.
+
+    Returns
+    -------
+    acfs
+        A numpy array that contains the ACFs of the sequence.
+    """
+    nseq, nstep = sequences.shape
+
+    # Normalization for unbiased ACF estimator
+    denom = np.arange(nstep, 0, -1)
+
+    acfs = np.zeros(nstep)
+    for seq in sequences:
+        corr = sp.signal.correlate(seq, seq, mode="full", method="auto")[nstep - 1 :]
+        corr /= denom
+        acfs += corr
+
+    return acfs / nseq
+
+
+def compute_msds(sequences: NDArray[float]) -> NDArray[float]:
+    """
+    Compute the mean-squared displacements (MSD) from a batch of sequences.
+
+    Parameters
+    ----------
+    sequences
+        The input sequences, which is an array with shape ``(nindep, nstep)``.
+        Each row is a time-dependent sequence.
+
+    Returns
+    -------
+    msds
+        A numpy array that contains the MSDs of the sequence.
+    """
+    nstep = sequences.shape[1]
+
+    # Integrated trajectories
+    antiderivatives = np.cumsum(sequences, axis=1)
+
+    msds = np.zeros(nstep)
+    for delta in range(nstep):
+        diffs = antiderivatives[:, delta:] - antiderivatives[:, : nstep - delta]
+        msds[delta] = np.mean(diffs**2)
+
+    return msds
+
+
 def make_grid_pow_rational_chebyshev(
     order: int, theta: float, alpha: float, threshold: float = 1e-34
 ) -> tuple[NDArray[float], NDArray[float]]:
