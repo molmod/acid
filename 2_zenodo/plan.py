@@ -15,6 +15,7 @@ wrap_git(
 
 dataset_path = Path("../1_dataset/")
 output_path = Path("../1_dataset/output/")
+validation_path = Path("../3_validation/")
 
 static(
     "zenodo.md",
@@ -23,8 +24,11 @@ static(
     dataset_path + "overview.pdf",
     dataset_path + "settings.json",
     output_path,
+    validation_path,
+    validation_path + "validation.pdf",
+    "../LICENSES/",
 )
 settings = loadns(dataset_path + "settings.json", do_amend=True)
 render_jinja("zenodo_yaml_template.yaml.jinja", {"kernels": settings.kernels}, "zenodo.yaml")
-glob("../LICENSE-*.txt")
+glob("../LICENSES/*.txt")
 sync_zenodo("zenodo.yaml")
