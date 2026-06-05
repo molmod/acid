@@ -74,15 +74,22 @@ def run(kernel_name: str, path_npz: Path):
     rmse_raw = np.sqrt(np.mean((psd_raw - psd_anal) ** 2))
 
     # PSD of codec-encoded trajectories at each resolution
-    rmse_per_resolution = {}
+    rmse_anal_per_resolution = {}
+    rmse_raw_per_resolution = {}
     for resolution in RESOLUTIONS:
         boundary, midpoint = generate_codec(resolution)
         indices = lookup_integer(traj_raw, std, boundary)
         traj_coded = midpoint[indices] * std
         psd_coded = compute_amplitudes(traj_coded)
-        rmse_per_resolution[resolution] = np.sqrt(np.mean((psd_coded - psd_anal) ** 2))
+        rmse_anal_per_resolution[resolution] = np.sqrt(np.mean((psd_coded - psd_anal) ** 2))
+        rmse_raw_per_resolution[resolution] = np.sqrt(np.mean((psd_coded - psd_raw) ** 2))
 
-    np.savez(path_npz, rmse_per_resolution=rmse_per_resolution, rmse_raw=rmse_raw)
+    np.savez(
+        path_npz,
+        rmse_anal_per_resolution=rmse_anal_per_resolution,
+        rmse_raw=rmse_raw,
+        rmse_raw_per_resolution=rmse_raw_per_resolution,
+    )
 
 
 if __name__ == "__main__":
