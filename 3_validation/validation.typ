@@ -33,7 +33,7 @@
 
   ✶E-mail: #link("mailto:toon.verstraelen@ugent.be", "toon.verstraelen@ugent.be")
 
-  // Version #read("git-version.txt").trim() #read("git-date.txt").trim()
+  Version #read("git-version.txt").trim() #read("git-date.txt").trim()
 ]
 = Summary
 This document presents the validation of the ACID 2 dataset.
