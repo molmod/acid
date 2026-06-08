@@ -27,6 +27,8 @@ A major refactoring of the ACID dataset.
 - Added a comprehensive set of unit tests to verify the low-frequency part of the PSD,
   the accuracy of the quadrature scheme in `PowTerm`,
   and the analytical derivations relating the PSD, MSD, and ACF.
+- Added `validation.typ`,
+  documenting the methodologies and results of the tests in `3_validation/`.
 
 ### Changed
 

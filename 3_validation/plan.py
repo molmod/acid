@@ -8,7 +8,7 @@ See README.md for instructions on how to run this workflow.
 
 from path import Path
 from stepup.core.api import glob, loadns, mkdir, runpy, static
-from stepup.reprep.api import wrap_git
+from stepup.reprep.api import compile_typst, wrap_git
 
 # Write Git information to text file for inclusion in documents.
 glob("../.git/**", _defer=True)
@@ -27,6 +27,8 @@ static(
     dataset_output_path,
     "../matplotlibrc",
     "scripts/",
+    "validation.typ",
+    "references.bib",
 )
 
 glob(dataset_output_path + "*.zip")
@@ -76,3 +78,5 @@ runpy(
     inp=["scripts/plot.py", "../matplotlibrc", *acf_consist_paths, *stat_paths, *codec_paths],
     out=["output/acf_consist.svg", "output/stationarity.svg", "output/codec.svg"],
 )
+
+compile_typst("validation.typ")
