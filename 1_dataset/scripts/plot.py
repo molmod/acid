@@ -9,9 +9,8 @@ import zipfile
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-from numpy.typing import NDArray
 from path import Path
-from utils import compute_amplitudes
+from utils import compute_acfs, compute_amplitudes, compute_msds
 
 
 def main():
@@ -118,7 +117,7 @@ def run(
         cdfi = unzipped_kernel[sample_path]
         sequences = lookup_table[cdfi] * std
         empirical_psd = compute_amplitudes(sequences)
-        empirical_acf = np.fft.irfft(empirical_psd)
+        empirical_acf = compute_acfs(sequences)
         empirical_msd = compute_msds(sequences)
 
         row = i // 3
@@ -132,34 +131,6 @@ def run(
     fig2.savefig(path_svg_acs)
     fig3.savefig(path_svg_psds)
     fig4.savefig(path_svg_msds)
-
-
-def compute_msds(sequences: NDArray[float]) -> NDArray[float]:
-    """
-    Compute the mean-squared displacements (MSD) from a batch of sequences.
-
-    Parameters
-    ----------
-    sequences
-        The input sequences, which is an array with shape ``(nindep, nstep)``.
-        Each row is a time-dependent sequence.
-
-    Returns
-    -------
-    msds
-        A numpy array that contains the MSDs of the sequence.
-    """
-    nstep = sequences.shape[1]
-
-    # Integrated trajectories
-    antiderivatives = np.cumsum(sequences, axis=1)
-
-    msds = np.zeros(nstep)
-    for delta in range(nstep):
-        diffs = antiderivatives[:, delta:] - antiderivatives[:, : nstep - delta]
-        msds[delta] = np.mean(diffs**2)
-
-    return msds
 
 
 def plot_seq(ax, meta, times, sequences, xlabel, ylabel):
