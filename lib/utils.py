@@ -32,6 +32,29 @@ def dump_meta(name: str, zf: zipfile.ZipFile, data):
     zf.writestr(zi, json.dumps(data))
 
 
+def generate_codec(resolution: int) -> tuple[NDArray, NDArray]:
+    """
+    Generate lookup tables for Gaussian-based encoding/decoding of trajectories.
+
+
+    Parameters
+    ----------
+    resolution
+        The number of bins for the codec representation.
+
+    Returns
+    -------
+    boundary
+        Bin boundaries.
+    midpoint
+        Bin midpoints.
+    """
+    cdf = np.arange(resolution)
+    boundary = sp.stats.norm.ppf(cdf[1:] / resolution).astype(np.float32)
+    midpoint = sp.stats.norm.ppf((cdf + 0.5) / resolution).astype(np.float32)
+    return boundary, midpoint
+
+
 def lookup_integer(sequence: NDArray[float], std: float, table: NDArray[float]) -> NDArray[int]:
     r"""Lookup to which integer the floats should be mapped according to the lookup table.
     This lookup table is based on the mapping of the sequence to a cumulative distribution function,
@@ -50,9 +73,112 @@ def lookup_integer(sequence: NDArray[float], std: float, table: NDArray[float]) 
     Returns
     -------
     An array that contains the original floats mapped to integers
-
     """
     return np.searchsorted(table, sequence / std)
+
+
+def compute_amplitudes(sequences: NDArray[float], timestep: float = 1.0) -> NDArray[float]:
+    r"""Compute the amplitudes of a batch of sequences as follows:
+
+    .. math::
+
+    C_k = \frac{1}{M}\sum_{m=1}^M \frac{h}{N} \left|
+        \sum_{n=0}^{N-1} x^{(m)}_n \exp\left(-i \frac{2 \pi n k}{N}\right)
+    \right|^2
+
+    where:
+
+    - :math:`h` is the timestep,
+    - :math:`N` is the number of time steps in the input sequences,
+    - :math:`M` is the number of independent sequences,
+    - :math:`x^{(m)}_n` is the value of the :math:`m`-th sequence at time step :math:`n`,
+    - :math:`k` is the frequency index.
+
+    This normalization differs from conventional discrete Fourier transforms,
+    where the factor :math:`\frac{1}{N}` is typically applied in the inverse transform.
+    Applying the normalization directly in the forward transform ensures that the resulting spectrum
+    is an intensive property,
+    which is important in the context of transport properties,
+    where the zero-frequency limit is the quantity of interest.
+    Likewise, the factor :math:`\frac{1}{M}` ensures that the averaged spectrum is also intensive
+    with respect to the number of independent sequences :math:`M`.
+
+    Parameters
+    ----------
+    sequences
+        The input sequences, which is an array with shape ``(nindep, nstep)``.
+        Each row is a time-dependent sequence.
+    timestep
+        The time step of the input sequence.
+
+    Returns
+    -------
+    amplitudes
+        A numpy array that contains the amplitudes of the spectrum.
+    """
+    nindep = sequences.shape[0]
+    nstep = sequences.shape[1]
+    return timestep * (abs(np.fft.rfft(sequences, axis=1)) ** 2).sum(axis=0) / (nstep * nindep)
+
+
+def compute_acfs(sequences: NDArray[float]) -> NDArray[float]:
+    """
+    Compute the autocorrelation function (ACF) from a batch of sequences.
+
+    Parameters
+    ----------
+    sequences
+        The input sequences, which is an array with shape ``(nindep, nstep)``.
+        Each row is a time-dependent sequence.
+
+    Returns
+    -------
+    acfs
+        A numpy array that contains the ACFs of the sequence.
+    """
+    nseq, nstep = sequences.shape
+
+    # Normalization for unbiased ACF estimator
+    denom = np.arange(nstep, 0, -1)
+
+    acfs = np.zeros(nstep)
+    for seq in sequences:
+        corr = sp.signal.correlate(seq, seq, mode="full", method="auto")[nstep - 1 :]
+        corr /= denom
+        acfs += corr
+
+    return acfs / nseq
+
+
+def compute_msds(sequences: NDArray[float]) -> NDArray[float]:
+    """
+    Compute the mean-squared displacements (MSD) from a batch of sequences.
+
+    Parameters
+    ----------
+    sequences
+        The input sequences, which is an array with shape ``(nindep, nstep)``.
+        Each row is a time-dependent sequence.
+
+    Returns
+    -------
+    msds
+        A numpy array that contains the MSDs of the sequence.
+        Note that the average of squared displacements is computed over all available time origins,
+        `range(0, nstep-delta)`, where `delta` is the integer time lag
+        and `nstep` is the sequence length.
+    """
+    nstep = sequences.shape[1]
+
+    # Integrated trajectories
+    antiderivatives = np.cumsum(sequences, axis=1)
+
+    msds = np.zeros(nstep)
+    for delta in range(nstep):
+        diffs = antiderivatives[:, delta:] - antiderivatives[:, : nstep - delta]
+        msds[delta] = np.mean(diffs**2)
+
+    return msds
 
 
 def make_grid_pow_rational_chebyshev(

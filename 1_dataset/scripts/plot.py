@@ -9,8 +9,8 @@ import zipfile
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-from numpy.typing import NDArray
 from path import Path
+from utils import compute_acfs, compute_amplitudes, compute_msds
 
 
 def main():
@@ -117,7 +117,7 @@ def run(
         cdfi = unzipped_kernel[sample_path]
         sequences = lookup_table[cdfi] * std
         empirical_psd = compute_amplitudes(sequences)
-        empirical_acf = np.fft.irfft(empirical_psd)
+        empirical_acf = compute_acfs(sequences)
         empirical_msd = compute_msds(sequences)
 
         row = i // 3
@@ -131,78 +131,6 @@ def run(
     fig2.savefig(path_svg_acs)
     fig3.savefig(path_svg_psds)
     fig4.savefig(path_svg_msds)
-
-
-def compute_amplitudes(sequences: NDArray[float], timestep: float = 1.0) -> NDArray[float]:
-    r"""Compute the amplitudes of a batch of sequences as follows:
-
-    .. math::
-
-    C_k = \frac{1}{M}\sum_{m=1}^M \frac{h}{N} \left|
-        \sum_{n=0}^{N-1} x^{(m)}_n \exp\left(-i \frac{2 \pi n k}{N}\right)
-    \right|^2
-
-    where:
-
-    - :math:`h` is the timestep,
-    - :math:`N` is the number of time steps in the input sequences,
-    - :math:`M` is the number of independent sequences,
-    - :math:`x^{(m)}_n` is the value of the :math:`m`-th sequence at time step :math:`n`,
-    - :math:`k` is the frequency index.
-
-    This normalization differs from conventional discrete Fourier transforms,
-    where the factor :math:`\frac{1}{N}` is typically applied in the inverse transform.
-    Applying the normalization directly in the forward transform ensures that the resulting spectrum
-    is an intensive property,
-    which is important in the context of transport properties,
-    where the zero-frequency limit is the quantity of interest.
-    Likewise, the factor :math:`\frac{1}{M}` ensures that the averaged spectrum is also intensive
-    with respect to the number of independent sequences :math:`M`.
-
-    Parameters
-    ----------
-    sequences
-        The input sequences, which is an array with shape ``(nindep, nstep)``.
-        Each row is a time-dependent sequence.
-    timestep
-        The time step of the input sequence.
-
-    Returns
-    -------
-    amplitudes
-        A numpy array that contains the amplitudes of the spectrum.
-    """
-    nindep = sequences.shape[0]
-    nstep = sequences.shape[1]
-    return timestep * (abs(np.fft.rfft(sequences, axis=1)) ** 2).sum(axis=0) / (nstep * nindep)
-
-
-def compute_msds(sequences: NDArray[float]) -> NDArray[float]:
-    """
-    Compute the mean-squared displacements (MSD) from a batch of sequences.
-
-    Parameters
-    ----------
-    sequences
-        The input sequences, which is an array with shape ``(nindep, nstep)``.
-        Each row is a time-dependent sequence.
-
-    Returns
-    -------
-    msds
-        A numpy array that contains the MSDs of the sequence.
-    """
-    nstep = sequences.shape[1]
-
-    # Integrated trajectories
-    antiderivatives = np.cumsum(sequences, axis=1)
-
-    msds = np.zeros(nstep)
-    for delta in range(nstep):
-        diffs = antiderivatives[:, delta:] - antiderivatives[:, : nstep - delta]
-        msds[delta] = np.mean(diffs**2)
-
-    return msds
 
 
 def plot_seq(ax, meta, times, sequences, xlabel, ylabel):

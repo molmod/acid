@@ -7,7 +7,14 @@ version = 1
 path = [
     "1_dataset/settings.json",
     "2_zenodo/.zenodo-record-id.txt",
-    "requirements.txt",
 ]
 SPDX-FileCopyrightText = "© 2026 ACID Contributors <https://doi.org/10.5281/zenodo.15722902>"
 SPDX-License-Identifier = "CC-BY-SA-4.0"
+
+# Computer-generated file
+[[annotations]]
+path = [
+    "requirements.txt"
+]
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
