@@ -9,7 +9,6 @@ import argparse
 from runpy import run_path
 
 import numpy as np
-import scipy.linalg
 from kernels import compute, sample
 from path import Path
 from stepup.core.api import amend
@@ -55,12 +54,10 @@ def run(kernel_name: str, path_npz: Path):
     _, acf_anal, _, _, _, _, _ = compute(terms, freqs, times)
     std = np.sqrt(acf_anal[0])
 
-    covar = scipy.linalg.toeplitz(acf_anal)
-    # Compute F ACF F^dagger via two FFTs
-    transformed_covar = np.fft.fft(np.fft.ifft(covar, axis=1), axis=0)
-
-    # Keep only positive-frequency terms of the diagonal
-    psd_ref = np.real(np.diag(transformed_covar))[: NSTEP // 2 + 1]
+    # Construct reference PSD from the covariance matrix
+    acf_wrapped = acf_anal * np.arange(NSTEP, 0, -1) / NSTEP
+    acf_wrapped[1:] += acf_wrapped[:0:-1]
+    psd_ref = np.fft.rfft(acf_wrapped).real
 
     # Sample trajectories
     seed = np.frombuffer(kernel_name.encode("ascii"), dtype=np.uint8)
