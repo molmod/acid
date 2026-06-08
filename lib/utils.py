@@ -164,6 +164,8 @@ def compute_msds(sequences: NDArray[float]) -> NDArray[float]:
     -------
     msds
         A numpy array that contains the MSDs of the sequence.
+        Note that the average of squared displacements is computed over all available time origins,
+        `range(0, nstep-delta)`, where `delta` is the integer time lag and `nstep` is the sequence length.
     """
     nstep = sequences.shape[1]
 
