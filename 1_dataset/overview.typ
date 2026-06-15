@@ -305,7 +305,7 @@ as shown in @code-numpy.
     `nstepXXXXX/freqs.npy`, [Frequency axis of the power spectrum for $N$ = `XXXXX`],
     `nstepXXXXX/psd.npy`, [Reference power spectral density for $N$ = `XXXXX`],
     `nstepXXXXX/acf.npy`, [Reference autocorrelation function for $N$ = `XXXXX`],
-    `nstepXXXXX/msd.npy`, [Reference mean-squared displacement function for $N$ = `XXXXX`],
+    `nstepXXXXX/msd.npy`, [Reference mean-squared displacement for $N$ = `XXXXX`],
     `nstepXXXXX/nseqYYYY/sequences_ZZ.npy`,
     [
       Stochastic sequences for a given $N$ = `XXXXX`, $M$ = `YYYY`, and seed index `ZZ`
@@ -341,7 +341,7 @@ To reduce storage requirements,
 the sequences are not stored as floating-point values,
 but as unsigned integers.
 Each floating-point value is mapped through the Cumulative Distribution Function (CDF) of a Gaussian distribution
-and discretized on a uniform grid of $2^{16}$ points in $[0,1]$.
+and discretized on a uniform grid of $2^(16)$ points in $[0,1]$.
 This discretization yields an integer representing the corresponding index on the grid.
 A fixed lookup table,
 constructed from the corresponding percent point function (inverse of the CDF),
@@ -353,12 +353,14 @@ further compression of the ZIP archives yields less than 1% reduction and is the
 
 The ground truth value of the autocorrelation integral is stored in the metadata as `acint`
 and is equal to `psd[0]`.
-Empirical MSDs are computed from the time integral of the trajectories,
-as illustrated in @code-msd.
-The implementation here is intentionally kept simple to demonstrate data usage.
-More efficient strategies have been proposed,
-which avoid overlapping windows and evaluate only a selected subset of time lags,
-as described by e.g. Moustafa et al. @moustafa2024efficient
+
+Empirical ACFs, PSDs, and MSDs can be computed from the trajectories,
+as illustrated in @code-emp.
+The implementations here are intentionally kept simple to demonstrate data usage.
+More efficient strategies have been proposed for the computation of these quantities.
+For example,
+in MSD calculations,
+approaches that avoid overlapping windows and evaluate only a subset of time lags are discussed by Moustafa et al. @moustafa2024efficient
 
 
 #figure(
@@ -407,18 +409,32 @@ as described by e.g. Moustafa et al. @moustafa2024efficient
   supplement: "Code",
 ) <code-decode>
 
-
 #figure(
   box(
     stroke: black,
     inset: 1em,
     ```python
     import numpy as np
+    import scipy as sp
 
     sequences = np.load("exp1w.zip")["nstep01024/nseq0064/sequences_00.npy"]
-    antiderivatives = np.cumsum(sequences, axis=1)
-    nstep = sequences.shape[1]
+    nseq, nstep = sequences.shape
 
+    # Calculate empirical ACFs
+    denom = np.arange(nstep, 0, -1)
+    acf_sum = np.zeros(nstep)
+    for seq in sequences:
+        corr = sp.signal.correlate(seq, seq, mode="full", method="auto")[nstep - 1 :]
+        corr /= denom
+        acf_sum += corr
+
+    acfs = acf_sum / nseq
+
+    # Calculate empirical PSDs
+    psds = (abs(np.fft.rfft(sequences, axis=1)) ** 2).sum(axis=0) / (nstep * nseq)
+
+    # Calculate empirical MSDs
+    antiderivatives = np.cumsum(sequences, axis=1)
     msds = np.zeros(nstep)
     for delta in range(nstep):
         diffs = antiderivatives[:, delta:] - antiderivatives[:, : nstep - delta]
@@ -426,11 +442,11 @@ as described by e.g. Moustafa et al. @moustafa2024efficient
     ```,
   ),
   caption: [
-    Example Python code showing how to compute the mean-squared displacements of the trajectories.
+    Example Python code showing how to compute the autocorrelation functions, the power spectral densities, and the mean-squared displacements of the sampled trajectories.
   ],
   kind: "code",
   supplement: "Code",
-) <code-msd>
+) <code-emp>
 
 
 = Trajectory generation
