@@ -89,6 +89,16 @@ $
 where $F^*(z_i)$ is the theoretical distribution evaluated at the empirical data points,
 and $N_"samples"$ is the number of samples $z_i$ at a given $Delta_t$.
 
+The time lags $Delta_t$ are sampled non-uniformly,
+with dense coverage at short times and progressively sparser coverage at longer times,
+since small $Delta_t$ contribute most strongly to the covariance.
+This is achieved using the recursive construction
+$
+  Delta_t^((k+1)) = max(Delta_t^((k)) + 1, floor(gamma Delta_t^((k))))
+$
+with $gamma gt 1$,
+starting from $Delta_t^((0)) = 1$.
+
 The resulting $p$-values are evaluated as a function of $Delta_t$ in @fig-acf-consist.
 Comparison of these $p$-values against a conventional threshold such as $alpha = 0.05$ provides a first indication of agreement with the expected distribution.
 
