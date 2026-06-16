@@ -223,7 +223,6 @@ $
     + "ACF"(N-Delta) Delta
   )/N
 $
-where we additionally assume that $"ACF"(N) = 0$, as if the ACF is padded with a single zero.
 
 In parallel,
 sampled trajectories are generated in full floating-point precision,
