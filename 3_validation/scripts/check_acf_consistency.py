@@ -67,15 +67,14 @@ def run(
     dt_max = max(nsteps) - 1
 
     # Small time lags have the largest covariances and are therefore sampled more densely.
-    dts = np.unique(
-        np.concatenate(
-            (
-                np.linspace(1, 50, 50),
-                np.linspace(56, 256, 150),
-                np.geomspace(256, dt_max, dt_max // 256 * 2),
-            )
-        ).astype(int)
-    )
+    dts = [1]
+    gamma = 1.03
+    while True:
+        dt_new = max(dts[-1] + 1, int(dts[-1] * gamma))
+        if dt_new > dt_max:
+            break
+        dts.append(dt_new)
+    dts = np.array(dts)
 
     acf_path = f"nstep{max(nsteps):05d}/acf.npy"
 
