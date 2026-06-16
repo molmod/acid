@@ -44,6 +44,8 @@ A major refactoring of the ACID dataset.
   Each ZIP file also includes a `meta.json` file with metadata.
 - Changed the file organization in `overview.typ`,
   following the new structure introduced by this release.
+- Improved licensing and copyright specifications,
+  including explicit licensing information for each file.
 
 ### Removed
 
