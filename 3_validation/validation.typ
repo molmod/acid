@@ -18,6 +18,7 @@
   *#it.supplement #context (it.counter.display(it.numbering))#it.separator*#it.body
 ]
 #let diag = math.op("diag")
+#let ten(x) = { $upright(bold(#x))$ }
 
 #align(center)[
   #text(size: 24pt)[
@@ -200,18 +201,38 @@ To quantify the impact of this discretization,
 the power spectral density (PSD) of the trajectories is compared against a reference PSD.
 
 Using the analytical ACF,
-the covariance matrix ($bold(C)$) is constructed as
+the covariance matrix ($ten(C)$) is constructed as
 $
-  bold(C)_(i j) = "ACF"(abs(i-j)),
+  ten(C)_(i j) = "ACF"(abs(i-j)),
 $
 with dimensions $N times N$.
 The resulting reference PSD is obtained from the diagonal of the Fourier-transformed covariance matrix
 $
-  "PSD" = diag(bold(F)bold(C)bold(F)^dagger)
+  "PSD" = 1/N diag(ten(F)ten(C)ten(F)^dagger)
 $
-where $bold(F)$ denotes the discrete Fourier transform matrix.
-Consequently,
-this reference PSD construction incorporates the same finite-size and FFT-related artifacts as the sampled trajectories.
+where $ten(F)$ denotes the discrete Fourier transform matrix:
+$
+  ten(F)_(j m) = exp(-i 2 pi thin j m \/ N)
+$
+This reference PSD construction incorporates the same finite-size and FFT-related artifacts as the sampled trajectories.
+
+The contraction of the covariance with the Fourier transform matrices can be rewritten as a single FFT.
+To show how this is achieved, the PSD is first written out in full:
+$
+  "PSD"_j = 1/N sum_(m=1)^N sum_(n=1)^N exp(-i 2 pi j(m - n) \/ N) "ACF"(m - n)
+$
+In this form, it is clear that the double summation can be rewritten as a single sum over $Delta = m - n$.
+The second sum can be replaced by an integer counting the number of terms with a given $Delta$:
+$
+  "PSD"_j = sum_(Delta = -(N-1))^(N-1) exp(-i 2 pi j Delta \/ N) "ACF"(Delta) (N - abs(Delta))/N
+$
+Finally, we wrap the summation over $Delta$ into a sum from $0$ to $N-1$, to conform with the standard DFT definition, using the symmetry of the ACF and the exponential:
+$
+  "PSD"_j = sum_(Delta = 0)^(N-1) F_(j Delta) (
+    "ACF"(Delta) (N - Delta)
+    + "ACF"(N-Delta) Delta
+  )/N
+$
 
 In parallel,
 sampled trajectories are generated in full floating-point precision,
