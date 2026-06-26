@@ -203,11 +203,11 @@ $
 #let kernels = csv(sys.inputs.kernels)
 #figure(
   table(
-      columns: 3,
-      align: left,
-      table.header[Kernel][Definition][$tau_"int"$],
-      ..for(label,typeq,_,cti) in kernels{
-          (label, eval("$" + typeq + "$"), cti)
+      columns: 6,
+      align: (left, left, center, center, center, center),
+      table.header[Kernel][Definition][Variance][ACF integral][$tau_"int"$][$tau_"exp"$],
+      ..for(label,typeq,_,var,acint,cti,cte) in kernels{
+          (label, eval("$" + typeq + "$"), var, acint, cti, cte)
       },
   ),
   caption: [Summary of kernels used in the ACID test set.]
