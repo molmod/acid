@@ -347,7 +347,7 @@ This discretization yields an integer representing the corresponding index on th
 A fixed lookup table,
 constructed from the corresponding percent point function (inverse of the CDF),
 assigns a corresponding floating-point value to each index for decoding,
-as demonstrated in @code-decode.
+as demonstrated in @code-emp.
 
 As a result of this integer encoding,
 further compression of the ZIP archives yields less than 1% reduction and is therefore not applied.
@@ -382,68 +382,20 @@ approaches that avoid overlapping windows and evaluate only a subset of time lag
   supplement: "Code",
 ) <code-numpy>
 
+// The SPDX header needs to be removed from the example file
+#let example-usage-lines = read("scripts/example_usage.py").split("\n")
+#let example-usage-start = example-usage-lines.position(line => line.starts-with("import"))
+#let example-usage-code = example-usage-lines.slice(example-usage-start).join("\n")
 
 #figure(
   box(
     stroke: black,
     inset: 1em,
-    ```python
-    import json
-    import zipfile
-
-    import numpy as np
-
-    with zipfile.ZipFile("exp1w.zip") as zf:
-        with zf.open("meta.json") as f:
-            meta = json.load(f)
-        with zf.open("nstep01024/nseq0256/sequences_00.npy") as f:
-            cdfi = np.load(f)
-    lookup_table = np.load("codec.zip")["midpoint"]
-    std = np.sqrt(meta["var"])
-    sequences = lookup_table[cdfi] * std
-    ```
+    raw(example-usage-code, lang: "python", block: true),
   ),
   caption: [
-    Example Python implementation decoding the integer representation of the sequences back to floating-point numbers.
-  ],
-  kind: "code",
-  supplement: "Code",
-) <code-decode>
-
-#figure(
-  box(
-    stroke: black,
-    inset: 1em,
-    ```python
-    import numpy as np
-    import scipy as sp
-
-    sequences = np.load("exp1w.zip")["nstep01024/nseq0064/sequences_00.npy"]
-    nseq, nstep = sequences.shape
-
-    # Calculate empirical ACFs
-    denom = np.arange(nstep, 0, -1)
-    acf_sum = np.zeros(nstep)
-    for seq in sequences:
-        corr = sp.signal.correlate(seq, seq, mode="full", method="auto")[nstep - 1 :]
-        corr /= denom
-        acf_sum += corr
-
-    acfs = acf_sum / nseq
-
-    # Calculate empirical PSDs
-    psds = (abs(np.fft.rfft(sequences, axis=1)) ** 2).sum(axis=0) / (nstep * nseq)
-
-    # Calculate empirical MSDs
-    antiderivatives = np.cumsum(sequences, axis=1)
-    msds = np.zeros(nstep)
-    for delta in range(nstep):
-        diffs = antiderivatives[:, delta:] - antiderivatives[:, : nstep - delta]
-        msds[delta] = np.mean(diffs**2)
-    ```,
-  ),
-  caption: [
-    Example Python code showing how to compute the autocorrelation functions, the power spectral densities, and the mean-squared displacements of the sampled trajectories.
+    Example Python code decoding the integer representation of the sequences back to floating-point numbers,
+    and computing the autocorrelation functions, the power spectral densities, and the mean-squared displacements of the sampled trajectories.
   ],
   kind: "code",
   supplement: "Code",
