@@ -7,6 +7,7 @@ import argparse
 from runpy import run_path
 
 import numpy as np
+from kernels import ExpTerm, WhiteTerm
 from path import Path
 from stepup.core.api import amend, loadns
 
@@ -42,13 +43,25 @@ def run(inp: Path, out: Path):
             latex = " + ".join(term.latex for term in terms)
             acint = 0
             variance = 0
+            corrtimes_exp = []
             for term in terms:
                 acf = term.compute_acf(np.zeros(1))
                 psd = term.compute_psd(np.zeros(1))
                 acint += psd[0]
                 variance += acf[0]
+                if isinstance(term, ExpTerm):
+                    corrtimes_exp.append(term.tau)
+                elif not isinstance(term, WhiteTerm):
+                    corrtimes_exp.append(None)
             corrtime_int = 0.5 * acint / variance
-            print(f'"{kernel}","{typst}","{latex}",{corrtime_int:.3f}', file=fh)
+            corrtime_exp = None
+            if len(corrtimes_exp) == 1 and corrtimes_exp[0] is not None:
+                corrtime_exp = corrtimes_exp[0]
+            corrtime_exp_str = "/" if corrtime_exp is None else f"{corrtime_exp:.3f}"
+            print(
+                f'"{kernel}","{typst}","{latex}",{variance:.3f},{acint:.3f},{corrtime_int:.3f},"{corrtime_exp_str}"',
+                file=fh,
+            )
 
 
 if __name__ == "__main__":

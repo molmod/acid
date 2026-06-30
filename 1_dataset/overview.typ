@@ -193,21 +193,24 @@ $
 
 == Kernel Construction
 
-Using these four models, 12 covariance kernels are defined in @tab-summary and were used to generate time-correlated sequences,
-where the integrated correlation times ($tau_"int"$) are calculated using
-
+Using these four models, 12 covariance kernels are defined in @tab-summary and were used to generate time-correlated sequences.
+The variance is given by $c(Delta_t = 0)$,
+the ACF integral by C(f = 0),
+and the integrated correlation time ($tau_"int"$) using
 $
       tau_"int" = 1/2 C(f = 0) / c(Delta_t = 0)
 $
+The exponential correlation time ($tau_"exp"$) corresponds to the parameter $tau$ of the exponential model,
+and is reported only for kernels containing exactly one exponential model, with or without white noise.
 
 #let kernels = csv(sys.inputs.kernels)
 #figure(
   table(
-      columns: 3,
-      align: left,
-      table.header[Kernel][Definition][$tau_"int"$],
-      ..for(label,typeq,_,cti) in kernels{
-          (label, eval("$" + typeq + "$"), cti)
+      columns: 6,
+      align: (left, left, center, center, center, center),
+      table.header[Kernel][Definition][Variance][ACF integral][$tau_"int"$][$tau_"exp"$],
+      ..for(label,typeq,_,var,acint,cti,cte) in kernels{
+          (label, eval("$" + typeq + "$"), var, acint, cti, cte)
       },
   ),
   caption: [Summary of kernels used in the ACID test set.]
