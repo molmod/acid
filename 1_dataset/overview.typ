@@ -201,7 +201,7 @@ $
       tau_"int" = 1/2 C(f = 0) / c(Delta_t = 0)
 $
 The exponential correlation time ($tau_"exp"$) corresponds to the parameter $tau$ of the exponential model,
-and is reported only for kernels containing exactly one exponential model.
+and is reported only for kernels containing exactly one exponential model, with or without white noise.
 
 #let kernels = csv(sys.inputs.kernels)
 #figure(
