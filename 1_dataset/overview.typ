@@ -17,6 +17,7 @@
 #show figure.caption: it => [
     *#it.supplement #context(it.counter.display(it.numbering))#it.separator*#it.body
 ]
+#let ten(x) = { $upright(bold(#x))$ }
 
 #align(center)[
   #text(size: 24pt)[
@@ -308,7 +309,7 @@ as shown in @code-numpy.
     `nstepXXXXX/freqs.npy`, [Frequency axis of the power spectrum for $N$ = `XXXXX`],
     `nstepXXXXX/psd.npy`, [Reference power spectral density for $N$ = `XXXXX`],
     `nstepXXXXX/acf.npy`, [Reference autocorrelation function for $N$ = `XXXXX`],
-    `nstepXXXXX/msd.npy`, [Reference mean-squared displacement function for $N$ = `XXXXX`],
+    `nstepXXXXX/msd.npy`, [Reference mean-squared displacement for $N$ = `XXXXX`],
     `nstepXXXXX/nseqYYYY/sequences_ZZ.npy`,
     [
       Stochastic sequences for a given $N$ = `XXXXX`, $M$ = `YYYY`, and seed index `ZZ`
@@ -344,24 +345,26 @@ To reduce storage requirements,
 the sequences are not stored as floating-point values,
 but as unsigned integers.
 Each floating-point value is mapped through the Cumulative Distribution Function (CDF) of a Gaussian distribution
-and discretized on a uniform grid of $2^{16}$ points in $[0,1]$.
+and discretized on a uniform grid of $2^(16)$ points in $[0,1]$.
 This discretization yields an integer representing the corresponding index on the grid.
 A fixed lookup table,
 constructed from the corresponding percent point function (inverse of the CDF),
 assigns a corresponding floating-point value to each index for decoding,
-as demonstrated in @code-decode.
+as demonstrated in @code-emp.
 
 As a result of this integer encoding,
 further compression of the ZIP archives yields less than 1% reduction and is therefore not applied.
 
 The ground truth value of the autocorrelation integral is stored in the metadata as `acint`
 and is equal to `psd[0]`.
-Empirical MSDs are computed from the time integral of the trajectories,
-as illustrated in @code-msd.
-The implementation here is intentionally kept simple to demonstrate data usage.
-More efficient strategies have been proposed,
-which avoid overlapping windows and evaluate only a selected subset of time lags,
-as described by e.g. Moustafa et al. @moustafa2024efficient
+
+Empirical ACFs, PSDs, and MSDs can be computed from the trajectories,
+as illustrated in @code-emp.
+The implementations here are intentionally kept simple to demonstrate data usage.
+More efficient strategies have been proposed for the computation of these quantities.
+For example,
+in MSD calculations,
+approaches that avoid overlapping windows and evaluate only a subset of time lags are discussed by Moustafa et al. @moustafa2024efficient
 
 
 #figure(
@@ -382,58 +385,24 @@ as described by e.g. Moustafa et al. @moustafa2024efficient
   supplement: "Code",
 ) <code-numpy>
 
+// The SPDX header needs to be removed from the example file
+#let example-usage-lines = read("scripts/example_usage.py").split("\n")
+#let example-usage-start = example-usage-lines.position(line => line.starts-with("import"))
+#let example-usage-code = example-usage-lines.slice(example-usage-start).join("\n")
 
 #figure(
   box(
     stroke: black,
     inset: 1em,
-    ```python
-    import json
-    import zipfile
-
-    import numpy as np
-
-    with zipfile.ZipFile("exp1w.zip") as zf:
-        with zf.open("meta.json") as f:
-            meta = json.load(f)
-        with zf.open("nstep01024/nseq0256/sequences_00.npy") as f:
-            cdfi = np.load(f)
-    lookup_table = np.load("codec.zip")["midpoint"]
-    std = np.sqrt(meta["var"])
-    sequences = lookup_table[cdfi] * std
-    ```
+    raw(example-usage-code, lang: "python", block: true),
   ),
   caption: [
-    Example Python implementation decoding the integer representation of the sequences back to floating-point numbers.
+    Example Python code decoding the integer representation of the sequences back to floating-point numbers,
+    and computing the autocorrelation functions, the power spectral densities, and the mean-squared displacements of the sampled trajectories.
   ],
   kind: "code",
   supplement: "Code",
-) <code-decode>
-
-
-#figure(
-  box(
-    stroke: black,
-    inset: 1em,
-    ```python
-    import numpy as np
-
-    sequences = np.load("exp1w.zip")["nstep01024/nseq0064/sequences_00.npy"]
-    antiderivatives = np.cumsum(sequences, axis=1)
-    nstep = sequences.shape[1]
-
-    msds = np.zeros(nstep)
-    for delta in range(nstep):
-        diffs = antiderivatives[:, delta:] - antiderivatives[:, : nstep - delta]
-        msds[delta] = np.mean(diffs**2)
-    ```,
-  ),
-  caption: [
-    Example Python code showing how to compute the mean-squared displacements of the trajectories.
-  ],
-  kind: "code",
-  supplement: "Code",
-) <code-msd>
+) <code-emp>
 
 
 = Trajectory generation
@@ -452,56 +421,56 @@ $
 In matrix form,
 this two-dimensional system can be written as a single linear differential equation
 $
-  dv(bold(X) (t), t) = bold(Theta) bold(X) (t) + bold(F)(t)
+  dv(ten(X) (t), t) = ten(Theta) ten(X) (t) + ten(F)(t)
 $
 where
 $
-  bold(X)(t) = mat(
+  ten(X)(t) = mat(
     x(t);
     dot(x)(t)
-  ), quad bold(Theta) = mat(
+  ), quad ten(Theta) = mat(
     0, 1;
     theta_1, theta_2
-  ), quad bold(F)(t) = mat(0; F_v (t))
+  ), quad ten(F)(t) = mat(0; F_v (t))
 $
 The stochastic part of these equations satisfies the condition
 $
-  chevron.l bold(F)(t) bold(F) (t')chevron.r = 2 bold(B) delta(t-t')
+  chevron.l ten(F)(t) ten(F) (t')chevron.r = 2 ten(B) delta(t-t')
 $
 This linear differential equation is exactly solvable with an analytical solution
 $
-  bold(X)(t) = e^(bold(Theta) t) bold(X)(0) + integral_0^t e^(bold(Theta)(t-s)) bold(F)(s) dif s
+  ten(X)(t) = e^(ten(Theta) t) ten(X)(0) + integral_0^t e^(ten(Theta)(t-s)) ten(F)(s) dif s
 $
 Synthetic trajectories are generated by sampling a multivariate Gaussian distribution for each discrete timestep $h$.
 The mean of the Gaussian distribution corresponding to this time increment $h$
-is given by $e^(bold(Theta) h) bold(X)(t)$.
+is given by $e^(ten(Theta) h) ten(X)(t)$.
 The second moment of this increment depends only on the stochastic term
 $
-  chevron.l bold(X)(t) bold(X) (t) chevron.r &= integral_0^t integral_0^t e^(bold(Theta)(t-s)) chevron.l bold(F)(s) bold(F) (s')chevron.r e^(bold(Theta^dagger)(t-s')) dif s dif s' \
-  &= 2 integral_0^t e^(bold(Theta)(t-s)) bold(B) e^(bold(Theta^dagger)(t-s)) dif s \
-  &= 2 integral_0^t e^(bold(Theta)t') bold(B) e^(bold(Theta^dagger)t') dif t'
+  chevron.l ten(X)(t) ten(X) (t) chevron.r &= integral_0^t integral_0^t e^(ten(Theta)(t-s)) chevron.l ten(F)(s) ten(F) (s')chevron.r e^(ten(Theta^dagger)(t-s')) dif s dif s' \
+  &= 2 integral_0^t e^(ten(Theta)(t-s)) ten(B) e^(ten(Theta^dagger)(t-s)) dif s \
+  &= 2 integral_0^t e^(ten(Theta)t') ten(B) e^(ten(Theta^dagger)t') dif t'
 $
 In Zwanzig's derivation,
-the second moment of the stationary distribution, $M=lim_(t->infinity) chevron.l bold(X)(t) bold(X) (t) chevron.r$, is obtained as the solution of this integral reformulated as a continuous-time Lyapunov equation
+the second moment of the stationary distribution, $M=lim_(t->infinity) chevron.l ten(X)(t) ten(X) (t) chevron.r$, is obtained as the solution of this integral reformulated as a continuous-time Lyapunov equation
 $
-  bold(Theta) bold(M) + bold(M) bold(Theta)^dagger & = 2 integral_0^infinity dv(, t) e^(bold(Theta) t) bold(B) e^(bold(Theta)^dagger t) dif t \
-  &= 2 (e^(bold(Theta) t) bold(B) e^(bold(Theta)^dagger t))_(t -> infinity) - 2 bold(B)\
-  &= - 2 bold(B)
+  ten(Theta) ten(M) + ten(M) ten(Theta)^dagger & = 2 integral_0^infinity dv(, t) e^(ten(Theta) t) ten(B) e^(ten(Theta)^dagger t) dif t \
+  &= 2 (e^(ten(Theta) t) ten(B) e^(ten(Theta)^dagger t))_(t -> infinity) - 2 ten(B)\
+  &= - 2 ten(B)
 $
 For the trajectory generation in ACID,
 the relevant quantity is not the equilibrium second moment,
 but the covariance corresponding to the finite increment $h$,
-$M_h = chevron.l bold(X)(h) bold(X) (h) chevron.r$.
+$M_h = chevron.l ten(X)(h) ten(X) (h) chevron.r$.
 Adapting the integration limits gives
 $
-  bold(Theta) bold(M)_h + bold(M)_h bold(Theta)^dagger & = 2 integral_0^(h) dv(, t) e^(bold(Theta) t) bold(B) e^(bold(Theta)^dagger t) dif t \
-  &= 2 e^(bold(Theta) h) bold(B) e^(bold(Theta)^dagger h) - 2 bold(B)\
+  ten(Theta) ten(M)_h + ten(M)_h ten(Theta)^dagger & = 2 integral_0^(h) dv(, t) e^(ten(Theta) t) ten(B) e^(ten(Theta)^dagger t) dif t \
+  &= 2 e^(ten(Theta) h) ten(B) e^(ten(Theta)^dagger h) - 2 ten(B)\
 $
 Solving this Lyapunov equation yields the desired covariance per increment $M_h$.
 As a result,
 the discrete-time update in ACID is given by sampling the multivariate Gaussian distribution
 $
-  bold(X) (t + h) ~ cal(N)(e^(bold(Theta) h) bold(X)(t), bold(M)_h)
+  ten(X) (t + h) ~ cal(N)(e^(ten(Theta) h) ten(X)(t), ten(M)_h)
 $
 
 
@@ -527,9 +496,9 @@ $
 3. *Stochastic Harmonic Oscillator*:
 The underlying set of linear SDEs for this two-dimensional system is given by
 $
-  dv(bold(X)(t), t) = bold(Theta) bold(X)(t) + bold(F)(t)
+  dv(ten(X)(t), t) = ten(Theta) ten(X)(t) + ten(F)(t)
   , quad "with"
-  bold(Theta) = mat(
+  ten(Theta) = mat(
     0, 1;
     -(2 pi f_0)^2, - (2 pi f_0)/ Q
   )
@@ -537,13 +506,13 @@ $
 with the noise satisfying
 
 $
-  chevron.l bold(F)(t) bold(F) (t')chevron.r = 2 bold(B) delta(t-t'), quad "with" bold(B) = mat(
+  chevron.l ten(F)(t) ten(F) (t')chevron.r = 2 ten(B) delta(t-t'), quad "with" ten(B) = mat(
     0, 0;
     0, (A_0 (2 pi f_0)^4)/2
   )
 $
 
-The increment covariance $bold(M_h)$ is obtained by numerically solving the finite-time Lyapunov equation as described above.
+The increment covariance $ten(M_h)$ is obtained by numerically solving the finite-time Lyapunov equation as described above.
 A closed-form expression exists,
 but is lengthy and depends on the damping regime,
 and is therefore not shown here.
