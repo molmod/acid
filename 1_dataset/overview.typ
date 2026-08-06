@@ -194,7 +194,7 @@ $
 
 == Kernel Construction
 
-Using these four models, 12 covariance kernels are defined in @tab-summary and were used to generate time-correlated sequences.
+Using these four models, 12 covariance kernels are defined in @tab-kernels and @tab-properties and were used to generate time-correlated sequences.
 The variance is given by $c(Delta_t = 0)$,
 the ACF integral by C(f = 0),
 and the integrated correlation time ($tau_"int"$) using
@@ -204,18 +204,32 @@ $
 The exponential correlation time ($tau_"exp"$) corresponds to the parameter $tau$ of the exponential model,
 and is reported only for kernels containing exactly one exponential model, with or without white noise.
 
+// TODO: Add interpretation about n90 and f90 + justification of parameter choices
+
 #let kernels = csv(sys.inputs.kernels)
 #figure(
   table(
-      columns: 6,
-      align: (left, left, center, center, center, center),
-      table.header[Kernel][Definition][Variance][ACF integral][$tau_"int"$][$tau_"exp"$],
-      ..for(label,typeq,_,var,acint,cti,cte) in kernels{
-          (label, eval("$" + typeq + "$"), var, acint, cti, cte)
+      columns: 4,
+      align: (left, left, center, center),
+      table.header[Kernel][Definition][$n_90$][$f_90$],
+      ..for (label, typeq, _, _, _, _, _, n90, f90) in kernels {
+          (label, eval("$" + typeq + "$"), n90, f90)
       },
   ),
-  caption: [Summary of kernels used in the ACID test set.]
-) <tab-summary>
+  caption: [Kernels used in the ACID 2 test set.]
+) <tab-kernels>
+
+#figure(
+  table(
+      columns: 5,
+      align: (left, center, center, center, center),
+      table.header[Kernel][Variance][ACF integral][$tau_"int"$][$tau_"exp"$],
+      ..for (label, _, _, var, acint, cti, cte, _, _) in kernels {
+          (label, var, acint, cti, cte)
+      },
+  ),
+  caption: [Statistical properties of the kernels used in the ACID 2 test set.]
+) <tab-properties>
 
 For each kernel, sequences with $N =$ 256, 1024, 4096, 16384, and 65536 steps are generated, using a dimensionless time step $h=1$.
 For sequence length, test cases are created comprising $M =$ 1, 4, 16, 64, and 256 independent sequences.

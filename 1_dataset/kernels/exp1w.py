@@ -3,4 +3,4 @@
 
 from kernels import ExpTerm, WhiteTerm
 
-terms = [ExpTerm(0.9, 5), WhiteTerm(0.1)]
+terms = [ExpTerm(0.9, 7.0), WhiteTerm(0.1)]
