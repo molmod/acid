@@ -3,7 +3,6 @@
 
 path_record_id: .zenodo-record-id.txt
 endpoint: https://zenodo.org/api
-path_token: ~/.config/zenodo-org-token.txt
 metadata:
   title: 'The AutoCorrelation Integral Drill (ACID) 2'
   keywords:
@@ -24,6 +23,7 @@ metadata:
   license:
     - cc-by-sa-4.0
     - lgpl-3.0-or-later
+    - cc0-1.0
   copyright: Copyright (C) 2025-2026 The Authors
   publisher: Zenodo
   resource_type: dataset
@@ -95,30 +95,38 @@ metadata:
       identifier: 10.1021/acs.jcim.5c01475
       resource_type: publication-article
       relation_type: isdescribedby
-    - scheme: arxiv
-      identifier: '2506.20438'
-      resource_type: publication-preprint
+    - scheme: doi
+      identifier: 10.1021/acs.jctc.6c00506
+      resource_type: publication-article
       relation_type: isdescribedby
     - scheme: url
       identifier: https://github.com/molmod/acid
-      resource_type: dataset
+      resource_type: workflow
       relation_type: compiles
     - scheme: url
       identifier: https://github.com/molmod/stacie
       resource_type: software
       relation_type: requires
     - scheme: url
+      identifier: https://github.com/reproducible-reporting/stepup-core
+      resource_type: software
+      relation_type: requires
+    - scheme: url
+      identifier: https://github.com/reproducible-reporting/stepup-reprep
+      resource_type: software
+      relation_type: requires
+    - scheme: url
       identifier: https://molmod.github.io/stacie
       resource_type: publication-softwaredocumentation
-      relation_type: cites
+      relation_type: iscitedby
     - scheme: url
       identifier: https://github.com/molmod/acid-test
-      resource_type: dataset
-      relation_type: issupplementto
+      resource_type: workflow
+      relation_type: isrequiredby
     - scheme: doi
       identifier: 10.5281/zenodo.18947913
       resource_type: dataset
-      relation_type: issupplementto
+      relation_type: isrequiredby
   funding:
     - funder:
         ror: 00cv9y106  # Ghent University
@@ -129,23 +137,8 @@ metadata:
         number: 'BOF/24J/2021/118'
         identifiers:
           - url: https://research.ugent.be/web/result/project/b54e6ff5-5f33-11ec-8b09-c5a2063e752c/details/bof-24j-2021-118-molecular-dynamics-modelling-of-lubricants-at-ultra-high-pressures-with-force-fields-derived-ab-initio/en
-path_readme: zenodo.md
-paths:
-- ../1_dataset/overview.pdf
-- main.zip
-- ../1_dataset/output/exp1p.zip
-- ../1_dataset/output/exp1w.zip
-- ../1_dataset/output/exp2.zip
-- ../1_dataset/output/sho1pcrit.zip
-- ../1_dataset/output/sho1punder.zip
-- ../1_dataset/output/sho1wcrit.zip
-- ../1_dataset/output/sho1wunder.zip
-- ../1_dataset/output/sho2crit.zip
-- ../1_dataset/output/sho2under.zip
-- ../1_dataset/output/pow1p.zip
-- ../1_dataset/output/pow1w.zip
-- ../1_dataset/output/pow1exp.zip
-- ../3_dataset/validation.pdf
-- ../LICENSES/CC-BY-SA-4.0.txt
-- ../LICENSES/LGPL-3.0-or-later.txt
-- ../LICENSES/CC0-1.0.txt
+custom_fields:
+  code_repository: https://github.com/molmod/acid
+  programming_languages:
+    - python
+    - typst
