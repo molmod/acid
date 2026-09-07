@@ -127,7 +127,6 @@ def plot_acf_consist(ax_p, ax_hist, npz, ylabel, legend):
 
     # p-dist histogram
     ax_hist.hist(pvals_normal, bins=10, range=(0, 1), color="k", density=True, alpha=0.8)
-    ax_hist.axhline(1.0, color="red", linestyle="--", label="Uniform density")
     ax_hist.set_xlabel(r"$p$-value")
     if ylabel:
         ax_hist.set_ylabel("Density")
@@ -163,9 +162,9 @@ def plot_codec(ax, npz, xlabel, ylabel):
     ax.set_xscale("log", base=2)
     ax.set_yscale("log")
     if xlabel:
-        ax.set_xlabel("Codec resolution (number of bins)")
+        ax.set_xlabel(r"Encoding resolution $R$")
     if ylabel:
-        ax.set_ylabel(r"$\mathrm{RMSE}_{\mathrm{codec, float}}$")
+        ax.set_ylabel(r"$\mathrm{RMSE}(\bar{C}^{(R)}_{\text{codec}}, \bar{C}_{\text{float}})$")
     ax.set_xticks(resolutions)
     ax.set_xticklabels([f"$2^{{{int(np.log2(r))}}}$" for r in resolutions])
 
@@ -173,9 +172,12 @@ def plot_codec(ax, npz, xlabel, ylabel):
     power10 = int(np.floor(np.log10(rmse_baseline)))
     coeff = rmse_baseline / 10**power10
     ax.text(
-        0.95,
-        0.95,
-        rf"$\mathrm{{RMSE}}_{{\mathrm{{float, ref}}}} \approx {coeff:.2f} \times 10^{{{power10}}}$",
+        0.98,
+        0.9,
+        (
+            rf"$\mathrm{{RMSE}}(\bar{{C}}_{{\text{{float}}}}, C_{{\text{{ref}}}}) "
+            rf"\approx {coeff:.2f} \times 10^{{{power10}}}$"
+        ),
         transform=ax.transAxes,
         fontsize=mpl.rcParams["xtick.labelsize"],
         ha="right",

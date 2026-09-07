@@ -131,8 +131,7 @@ Top panels: $p$-values of the CvM test as a function of $Delta_t$,
 with $alpha = 0.05$ (red dashed)
 and low-covariance points in light gray.
 Bottom panels: distributions of the $p$-values.
-The dashed red line indicates the expected uniformity,
-and $p_(U(0,1))$ corresponds to the CvM test for $U(0,1)$.
+The $p_(U(0,1))$ corresponds to the CvM test for $U(0,1)$.
   ],
 ) <fig-acf-consist>
 
