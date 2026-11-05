@@ -35,7 +35,7 @@ def run(inp: Path, out: Path):
             print(
                 f'"{kernel}","{summary.typst}","{summary.latex}",'
                 f"{summary.var:.3f},{summary.acint:.3f},{summary.corrtime_int:.3f},"
-                f'"{corrtime_exp_str}",{summary.n90},{summary.f90:.3f}',
+                f'"{corrtime_exp_str}",{summary.t90},{summary.f90:.3f}',
                 file=fh,
             )
 

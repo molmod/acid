@@ -309,7 +309,7 @@ def compute(
     return psd, acf, msd
 
 
-def compute_n90(
+def compute_t90(
     nonwhite_terms: list[BaseTerm],
     acf_total: float,
     tol: float = 0.1,
@@ -337,7 +337,7 @@ def compute_n90(
 
     Returns
     -------
-    n90
+    t90
         Smallest lag beyond which the ACF integral has settled within the tolerance ``tol``.
 
     Raises
@@ -363,7 +363,7 @@ def compute_n90(
             f"after doubling the range {max_doublings} times."
         )
 
-    return compute_n90(
+    return compute_t90(
         nonwhite_terms,
         acf_total,
         tol=tol,
@@ -451,8 +451,8 @@ class KernelSummary:
     corrtime_exp: float | None = attrs.field(converter=attrs.converters.optional(float))
     """The exponential correlation time, or None if not defined."""
 
-    n90: int = attrs.field(converter=int)
-    """The settling lag of the ACF integral, see :func:`compute_n90`."""
+    t90: int = attrs.field(converter=int)
+    """The settling lag of the ACF integral, see :func:`compute_t90`."""
 
     f90: float = attrs.field(converter=float)
     """The 90% frequency of the PSD integral, see :func:`compute_f90`."""
@@ -508,7 +508,7 @@ def summarize(terms: list[BaseTerm]) -> KernelSummary:
         acint=acint,
         corrtime_int=0.5 * acint / variance,
         corrtime_exp=corrtime_exp,
-        n90=compute_n90(nonwhite_terms, acint_nonwhite),
+        t90=compute_t90(nonwhite_terms, acint_nonwhite),
         f90=compute_f90(nonwhite_terms, variance_nonwhite),
         typst=" + ".join(term.typst for term in terms),
         latex=" + ".join(term.latex for term in terms),
