@@ -99,7 +99,8 @@ def run(path_codec: Path, path_settings: Path, kernel: str, out: Path):
             for nseq in nseqs:
                 nseq_path = nstep_path + f"nseq{nseq:04d}/"
                 for iseed in range(nseed):
-                    seed = np.frombuffer(f"{iseed:d}{out}".encode("ascii"), dtype=np.uint8)
+                    seq_path = nseq_path + f"sequences_{iseed:02d}.npy"
+                    seed = np.frombuffer(f"{kernel}/{seq_path}".encode("ascii"), dtype=np.uint8)
                     rng = np.random.default_rng(seed)
                     # Generate the sequence
                     sequence = sample(terms, nseq, nstep, rng)
@@ -110,7 +111,7 @@ def run(path_codec: Path, path_settings: Path, kernel: str, out: Path):
                     if ppfi.min() < 0:
                         raise ValueError("Negative ppfi values found")
                     ppfi = ppfi.astype(SEQ_DTYPE)
-                    dump_npy(nseq_path + f"sequences_{iseed:02d}.npy", zf, ppfi)
+                    dump_npy(seq_path, zf, ppfi)
 
         dump_meta(
             "meta.json",
