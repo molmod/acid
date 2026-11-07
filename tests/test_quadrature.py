@@ -33,7 +33,16 @@ def test_power_law_kernel_quadrature(a0, alpha, theta):
     # The range from 0 to nstep is sampled using a sparse logarithmic grid
     sample_points = 1000
     times = 2.0 ** np.linspace(0, np.log2(nstep), sample_points)
-    freqs = 2.0 ** np.linspace(0, np.log2(nstep), sample_points)
+
+    # All low-frequency points are included
+    # to probe the slowest quadrature terms at resolution 1/nstep.
+    # The remaining points are linearly spaced up to the Nyquist frequency.
+    freqs = np.fft.rfftfreq(nstep)
+    ifreqs = np.concatenate(
+        [np.arange(1, 101), np.linspace(101, len(freqs) - 1, sample_points - 100).astype(int)]
+    )
+    freqs = freqs[ifreqs]
+
     taus, weights = make_grid_pow_rational_chebyshev(order, theta, alpha)
 
     prefactor = a0 * (alpha - 1) / (2 * theta)
