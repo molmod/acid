@@ -8,8 +8,9 @@ import json
 import zipfile
 from runpy import run_path
 
+import attrs
 import numpy as np
-from kernels import compute, sample
+from kernels import compute, sample, summarize
 from path import Path
 from stepup.core.api import amend
 from utils import dump_meta, dump_npy, lookup_integer
@@ -77,6 +78,7 @@ def run(path_codec: Path, path_settings: Path, kernel: str, out: Path):
     path_py = f"kernels/{kernel}.py"
     amend(inp=path_py)
     terms = run_path(path_py)["terms"]
+    summary = summarize(terms)
 
     with zipfile.ZipFile(out, mode="w") as zf:
         for nstep in nsteps:
@@ -86,7 +88,7 @@ def run(path_codec: Path, path_settings: Path, kernel: str, out: Path):
 
             times = np.arange(nstep, dtype=float)
             freqs = np.fft.rfftfreq(nstep)
-            psd, acf, msd, corrtime_int, corrtime_exp, typst, latex = compute(terms, freqs, times)
+            psd, acf, msd = compute(terms, freqs, times)
 
             dump_npy(nstep_path + "times.npy", zf, times)
             dump_npy(nstep_path + "acf.npy", zf, acf)
@@ -116,16 +118,7 @@ def run(path_codec: Path, path_settings: Path, kernel: str, out: Path):
         dump_meta(
             "meta.json",
             zf,
-            {
-                "kernel": kernel,
-                "nseed": nseed,
-                "var": acf[0],
-                "acint": psd[0],
-                "corrtime_int": corrtime_int,
-                "corrtime_exp": corrtime_exp,
-                "typst": typst,
-                "latex": latex,
-            },
+            {"kernel": kernel, "nseed": nseed, **attrs.asdict(summary)},
         )
 
 

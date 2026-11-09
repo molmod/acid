@@ -10,7 +10,7 @@ from utils import make_grid_pow_rational_chebyshev
 
 np.seterr(over="raise", under="ignore", divide="raise", invalid="raise")
 
-__all__ = ("compute", "sample")
+__all__ = ("KernelSummary", "compute", "sample", "summarize")
 
 
 ACINT_REF = 1.0
@@ -278,8 +278,8 @@ class WhiteTerm(BaseTerm):
 
 def compute(
     terms: list[BaseTerm], freqs: NDArray[float], times: NDArray[float]
-) -> tuple[NDArray[float], NDArray[float], NDArray[float], float, float | None, str, str]:
-    """Construct a power spectrum and autocorrelation function.
+) -> tuple[NDArray[float], NDArray[float], NDArray[float]]:
+    """Construct a power spectrum, autocorrelation function and mean-squared displacement.
 
     Parameters
     ----------
@@ -293,52 +293,224 @@ def compute(
     Returns
     -------
     psd
-        The power spectrum on the requested grid.
+        The power spectrum on the requested grid, with the same shape as ``freqs``.
     acf
-        The autocorrelation function.
+        The autocorrelation function, with the same shape as ``times``.
     msd
-        The mean-squared displacement.
-    corrtime_int
-        The integrated correlation time.
-    corrtime_exp
-        The exponential correlation time, or None if not defined.
-    typst
-        A typst equation describing the kernel
-    latex
-        A latex equation describing the kernel
+        The mean-squared displacement, with the same shape as ``times``.
     """
     acf = 0
     psd = 0
     msd = 0
-    typst_terms = []
-    latex_terms = []
-    corrtimes_exp = []
     for term in terms:
         acf += term.compute_acf(times)
         psd += term.compute_psd(freqs)
         msd += term.compute_msd(times)
-        typst_terms.append(term.typst)
-        latex_terms.append(term.latex)
-        if isinstance(term, ExpTerm):
-            corrtimes_exp.append(term.tau)
-        elif not isinstance(term, WhiteTerm):
-            corrtimes_exp.append(None)
-    acint = psd[0]
+    return psd, acf, msd
+
+
+def compute_t90(
+    nonwhite_terms: list[BaseTerm],
+    acf_total: float,
+    tol: float = 0.1,
+    tmax: int = 1024,
+    max_doublings: int = 2,
+    doubling_index: int = 0,
+) -> float:
+    """
+    Compute the settling time-lag of a kernel's analytical ACF integral.
+
+    Parameters
+    ----------
+    nonwhite_terms
+        A list of kernel terms, excluding white noise.
+    acf_total
+        Target value of the ACF integral, excluding the white noise terms.
+    tol
+        Relative tolerance within which the ACF integral is considered settled.
+    tmax
+        Maximum time lag to be considered in the cumsum.
+    max_doublings
+        Maximum number of times ``tmax`` may be doubled.
+    doubling_index
+        Number of times ``tmax`` has already been doubled.
+
+    Returns
+    -------
+    t90
+        Smallest lag from which the ACF integral stays within the tolerance ``tol``.
+
+    Raises
+    ------
+    RuntimeError
+        If the integral has not settled after ``max_doublings`` doublings.
+    """
+    lags = np.arange(tmax + 1, dtype=float)
+    acf = sum(term.compute_acf(lags) for term in nonwhite_terms)
+    captured = acf[0] + 2.0 * np.concatenate(([0.0], np.cumsum(acf[1:])))
+    frac = captured / acf_total
+
+    outside_band = np.abs(frac - 1.0) > tol
+    if not outside_band.any():
+        return lags[0]
+    last_outside = np.where(outside_band)[0][-1]
+    if last_outside != len(frac) - 1:
+        return lags[last_outside + 1]
+
+    if doubling_index == max_doublings:
+        raise RuntimeError(
+            f"ACF integral did not settle with a tolerance of {tol:.0%} "
+            f"after doubling the range {max_doublings} times."
+        )
+
+    return compute_t90(
+        nonwhite_terms,
+        acf_total,
+        tol=tol,
+        tmax=2 * tmax,
+        max_doublings=max_doublings,
+        doubling_index=doubling_index + 1,
+    )
+
+
+def compute_f90(
+    nonwhite_terms: list[BaseTerm],
+    variance_total: float,
+    df: float = 1e-3,
+    fmax: float = 0.5,
+    max_doublings: int = 2,
+    doubling_index: int = 0,
+) -> float:
+    """
+    Compute the frequency at which the cumulative PSD integral reaches 90% of ``variance_total``.
+
+    Parameters
+    ----------
+    nonwhite_terms
+        A list of kernel terms, excluding white noise.
+    variance_total
+        Target value of the variance, excluding the white noise terms.
+    df
+        Frequency-grid spacing.
+    fmax
+        Maximum frequency to be considered in the cumsum.
+    max_doublings
+        Maximum number of times ``fmax`` may be doubled.
+    doubling_index
+        Number of times ``fmax`` has already been doubled.
+
+    Returns
+    -------
+    f90
+        Frequency at which the cumulative PSD integral reaches 90% of ``variance_total``.
+
+    Raises
+    ------
+    RuntimeError
+        If the target fraction has not been reached after ``max_doublings`` doublings.
+    """
+    freqs = np.arange(0.0, fmax + df, df)
+    psd = sum(term.compute_psd(freqs) for term in nonwhite_terms)
+    captured = (psd[0] + 2.0 * np.concatenate(([0.0], np.cumsum(psd[1:])))) * df
+    frac = captured / variance_total
+
+    idx = np.argmax(frac >= 0.9)
+    if frac[idx] >= 0.9:
+        return freqs[idx]
+
+    if doubling_index == max_doublings:
+        raise RuntimeError(
+            f"PSD integral did not reach 90% of the analytical variance "
+            f"after doubling the frequency range {max_doublings} times."
+        )
+
+    return compute_f90(
+        nonwhite_terms,
+        variance_total,
+        df=df,
+        fmax=2 * fmax,
+        max_doublings=max_doublings,
+        doubling_index=doubling_index + 1,
+    )
+
+
+@attrs.define
+class KernelSummary:
+    """Container class holding the grid-independent properties of a kernel."""
+
+    var: float = attrs.field(converter=float)
+    """The variance."""
+
+    acint: float = attrs.field(converter=float)
+    """The ACF integral."""
+
+    corrtime_int: float = attrs.field(converter=float)
+    """The integrated correlation time."""
+
+    corrtime_exp: float | None = attrs.field(converter=attrs.converters.optional(float))
+    """The exponential correlation time, or None if not defined."""
+
+    t90: int = attrs.field(converter=int)
+    """The settling lag of the ACF integral, see :func:`compute_t90`."""
+
+    f90: float = attrs.field(converter=float)
+    """The 90% frequency of the PSD integral, see :func:`compute_f90`."""
+
+    typst: str = attrs.field()
+    """A typst equation describing the kernel."""
+
+    latex: str = attrs.field()
+    """A latex equation describing the kernel."""
+
+
+def summarize(terms: list[BaseTerm]) -> KernelSummary:
+    """Compute the properties of the kernel
+    that do not depend on the sequence length or the number of sequences.
+
+    Parameters
+    ----------
+    terms
+        Terms that contribute to the kernel.
+
+    Returns
+    -------
+    summary
+        The grid-independent properties of the kernel,
+        including its typst and latex equations.
+    """
+    acint = 0.0
+    variance = 0.0
+    acint_nonwhite = 0.0
+    variance_nonwhite = 0.0
+    nonwhite_terms = []
+    corrtimes_exp = []
+    for term in terms:
+        acf0 = term.compute_acf(np.zeros(1))[0]
+        psd0 = term.compute_psd(np.zeros(1))[0]
+        acint += psd0
+        variance += acf0
+
+        # Filter out the white noise terms
+        if not isinstance(term, WhiteTerm):
+            nonwhite_terms.append(term)
+            acint_nonwhite += psd0
+            variance_nonwhite += acf0
+            corrtimes_exp.append(term.tau if isinstance(term, ExpTerm) else None)
+
     if abs(acint - ACINT_REF) > 1e-10:
         raise ValueError(f"kernel has {acint=}")
-    variance = acf[0]
-    corrtime_int = 0.5 * acint / variance
     corrtime_exp = None
     if len(corrtimes_exp) == 1 and corrtimes_exp[0] is not None:
         corrtime_exp = corrtimes_exp[0]
-    return (
-        psd,
-        acf,
-        msd,
-        corrtime_int,
-        corrtime_exp,
-        " + ".join(typst_terms),
-        " + ".join(latex_terms),
+    return KernelSummary(
+        var=variance,
+        acint=acint,
+        corrtime_int=0.5 * acint / variance,
+        corrtime_exp=corrtime_exp,
+        t90=compute_t90(nonwhite_terms, acint_nonwhite),
+        f90=compute_f90(nonwhite_terms, variance_nonwhite),
+        typst=" + ".join(term.typst for term in terms),
+        latex=" + ".join(term.latex for term in terms),
     )
 
 

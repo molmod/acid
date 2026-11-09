@@ -6,8 +6,7 @@
 import argparse
 from runpy import run_path
 
-import numpy as np
-from kernels import ExpTerm, WhiteTerm
+from kernels import summarize
 from path import Path
 from stepup.core.api import amend, loadns
 
@@ -19,47 +18,24 @@ def main():
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Write a CSV file with a summary of the kernels")
-    parser.add_argument(
-        "settings",
-        type=Path,
-        help="The settings JSON path.",
-    )
-    parser.add_argument(
-        "out",
-        type=Path,
-        help="The output CSV path.",
-    )
+    parser.add_argument("settings", type=Path, help="The settings JSON path.")
+    parser.add_argument("out", type=Path, help="The output CSV path.")
     return parser.parse_args()
 
 
 def run(inp: Path, out: Path):
+    settings = loadns(inp)
     with open(out, "w") as fh:
-        settings = loadns(inp)
         for kernel in settings.kernels:
             path_py = f"kernels/{kernel}.py"
             amend(inp=path_py)
-            terms = run_path(path_py)["terms"]
-            typst = " + ".join(term.typst for term in terms)
-            latex = " + ".join(term.latex for term in terms)
-            acint = 0
-            variance = 0
-            corrtimes_exp = []
-            for term in terms:
-                acf = term.compute_acf(np.zeros(1))
-                psd = term.compute_psd(np.zeros(1))
-                acint += psd[0]
-                variance += acf[0]
-                if isinstance(term, ExpTerm):
-                    corrtimes_exp.append(term.tau)
-                elif not isinstance(term, WhiteTerm):
-                    corrtimes_exp.append(None)
-            corrtime_int = 0.5 * acint / variance
-            corrtime_exp = None
-            if len(corrtimes_exp) == 1 and corrtimes_exp[0] is not None:
-                corrtime_exp = corrtimes_exp[0]
+            summary = summarize(run_path(path_py)["terms"])
+            corrtime_exp = summary.corrtime_exp
             corrtime_exp_str = "/" if corrtime_exp is None else f"{corrtime_exp:.3f}"
             print(
-                f'"{kernel}","{typst}","{latex}",{variance:.3f},{acint:.3f},{corrtime_int:.3f},"{corrtime_exp_str}"',
+                f'"{kernel}","{summary.typst}","{summary.latex}",'
+                f"{summary.var:.3f},{summary.acint:.3f},{summary.corrtime_int:.3f},"
+                f'"{corrtime_exp_str}",{summary.t90},{summary.f90:.3f}',
                 file=fh,
             )
 

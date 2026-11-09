@@ -3,4 +3,4 @@
 
 from kernels import ExpTerm, PowTerm
 
-terms = [PowTerm(0.2, 1.5, 5.0), ExpTerm(0.8, 2.0)]
+terms = [PowTerm(0.4, 1.5, 4.0), ExpTerm(0.6, 7.0)]

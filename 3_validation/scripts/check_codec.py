@@ -52,7 +52,7 @@ def run(kernel_name: str, path_npz: Path):
     # Compute analytical ACF and std
     times = np.arange(NSTEP, dtype=float)
     freqs = np.fft.rfftfreq(NSTEP)
-    _, acf_anal, _, _, _, _, _ = compute(terms, freqs, times)
+    _, acf_anal, _ = compute(terms, freqs, times)
     std = np.sqrt(acf_anal[0])
 
     # Construct reference PSD from the covariance matrix
