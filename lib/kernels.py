@@ -338,7 +338,7 @@ def compute_t90(
     Returns
     -------
     t90
-        Smallest lag beyond which the ACF integral has settled within the tolerance ``tol``.
+        Smallest lag from which the ACF integral stays within the tolerance ``tol``.
 
     Raises
     ------
@@ -382,8 +382,7 @@ def compute_f90(
     doubling_index: int = 0,
 ) -> float:
     """
-    Compute the frequency
-    below which the cumulative PSD integral first reaches 90% of ``variance_total``.
+    Compute the frequency at which the cumulative PSD integral reaches 90% of ``variance_total``.
 
     Parameters
     ----------
@@ -403,7 +402,7 @@ def compute_f90(
     Returns
     -------
     f90
-        Frequency at which the cumulative PSD integral first reaches 90% of ``variance_total``.
+        Frequency at which the cumulative PSD integral reaches 90% of ``variance_total``.
 
     Raises
     ------
