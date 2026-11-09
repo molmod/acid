@@ -10,4 +10,4 @@
 
 module use ../.venv/modules
 module load acid
-time stepup boot -n ${SLURM_CPUS_PER_TASK}
+time stepup build -j ${SLURM_CPUS_PER_TASK}
