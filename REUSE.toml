@@ -14,7 +14,7 @@ SPDX-License-Identifier = "CC-BY-SA-4.0"
 # Computer-generated file
 [[annotations]]
 path = [
-    "requirements.txt"
+    "uv.lock"
 ]
 SPDX-FileCopyrightText = "NONE"
 SPDX-License-Identifier = "CC0-1.0"

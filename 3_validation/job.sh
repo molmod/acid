@@ -8,8 +8,6 @@
 #SBATCH --time=2:00:00
 #SBATCH --mem=20G
 
-cd ..
-source ./.loadvenv
-cd ${SLURM_SUBMIT_DIR}
-export PATH=$(realpath ${PWD}/scripts/):${PATH}
+module use ../.venv/modules
+module load acid
 time stepup boot -n ${SLURM_CPUS_PER_TASK}

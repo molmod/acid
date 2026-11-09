@@ -45,6 +45,13 @@ A major refactoring of the ACID dataset.
   following the new structure introduced by this release.
 - Improved licensing and copyright specifications,
   including explicit licensing information for each file.
+- The software environment is managed with [uv](https://docs.astral.sh/uv/) instead of pip.
+  The `setup.sh` script creates the environment with Python 3.14,
+  the package versions pinned in `uv.lock`, and Typst 0.15.
+  The environment can be activated with `shell.sh`, an LMod module or `direnv`.
+- Upgraded to StepUp 4 and updated all Python dependencies to recent versions.
+- StepUp now tracks changes to the Python modules in `lib/`,
+  so that the affected steps are rerun when these modules change.
 
 ### Removed
 
