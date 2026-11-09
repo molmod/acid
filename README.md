@@ -93,8 +93,11 @@ This repository consits of two parts:
 The workflows in this repository can be executed on a compute cluster
 that supports [SLURM](https://slurm.schedmd.com/) job scheduling,
 or on a local machine with sufficient resources.
-They have only been tested on an `x86_64` Linux system (so far).
-All results on Zenodo were generated on the Tier2 VSC compute cluster Donphan.
+All results on Zenodo were generated on an `x86_64` Linux system, the Tier2 VSC compute cluster Donphan.
+For development, the software environment can also be set up on macOS (Apple Silicon).
+Note that time series generated on macOS are not guaranteed to be identical to those on Linux,
+due to differences in floating-point arithmetic and numerical libraries.
+They are, however, equally valid samples of the same stochastic processes.
 
 ### Setting up the software environment
 
@@ -103,7 +106,11 @@ and the exact versions of all Python packages are pinned in `uv.lock`.
 The same pins are exported to `pylock.toml`,
 the standard Python lock file format ([PEP 751](https://peps.python.org/pep-0751/)),
 which can also be installed without uv, e.g. with `pip install -r pylock.toml` (pip 26.1 or newer).
-To create the environment, you only need a Linux system with `curl` installed.
+To create the environment, you only need `curl` and one of the following systems:
+
+- Linux on `x86_64`,
+- macOS 14 or newer on Apple Silicon (`arm64`).
+
 Run the following script in the root of the repository:
 
 ```bash
@@ -139,6 +146,7 @@ The `setup.sh` script creates three ways to activate the environment:
 Running only `source .venv/bin/activate` is not sufficient,
 because the environment also sets `PYTHONPATH`, so that the scripts can import the modules in `lib/`,
 `STEPUP_PATH_FILTER`, so that StepUp reruns steps when files in `lib/` change,
+`TYPST_IGNORE_SYSTEM_FONTS`, so that Typst only uses its built-in fonts,
 and `UV_CACHE_DIR` and `UV_PYTHON_INSTALL_DIR`, so that uv keeps its files in `.venv`.
 
 If you use a VSCode Tunnel, first activate the environment in a terminal,
@@ -158,6 +166,7 @@ sbatch job.sh
 The job scripts load the `acid` module, so they require LMod.
 Alternatively, you can activate the environment yourself
 and run `sb` or `stepup build` in one of these directories.
+StepUp's watch mode, which reruns steps when files change, is only supported on Linux.
 
 ### Updating the software environment
 
@@ -174,6 +183,8 @@ uv sync --locked       # Make the environment match uv.lock, e.g. after a git pu
 The first three commands update `pyproject.toml` and/or `uv.lock`.
 The pre-commit hook (see below) regenerates `pylock.toml` from `uv.lock`.
 Commit these files to Git, so that others get exactly the same package versions.
+The supported platforms are listed under `required-environments` in `pyproject.toml`,
+so that `uv lock` only selects package versions with wheels for all of them.
 
 The Python, uv and Typst versions are set at the beginning of `setup.sh`:
 
@@ -181,17 +192,21 @@ The Python, uv and Typst versions are set at the beginning of `setup.sh`:
   For a new minor version (e.g. 3.15), also update `requires-python` in `pyproject.toml`
   and run `uv lock`.
   Then remove `.venv` and run `setup.sh` again.
-- To upgrade uv, change `UV_VERSION` and `UV_SHA256` in `setup.sh`,
+- To upgrade uv, change `UV_VERSION` and the `UV_SHA256` checksums of both platforms in `setup.sh`,
   and the `rev` of `uv-pre-commit` in `.pre-commit-config.yaml`.
   Then run `setup.sh` again.
-  The SHA256 checksum is listed in `uv-x86_64-unknown-linux-musl.tar.gz.sha256`
+  The SHA256 checksums are listed in `uv-x86_64-unknown-linux-musl.tar.gz.sha256`
+  and `uv-aarch64-apple-darwin.tar.gz.sha256`
   on the [uv releases page](https://github.com/astral-sh/uv/releases).
-- To upgrade Typst, change `TYPST_VERSION` and `TYPST_SHA256` in `setup.sh` and run it again.
-  The SHA256 checksum is listed next to `typst-x86_64-unknown-linux-musl.tar.xz`
+- To upgrade Typst, change `TYPST_VERSION` and the `TYPST_SHA256` checksums of both platforms
+  in `setup.sh` and run it again.
+  The SHA256 checksums are listed next to `typst-x86_64-unknown-linux-musl.tar.xz`
+  and `typst-aarch64-apple-darwin.tar.xz`
   on the [Typst releases page](https://github.com/typst/typst/releases).
 
 All documents and figures use only the fonts that come with Typst and Matplotlib,
 so no fonts need to be installed on the system.
+For Typst, this is enforced by `TYPST_IGNORE_SYSTEM_FONTS` in the activated environment.
 
 ## How to Work With This Git Repository
 

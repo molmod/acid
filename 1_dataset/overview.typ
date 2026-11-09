@@ -625,6 +625,7 @@ The software environment used to generate the dataset is fully specified by the 
 - `setup.sh` installs a fixed release of Python 3.14,
   fixed versions of #link("https://docs.astral.sh/uv/", [uv]) and #link("https://typst.app/", [Typst]),
   and the Python packages pinned in `uv.lock`.
+  It supports `x86_64` Linux, on which the dataset was generated, and macOS on Apple Silicon.
 - `pyproject.toml` lists the Python packages used directly,
   including NumPy, SciPy, mpmath, Matplotlib, StepUp and StepUp RepRep.
 - `uv.lock` pins the exact versions and hashes of all Python packages.
