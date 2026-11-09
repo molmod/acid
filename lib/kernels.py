@@ -209,11 +209,13 @@ class SHOTerm(BaseTerm):
         return msd
 
     def sample(self, nseq: int, nstep: int, rng: np.random.Generator) -> NDArray[float]:
-        noise = rng.multivariate_normal(np.zeros(2), self.covar, size=(nstep, nseq)).transpose(
-            0, 2, 1
-        )
+        noise = rng.multivariate_normal(
+            np.zeros(2), self.covar, size=(nstep, nseq), method="cholesky"
+        ).transpose(0, 2, 1)
         traj = np.zeros((nstep, 2, nseq))
-        traj[0, :, :] = rng.multivariate_normal(np.zeros(2), self.stat_covar, size=nseq).T
+        traj[0, :, :] = rng.multivariate_normal(
+            np.zeros(2), self.stat_covar, size=nseq, method="cholesky"
+        ).T
 
         for istep in range(1, nstep):
             traj[istep, :, :] = noise[istep, :, :] + self.matexp @ traj[istep - 1, :, :]
