@@ -573,14 +573,22 @@ $
 All Python scripts required for data generation and analysis are included in the archive.
 These scripts make use of open-source software libraries (see below).
 
-The script `plan.py` defines the workflow to reconstruct the entire dataset from scratch.
-It can be executed with #link("https://reproducible-reporting.github.io/stepup-core/stable/", [StepUp]) as follows on the command line:
+The script `1_dataset/plan.py` defines the workflow to reconstruct the entire dataset from scratch.
+It can be executed with #link("https://reproducible-reporting.github.io/stepup-core/stable/", [StepUp])
+as follows on the command line, starting from the top-level directory:
 
+#block(breakable: false)[
 ```bash
-stepup boot -n 8
+./setup.sh
+./shell.sh
+cd 1_dataset/
+stepup build -j 8
 ```
+]
 
-where `8` is the number of parallel workers.
+The first command creates the software environment, and only needs to be run once.
+The second command starts a new shell in which this environment is activated.
+In the last command, `8` is the number of parallel workers.
 
 = Remark on determinism
 
@@ -602,20 +610,28 @@ these tests verify:
   The ACF is recovered from the MSD by differentiation, and the PSD from the ACF by Fourier transformation.
 - The accuracy of the quadrature-based approximation of the power-law kernel.
 
-All tests can be executed using the `pytest` command in the top-level directory.
+All tests can be executed using the `pytest` command in the top-level directory,
+with the software environment activated.
 
 = Software used
 
-The following software is required to use the dataset:
+Reading the data only requires Python and NumPy, as shown in @code-numpy.
+The example in @code-emp also uses SciPy.
+The Python modules implementing the kernel models (in `lib/` and `1_dataset/kernels/`)
+also require mpmath and attrs.
 
-- Python >= 3.11
-- NumPy >= 2
-- SciPy >= 1.16
-- mpmath >= 1.4
+The software environment used to generate the dataset is fully specified by the following files in the archive:
 
-To fully reconstruct the dataset, the following additional Python packages are required:
+- `setup.sh` installs a fixed release of Python 3.14,
+  fixed versions of #link("https://docs.astral.sh/uv/", [uv]) and #link("https://typst.app/", [Typst]),
+  and the Python packages pinned in `uv.lock`.
+- `pyproject.toml` lists the Python packages used directly,
+  including NumPy, SciPy, mpmath, Matplotlib, StepUp and StepUp RepRep.
+- `uv.lock` pins the exact versions and hashes of all Python packages.
+  The same information is exported to `pylock.toml`,
+  the standard Python lock file format (PEP 751),
+  which can also be installed without uv.
 
-- StepUp >= 3.2.2
-- StepUp RepRep >= 3.1.8
+More details on setting up and using this environment can be found in `README.md`.
 
 #bibliography("references.bib")
