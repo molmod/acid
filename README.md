@@ -100,6 +100,9 @@ All results on Zenodo were generated on the Tier2 VSC compute cluster Donphan.
 
 The software environment is defined in `pyproject.toml`,
 and the exact versions of all Python packages are pinned in `uv.lock`.
+The same pins are exported to `pylock.toml`,
+the standard Python lock file format ([PEP 751](https://peps.python.org/pep-0751/)),
+which can also be installed without uv, e.g. with `pip install -r pylock.toml` (pip 26.1 or newer).
 To create the environment, you only need a Linux system with `curl` installed.
 Run the following script in the root of the repository:
 
@@ -107,11 +110,11 @@ Run the following script in the root of the repository:
 ./setup.sh
 ```
 
-This script downloads [uv](https://docs.astral.sh/uv/)
+This script downloads a fixed version of [uv](https://docs.astral.sh/uv/)
 and uses it to create a virtual environment in the `.venv` directory,
 with Python 3.14 and exactly the package versions listed in `uv.lock`.
 It also installs the [Typst](https://typst.app/) compiler in `.venv/bin`.
-Everything is installed in the `.venv` directory,
+Everything is installed in the `.venv` directory, including the uv cache,
 so you can remove it and run `setup.sh` again to start from scratch.
 
 ### Activating the environment
@@ -135,7 +138,8 @@ The `setup.sh` script creates three ways to activate the environment:
 
 Running only `source .venv/bin/activate` is not sufficient,
 because the environment also sets `PYTHONPATH`, so that the scripts can import the modules in `lib/`,
-and `STEPUP_PATH_FILTER`, so that StepUp reruns steps when files in `lib/` change.
+`STEPUP_PATH_FILTER`, so that StepUp reruns steps when files in `lib/` change,
+and `UV_CACHE_DIR` and `UV_PYTHON_INSTALL_DIR`, so that uv keeps its files in `.venv`.
 
 If you use a VSCode Tunnel, first activate the environment in a terminal,
 and then start the tunnel from that terminal, so it inherits the environment variables.
@@ -168,12 +172,26 @@ uv sync --locked       # Make the environment match uv.lock, e.g. after a git pu
 ```
 
 The first three commands update `pyproject.toml` and/or `uv.lock`.
+The pre-commit hook (see below) regenerates `pylock.toml` from `uv.lock`.
 Commit these files to Git, so that others get exactly the same package versions.
 
-The Python and Typst versions are set at the beginning of `setup.sh`.
-To upgrade Typst, change `TYPST_VERSION` and `TYPST_SHA256` in `setup.sh` and run it again.
-The SHA256 checksum is listed next to `typst-x86_64-unknown-linux-musl.tar.xz`
-on the [Typst releases page](https://github.com/typst/typst/releases).
+The Python, uv and Typst versions are set at the beginning of `setup.sh`:
+
+- To change the Python version, update `PYTHON_VERSION` in `setup.sh`.
+  For a new minor version (e.g. 3.15), also update `requires-python` in `pyproject.toml`
+  and run `uv lock`.
+  Then remove `.venv` and run `setup.sh` again.
+- To upgrade uv, change `UV_VERSION` and `UV_SHA256` in `setup.sh`,
+  and the `rev` of `uv-pre-commit` in `.pre-commit-config.yaml`.
+  Then run `setup.sh` again.
+  The SHA256 checksum is listed in `uv-x86_64-unknown-linux-musl.tar.gz.sha256`
+  on the [uv releases page](https://github.com/astral-sh/uv/releases).
+- To upgrade Typst, change `TYPST_VERSION` and `TYPST_SHA256` in `setup.sh` and run it again.
+  The SHA256 checksum is listed next to `typst-x86_64-unknown-linux-musl.tar.xz`
+  on the [Typst releases page](https://github.com/typst/typst/releases).
+
+All documents and figures use only the fonts that come with Typst and Matplotlib,
+so no fonts need to be installed on the system.
 
 ## How to Work With This Git Repository
 

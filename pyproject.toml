@@ -21,16 +21,16 @@ dependencies = [
     "stepup>=4.0.3",
     "stepup-reprep>=4.0.2",
 ]
-requires-python = ">=3.12"
+# Keep consistent with PYTHON_VERSION in setup.sh.
+requires-python = "==3.14.*"
 
 [tool.uv]
 package = false
-cache-dir = "./.venv/cache"
 python-downloads = "auto"
 
 [tool.ruff]
+# The target version is derived from requires-python.
 line-length = 100
-target-version = "py311"
 
 [tool.ruff.lint]
 select = [
