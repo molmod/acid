@@ -1,5 +1,6 @@
 # SPDX-FileCopyrightText: © 2026 ACID Contributors <https://doi.org/10.5281/zenodo.15722902>
 # SPDX-License-Identifier: CC-BY-SA-4.0
 
-3_zenodo/zenodo.* export-ignore
+3_zenodo/zenodo_description.md export-ignore
+3_zenodo/sync_zenodo.yaml export-ignore
 3_zenodo/.zenodo-record-id.txt export-ignore
