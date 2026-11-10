@@ -7,26 +7,20 @@ from stepup.reprep.api import sync_zenodo, wrap_git
 
 static("../.git/")
 wrap_git(
-    "git archive --format=zip --output 2_zenodo/main.zip main",
-    out="2_zenodo/main.zip",
+    "git archive --format=zip --output 3_zenodo/main.zip HEAD",
+    out="3_zenodo/main.zip",
     workdir="../",
 )
 
-static(
-    "zenodo_description.md",
-    "sync_zenodo.yaml",
-    "../1_dataset/overview.pdf",
-    "../1_dataset/settings.json",
-    "../3_validation/validation.pdf",
-)
+static("zenodo_description.md", "sync_zenodo.yaml", "../1_dataset/settings.json")
 
 settings = loadns("../1_dataset/settings.json", do_amend=True)
 archive_paths = [
-    "../1_dataset/overview.pdf",
+    *static("../1_dataset/overview.pdf"),
+    *static("../2_validation/validation.pdf"),
     "main.zip",
     *static("../1_dataset/output/*.zip"),
     *static("../1_dataset/output/kernels.csv"),
-    "../3_validation/validation.pdf",
     *static("../LICENSES/*.txt"),
 ]
 sync_zenodo("sync_zenodo.yaml", archive_paths, path_description="zenodo_description.md")

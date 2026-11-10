@@ -79,14 +79,14 @@ If you use this dataset in your research, please cite the following publication:
 
 ## Overview
 
-This repository consits of two parts:
+This repository consists of three parts:
 
 1. [`1_dataset/`](1_dataset/):
    A workflow to generate the ACID 2 dataset.
-1. [`2_zenodo/`](2_zenodo/):
-   A workflow to package and upload the generated data to Zenodo.
-1. [`3_validation/`](3_validation):
+1. [`2_validation/`](2_validation/):
    A workflow to validate the generated dataset.
+1. [`3_zenodo/`](3_zenodo/):
+   A workflow to package and upload the generated data to Zenodo.
 
 ## How to Run the Workflows
 
@@ -155,7 +155,7 @@ and then start the tunnel from that terminal, so it inherits the environment var
 ### Running the workflows
 
 After the environment has been created,
-you can run or submit the script `job.sh` in `1_dataset/`, `2_zenodo/`, or `3_validation/`.
+you can run or submit the script `job.sh` in `1_dataset/`, `2_validation/`, or `3_zenodo/`.
 For example:
 
 ```bash
@@ -229,13 +229,13 @@ to make a new release on GitHub and Zenodo:
 - Update `CHANGELOG.md` with a new version section.
   Double check the changes since the last release.
 
-- Update the version number in `2_zenodo/sync_zenodo.yaml` and `pyproject.toml`,
+- Update the version number in `3_zenodo/sync_zenodo.yaml` and `pyproject.toml`,
   and run `uv lock` to update `uv.lock` accordingly.
 
 - Upload a draft release to Zenodo by running
 
   ```bash
-  (cd 2_zenodo/; sbatch job.sh)
+  (cd 3_zenodo/; sbatch job.sh)
   ```
 
 - Visit the dataset page on Zenodo and click on "New version".
@@ -253,7 +253,7 @@ to make a new release on GitHub and Zenodo:
 - Sync your local data one last time with Zenodo:
 
   ```bash
-  (cd 2_zenodo/; sbatch job.sh)
+  (cd 3_zenodo/; sbatch job.sh)
   ```
 
 - Log in to <https://zenodo.org/>, go to your draft release,

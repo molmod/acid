@@ -3,7 +3,7 @@
 
 [project]
 name = "acid"
-# Keep the version consistent with 2_zenodo/sync_zenodo.yaml.
+# Keep the version consistent with 3_zenodo/sync_zenodo.yaml.
 version = "2.0.0"
 description = "The AutoCorrelation Integral Drill (ACID) dataset"
 readme = "README.md"
