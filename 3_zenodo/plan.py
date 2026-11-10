@@ -7,7 +7,7 @@ from stepup.reprep.api import sync_zenodo, wrap_git
 
 static("../.git/")
 wrap_git(
-    "git archive --format=zip --output 3_zenodo/main.zip main",
+    "git archive --format=zip --output 3_zenodo/main.zip HEAD",
     out="3_zenodo/main.zip",
     workdir="../",
 )
