@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: © 2026 ACID Contributors <https://doi.org/10.5281/zenodo.15722902>
+# SPDX-FileCopyrightText: 2026 ACID Contributors <https://doi.org/10.5281/zenodo.15722902>
 # SPDX-License-Identifier: CC-BY-SA-4.0
 
 path_record_id: .zenodo-record-id.txt
@@ -24,7 +24,7 @@ metadata:
     - cc-by-sa-4.0
     - lgpl-3.0-or-later
     - cc0-1.0
-  copyright: Copyright (C) 2025-2026 The Authors
+  copyright: Copyright 2026 ACID Contributors
   publisher: Zenodo
   resource_type: dataset
   creators:
