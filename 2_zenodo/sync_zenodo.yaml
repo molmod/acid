@@ -136,7 +136,8 @@ metadata:
           with Force Fields derived Ab Initio
         number: 'BOF/24J/2021/118'
         identifiers:
-          - url: https://research.ugent.be/web/result/project/b54e6ff5-5f33-11ec-8b09-c5a2063e752c/details/bof-24j-2021-118-molecular-dynamics-modelling-of-lubricants-at-ultra-high-pressures-with-force-fields-derived-ab-initio/en
+          - scheme: url
+            identifier: https://research.ugent.be/web/result/project/b54e6ff5-5f33-11ec-8b09-c5a2063e752c/details/bof-24j-2021-118-molecular-dynamics-modelling-of-lubricants-at-ultra-high-pressures-with-force-fields-derived-ab-initio/en
 custom_fields:
   code_repository: https://github.com/molmod/acid
   programming_languages:
