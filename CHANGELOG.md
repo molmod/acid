@@ -21,13 +21,13 @@ A major refactoring of the ACID dataset.
 - Added empirical MSD calculations from the trajectories.
 - Added a section on trajectory generation using linear stochastic differential equations in `overview.typ`.
 - Added a note on the calculation of `corrtime_int` in `overview.typ`.
-- Added a dedicated validation workflow `3_validation` to verify the encoding/decoding scheme,
+- Added a dedicated validation workflow `2_validation` to verify the encoding/decoding scheme,
   the stationarity of sampled trajectories,
   and consistency between sampled trajectories and the target autocorrelation functions.
 - Added a set of unit tests to verify the accuracy of the quadrature scheme in `PowTerm`
   and the analytical derivations relating the PSD, MSD, and ACF.
 - Added `validation.typ`,
-  documenting the methodologies and results of the tests in `3_validation/`.
+  documenting the methodologies and results of the tests in `2_validation/`.
 
 ### Changed
 
