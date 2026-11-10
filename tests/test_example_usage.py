@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: © 2026 ACID Contributors <https://doi.org/10.5281/zenodo.15722902>
+# SPDX-FileCopyrightText: 2026 ACID Contributors <https://doi.org/10.5281/zenodo.15722902>
 # SPDX-License-Identifier: CC-BY-SA-4.0 OR LGPL-3.0-or-later
 """Sanity check for the standalone example script shown in the dataset overview."""
 
