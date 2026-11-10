@@ -4,7 +4,6 @@
 axes.spines.top: False
 axes.spines.right: False
 backend: Agg
-font.family: IBM Plex Sans
 font.size: 8.0
 figure.dpi: 600
 figure.figsize: 3.333, 2.8

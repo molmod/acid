@@ -45,6 +45,19 @@ A major refactoring of the ACID dataset.
   following the new structure introduced by this release.
 - Improved licensing and copyright specifications,
   including explicit licensing information for each file.
+- The software environment is managed with [uv](https://docs.astral.sh/uv/) instead of pip.
+  The `setup.sh` script creates the environment with fixed versions of uv (0.13.7) and Python (3.14.10),
+  the package versions pinned in `uv.lock`, and Typst 0.15.
+  The environment can be activated with `shell.sh`, an LMod module or `direnv`.
+  It can be created on `x86_64` Linux and on macOS with Apple Silicon (`arm64`).
+  Typst ignores system fonts in this environment.
+- The pinned package versions are also exported to `pylock.toml` (PEP 751),
+  so the environment can be reproduced without uv.
+- Figures use the default Matplotlib font instead of IBM Plex Sans,
+  so no fonts need to be installed on the system.
+- Upgraded to StepUp 4 and updated all Python dependencies to recent versions.
+- StepUp now tracks changes to the Python modules in `lib/`,
+  so that the affected steps are rerun when these modules change.
 
 ### Removed
 

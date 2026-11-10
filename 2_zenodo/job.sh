@@ -8,7 +8,6 @@
 #SBATCH --time=1:00:00
 #SBATCH --mem=5G
 
-cd ..
-source ./.loadvenv
-cd ${SLURM_SUBMIT_DIR}
-time stepup boot -n ${SLURM_CPUS_PER_TASK}
+module use ../.venv/modules
+module load acid
+time stepup build -j ${SLURM_CPUS_PER_TASK}

@@ -5,6 +5,7 @@
 .idea
 .vscode
 .ruff_cache
+.pytest_cache
 
 # Results
 output
@@ -15,17 +16,18 @@ git-date.txt
 
 # Python
 __pycache__
+dist
+build
 
 # StepUp
 .stepup
 
 # Software environment
-activate
-.loadvenv
+.venv
 venv
 venvs
 .envrc
-pre-commit-*.pyz
+shell.sh
 
 # Other
 tmp

@@ -31,18 +31,27 @@ repos:
     - id: remove-crlf
       exclude_types: [binary]
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.15.5
+  rev: v0.17.4
   hooks:
     - id: ruff-format
-      exclude: "^paper1/.*/minimal.py$"
-    - id: ruff
+    - id: ruff-check
       args: ["--fix", "--show-fixes"]
-      exclude: "^paper1/.*/minimal.py$"
 - repo: https://github.com/hukkin/mdformat
-  rev: 1.0.0  # Use the ref you want to point at
+  rev: 1.0.0
   hooks:
   - id: mdformat
+    additional_dependencies:
+      - mdformat-gfm
+      - mdformat-ruff
+      - mdformat-config
 - repo: https://github.com/fsfe/reuse-tool
-  rev: v6.2.0
+  rev: v6.3.0
   hooks:
   - id: reuse
+- repo: https://github.com/astral-sh/uv-pre-commit
+  # Keep the rev consistent with UV_VERSION in setup.sh.
+  rev: 0.13.7
+  hooks:
+    # Export uv.lock to the standard lock file format (PEP 751), usable without uv.
+    - id: uv-export
+      args: ["--frozen", "--format=pylock.toml", "--output-file=pylock.toml", "--quiet"]

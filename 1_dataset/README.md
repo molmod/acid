@@ -29,6 +29,3 @@ You can regenerate it from scratch, if you prefer not to download the pre-genera
    ```
 
    This takes about 10 minutes to complete on 8 cores of an Intel(R) Xeon(R) Gold 6240 CPU.
-   (Due to a limitation of Typst 0.14,
-   you may need to run this twice to build the `overview.pdf` file.
-   The second invocation will only take a few seconds.)

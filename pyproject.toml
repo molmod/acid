@@ -1,10 +1,43 @@
 # SPDX-FileCopyrightText: © 2026 ACID Contributors <https://doi.org/10.5281/zenodo.15722902>
 # SPDX-License-Identifier: CC-BY-SA-4.0
 
-line-length = 100
-target-version = "py311"
+[project]
+name = "acid"
+# Keep the version consistent with 2_zenodo/sync_zenodo.yaml.
+version = "2.0.0"
+description = "The AutoCorrelation Integral Drill (ACID) dataset"
+readme = "README.md"
+dependencies = [
+    "attrs>=26.1.0",
+    "matplotlib>=3.11.2",
+    "mpmath>=1.4.1",
+    "numdifftools>=0.11.2",
+    "numpy>=2.5.4",
+    "path>=17.1.1",
+    "pre-commit>=4.7.0",
+    "pytest>=9.2.0",
+    "reuse>=6.3.0",
+    "scipy>=1.18.1",
+    "stepup>=4.0.3",
+    "stepup-reprep>=4.0.2",
+]
+# Keep consistent with PYTHON_VERSION in setup.sh.
+requires-python = "==3.14.*"
 
-[lint]
+[tool.uv]
+package = false
+python-downloads = "auto"
+# Platforms supported by setup.sh: uv lock only selects package versions with wheels for these.
+required-environments = [
+    "sys_platform == 'linux' and platform_machine == 'x86_64'",
+    "sys_platform == 'darwin' and platform_machine == 'arm64'",
+]
+
+[tool.ruff]
+# The target version is derived from requires-python.
+line-length = 100
+
+[tool.ruff.lint]
 select = [
     "A", "B", "BLE", "C4", "E", "EXE", "F", "I", "ICN", "ISC", "N", "NPY", "PERF", "PIE", "PL",
     "PT", "PYI", "RET", "RSE", "RUF", "SIM", "TRY", "UP", "W"

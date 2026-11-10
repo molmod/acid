@@ -93,55 +93,133 @@ This repository consits of two parts:
 The workflows in this repository can be executed on a compute cluster
 that supports [SLURM](https://slurm.schedmd.com/) job scheduling,
 or on a local machine with sufficient resources.
+All results on Zenodo were generated on an `x86_64` Linux system, the Tier2 VSC compute cluster Donphan.
+For development, the software environment can also be set up on macOS (Apple Silicon).
+Note that time series generated on macOS are not guaranteed to be identical to those on Linux,
+due to differences in floating-point arithmetic and numerical libraries.
+They are, however, equally valid samples of the same stochastic processes.
 
-A Python virtual environment is defined in the `requirements.in` file.
-To (re)create the virtual environment for a workflow,
-run or submit the script `setup-venv-pip.sh`.
-If you want this script to use a specific Python version,
-set the `PYTHON3` environment variable before running it.
+### Setting up the software environment
+
+The software environment is defined in `pyproject.toml`,
+and the exact versions of all Python packages are pinned in `uv.lock`.
+The same pins are exported to `pylock.toml`,
+the standard Python lock file format ([PEP 751](https://peps.python.org/pep-0751/)),
+which can also be installed without uv, e.g. with `pip install -r pylock.toml` (pip 26.1 or newer).
+To create the environment, you only need `curl` and one of the following systems:
+
+- Linux on `x86_64`,
+- macOS 14 or newer on Apple Silicon (`arm64`).
+
+Run the following script in the root of the repository:
+
+```bash
+./setup.sh
+```
+
+This script downloads a fixed version of [uv](https://docs.astral.sh/uv/)
+and uses it to create a virtual environment in the `.venv` directory,
+with Python 3.14 and exactly the package versions listed in `uv.lock`.
+It also installs the [Typst](https://typst.app/) compiler in `.venv/bin`.
+Everything is installed in the `.venv` directory, including the uv cache,
+so you can remove it and run `setup.sh` again to start from scratch.
+
+### Activating the environment
+
+The `setup.sh` script creates three ways to activate the environment:
+
+- Run `./shell.sh` to start a subshell with the environment activated.
+  When you exit the subshell, you will return to your original environment.
+
+- Load the LMod module `acid`, which is the most convenient option on an HPC cluster:
+
+  ```bash
+  module use .venv/modules
+  module load acid
+  ```
+
+- If you use [`direnv`](https://direnv.net/),
+  the generated `.envrc` file activates the environment when you `cd` into the repository.
+  You can safely remove `.envrc` if you do not want to use `direnv`.
+  (It is not checked into Git.)
+
+Running only `source .venv/bin/activate` is not sufficient,
+because the environment also sets `PYTHONPATH`, so that the scripts can import the modules in `lib/`,
+`STEPUP_PATH_FILTER`, so that StepUp reruns steps when files in `lib/` change,
+`TYPST_IGNORE_SYSTEM_FONTS`, so that Typst only uses its built-in fonts,
+and `UV_CACHE_DIR` and `UV_PYTHON_INSTALL_DIR`, so that uv keeps its files in `.venv`.
+
+If you use a VSCode Tunnel, first activate the environment in a terminal,
+and then start the tunnel from that terminal, so it inherits the environment variables.
+
+### Running the workflows
+
+After the environment has been created,
+you can run or submit the script `job.sh` in `1_dataset/`, `2_zenodo/`, or `3_validation/`.
 For example:
 
 ```bash
-export PYTHON3=/usr/bin/python3.13  # optional
-sbatch setup-venv-pip.sh
+cd 1_dataset/
+sbatch job.sh
 ```
 
-After the virtual environment has been created,
-you can run or submit the script `job.sh` in `1_dataset/`, `2_zenodo/`, or `3_validation/`.
-If you want to work interactively within the virtual environment,
-you can source the `.loadvenv` script.
+The job scripts load the `acid` module, so they require LMod.
+Alternatively, you can activate the environment yourself
+and run `sb` or `stepup build` in one of these directories.
+StepUp's watch mode, which reruns steps when files change, is only supported on Linux.
 
-Note that the workflows and scripts in this repository require Python 3.11 or higher.
-They have only been tested on an `x86_64` Linux system (so far).
-All results on Zenodo were generated using the following module
-on the Tier2 VSC compute cluster donphan
+### Updating the software environment
+
+The environment is managed with [uv](https://docs.astral.sh/uv/).
+After activating the environment, the following commands are useful:
 
 ```bash
-module load Python/3.13.5-GCCcore-14.3.0
+uv add somepackage     # Add a new package to the environment
+uv remove somepackage  # Remove a package from the environment
+uv lock --upgrade      # Upgrade all packages to their latest versions
+uv sync --locked       # Make the environment match uv.lock, e.g. after a git pull
 ```
 
-When the `setup-venv-pip.sh` script detects the presence of the `$VSC_HOME`
-environment variable, it will automatically load this Python module
-and include it in the generated `.loadvenv` script.
+The first three commands update `pyproject.toml` and/or `uv.lock`.
+The pre-commit hook (see below) regenerates `pylock.toml` from `uv.lock`.
+Commit these files to Git, so that others get exactly the same package versions.
+The supported platforms are listed under `required-environments` in `pyproject.toml`,
+so that `uv lock` only selects package versions with wheels for all of them.
+
+The Python, uv and Typst versions are set at the beginning of `setup.sh`:
+
+- To change the Python version, update `PYTHON_VERSION` in `setup.sh`.
+  For a new minor version (e.g. 3.15), also update `requires-python` in `pyproject.toml`
+  and run `uv lock`.
+  Then remove `.venv` and run `setup.sh` again.
+- To upgrade uv, change `UV_VERSION` and the `UV_SHA256` checksums of both platforms in `setup.sh`,
+  and the `rev` of `uv-pre-commit` in `.pre-commit-config.yaml`.
+  Then run `setup.sh` again.
+  The SHA256 checksums are listed in `uv-x86_64-unknown-linux-musl.tar.gz.sha256`
+  and `uv-aarch64-apple-darwin.tar.gz.sha256`
+  on the [uv releases page](https://github.com/astral-sh/uv/releases).
+- To upgrade Typst, change `TYPST_VERSION` and the `TYPST_SHA256` checksums of both platforms
+  in `setup.sh` and run it again.
+  The SHA256 checksums are listed next to `typst-x86_64-unknown-linux-musl.tar.xz`
+  and `typst-aarch64-apple-darwin.tar.xz`
+  on the [Typst releases page](https://github.com/typst/typst/releases).
+
+All documents and figures use only the fonts that come with Typst and Matplotlib,
+so no fonts need to be installed on the system.
+For Typst, this is enforced by `TYPST_IGNORE_SYSTEM_FONTS` in the activated environment.
 
 ## How to Work With This Git Repository
 
 Please, follow these guidelines to make clean commits to this repository:
 
-1. Install [pre-commit](https://pre-commit.com/) on your system.
-   (It is included in the `requirements.in` file,
-   so it will be installed in the virtual environment when you run `setup-venv-pip.sh`.)
+1. Set up the software environment as explained above.
+   It includes [pre-commit](https://pre-commit.com/).
 1. Install the pre-commit hook by running `pre-commit install` in the root directory of this repository.
 1. Update the file `CHANGELOG.md` to describe changes.
 1. Use `git commit` as you normally would.
 
-If you are working in an environment with limited permissions,
-you can install pre-commit locally by running the following commands:
-
-```bash
-wget https://github.com/pre-commit/pre-commit/releases/download/v4.5.1/pre-commit-4.5.1.pyz
-python pre-commit-4.5.1.pyz install
-```
+With the environment activated,
+the unit tests in `tests/` can be run with `pytest` in the root directory of this repository.
 
 ## How to Make a New Release
 
@@ -151,7 +229,8 @@ to make a new release on GitHub and Zenodo:
 - Update `CHANGELOG.md` with a new version section.
   Double check the changes since the last release.
 
-- Update the version number in `2_zenodo/zenodo.yaml`.
+- Update the version number in `2_zenodo/sync_zenodo.yaml` and `pyproject.toml`,
+  and run `uv lock` to update `uv.lock` accordingly.
 
 - Upload a draft release to Zenodo by running
 
