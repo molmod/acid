@@ -24,7 +24,8 @@ settings = loadns("../1_dataset/settings.json", do_amend=True)
 archive_paths = [
     "../1_dataset/overview.pdf",
     "main.zip",
-    *static([f"../1_dataset/output/{k}.zip" for k in settings.kernels]),
+    *static("../1_dataset/output/*.zip"),
+    *static("../1_dataset/output/kernels.csv"),
     "../3_validation/validation.pdf",
     *static("../LICENSES/*.txt"),
 ]
