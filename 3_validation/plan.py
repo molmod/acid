@@ -23,6 +23,7 @@ dataset_output_path = dataset_path / "output/"
 static(
     dataset_path,
     "../matplotlibrc",
+    "../lib/",
     "scripts/",
     "validation.typ",
     "references.bib",
