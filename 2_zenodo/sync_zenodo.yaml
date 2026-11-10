@@ -11,7 +11,7 @@ metadata:
     - exponential correlation time
     - autocorrelation function
     - ACF
-    - power spectral distribution
+    - power spectral density
     - PSD
     - STACIE
     - systematic validation
@@ -74,7 +74,7 @@ metadata:
             Ghent,
             Belgium
         - name: >-
-            FlandersMake\@UGent,
+            FlandersMake@UGent,
             Core Lab MIRO,
             3001 Leuven,
             Belgium
@@ -102,7 +102,7 @@ metadata:
     - scheme: url
       identifier: https://github.com/molmod/acid
       resource_type: workflow
-      relation_type: compiles
+      relation_type: iscompiledby
     - scheme: url
       identifier: https://github.com/molmod/stacie
       resource_type: software
