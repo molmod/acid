@@ -7,8 +7,8 @@ import argparse
 import zipfile
 
 import numpy as np
+from acidic.utils import dump_npy, generate_codec
 from path import Path
-from utils import dump_npy, generate_codec
 
 SEQ_DTYPE = np.uint16
 IMAX = np.iinfo(SEQ_DTYPE).max + 1

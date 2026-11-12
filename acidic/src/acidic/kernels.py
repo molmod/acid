@@ -6,14 +6,28 @@ import mpmath as mp
 import numpy as np
 import scipy as sp
 from numpy.typing import NDArray
-from utils import make_grid_pow_rational_chebyshev
 
-np.seterr(over="raise", under="ignore", divide="raise", invalid="raise")
+from .utils import make_grid_pow_rational_chebyshev
 
-__all__ = ("KernelSummary", "compute", "sample", "summarize")
+__all__ = (
+    "BaseTerm",
+    "ExpTerm",
+    "KernelSummary",
+    "PowTerm",
+    "SHOTerm",
+    "WhiteTerm",
+    "compute",
+    "sample",
+    "summarize",
+)
 
 
 ACINT_REF = 1.0
+
+# Kernel computations should be free from implicit floating point issues.
+# This decorator makes NumPy raise errors inside the decorated functions only,
+# without changing NumPy's global error handling.
+_strict_fp = np.errstate(over="raise", under="ignore", divide="raise", invalid="raise")
 
 
 @attrs.define
@@ -278,6 +292,7 @@ class WhiteTerm(BaseTerm):
         return rng.normal(loc=0.0, scale=np.sqrt(self.a0), size=(nseq, nstep))
 
 
+@_strict_fp
 def compute(
     terms: list[BaseTerm], freqs: NDArray[float], times: NDArray[float]
 ) -> tuple[NDArray[float], NDArray[float], NDArray[float]]:
@@ -465,6 +480,7 @@ class KernelSummary:
     """A latex equation describing the kernel."""
 
 
+@_strict_fp
 def summarize(terms: list[BaseTerm]) -> KernelSummary:
     """Compute the properties of the kernel
     that do not depend on the sequence length or the number of sequences.
@@ -516,6 +532,7 @@ def summarize(terms: list[BaseTerm]) -> KernelSummary:
     )
 
 
+@_strict_fp
 def sample(
     terms: list[BaseTerm], nseq: int, nstep: int, rng: np.random.Generator
 ) -> NDArray[float]:

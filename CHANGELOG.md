@@ -56,8 +56,12 @@ A major refactoring of the ACID dataset.
 - Figures use the default Matplotlib font instead of IBM Plex Sans,
   so no fonts need to be installed on the system.
 - Upgraded to StepUp 4 and updated all Python dependencies to recent versions.
-- StepUp now tracks changes to the Python modules in `lib/`,
+- StepUp now tracks changes to the Python modules in `acidic/`,
   so that the affected steps are rerun when these modules change.
+- The Python modules in `lib/` were moved into the `acidic` package (ACID Internal Components),
+  which can be published separately.
+  It is installed in editable mode in the software environment,
+  so `PYTHONPATH` is no longer set.
 
 ### Removed
 

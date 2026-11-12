@@ -1,0 +1,49 @@
+# SPDX-FileCopyrightText: 2026 ACID Contributors <https://doi.org/10.5281/zenodo.15722902>
+# SPDX-License-Identifier: LGPL-3.0-or-later
+[build-system]
+# Keep the uv_build version consistent with the one in ../setup.sh
+requires = ["uv_build>=0.13.7,<0.14"]
+build-backend = "uv_build"
+
+[project]
+name = "acidic"
+authors = [
+  { name="Robbe Bohy", email="robbe.bohy@ugent.be" },
+  { name="Toon Verstraelen", email="toon.verstraelen@ugent.be" },
+]
+version = "0.0.0a0"
+description = "The AutoCorrelation Integral Drill (ACID): Internal Components"
+readme = "README.md"
+license = "LGPL-3.0-or-later"
+license-files = ["LICENSE"]
+requires-python = ">=3.12"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+dependencies = [
+    "attrs>=26.1.0",
+    "mpmath>=1.4.1",
+    "numpy>=2.5.4",
+    "scipy>=1.18.1",
+]
+
+[project.optional-dependencies]
+tests = [
+    "pytest>=9.2.0",
+    "numdifftools>=0.11.2",
+]
+
+[project.urls]
+Source = "https://github.com/molmod/acid/tree/main/acidic"
+
+[tool.ruff]
+# Reuse the ruff settings of the ACID repository.
+# The target version is still derived from requires-python in this file.
+extend = "../pyproject.toml"
