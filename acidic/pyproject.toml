@@ -41,7 +41,7 @@ tests = [
 ]
 
 [project.urls]
-Source = "https://github.com/molmod/acid/tree/main/acidic"
+Source = "https://github.com/molmod/acid"
 
 [tool.ruff]
 # Reuse the ruff settings of the ACID repository.
