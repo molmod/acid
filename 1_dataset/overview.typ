@@ -610,7 +610,7 @@ these tests verify:
   The ACF is recovered from the MSD by differentiation, and the PSD from the ACF by Fourier transformation.
 - The accuracy of the quadrature-based approximation of the power-law kernel.
 
-All tests can be executed using the `pytest` command in the top-level directory,
+All unit tests can be executed using the `pytest` command in the top-level directory,
 with the software environment activated.
 
 = Software used
