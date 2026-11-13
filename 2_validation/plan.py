@@ -58,6 +58,16 @@ for kernel in settings.kernels:
     )
     codec_paths.append(f"output/{kernel}_codec.npz")
 
+example_path = dataset_path / "scripts/example_usage.py"
+run(
+    f"./scripts/run_example.py {example_path} {dataset_output_path}",
+    inp=[
+        example_path,
+        dataset_output_path / "exp1w.zip",
+        dataset_output_path / "codec.zip",
+    ],
+)
+
 paths_svg_out = ["output/acf_consist.svg", "output/codec.svg"]
 run(
     f"./scripts/plot.py ../matplotlibrc --acf_consist {shq(acf_consist_paths)} "

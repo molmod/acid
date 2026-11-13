@@ -47,6 +47,8 @@ with the goal of assessing whether the samples:
 - Satisfy stationarity.
 - Show minimal bias introduced by the encoding and decoding scheme.
 
+The workflow also checks that the example code in `overview.typ` runs correctly on the generated data.
+
 = Autocorrelation Function Consistency
 This validation assesses whether the sampled trajectories are consistent with the target distribution defined by the Autocorrelation Function (ACF).
 
