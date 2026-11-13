@@ -7,6 +7,9 @@
 .ruff_cache
 .pytest_cache
 
+# Local replacement of the settings to run a lighter version of the workflows
+local-settings.json
+
 # Results
 output
 *.pdf

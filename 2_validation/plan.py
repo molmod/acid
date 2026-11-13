@@ -29,16 +29,16 @@ static(
     "references.bib",
 )
 
-settings = loadns(dataset_path + "settings.json", do_amend=True)
-
 acf_consist_paths = []
 stat_paths = []
 codec_paths = []
+settings_path = dataset_output_path / "settings.json"
+settings = loadns(settings_path, do_amend=True)
 for kernel in settings.kernels:
     paths_inp = [
         dataset_output_path / f"{kernel}.zip",
         dataset_output_path / "codec.zip",
-        dataset_path / "settings.json",
+        settings_path,
     ]
     run(
         f"./scripts/check_acf_consistency.py {shq(paths_inp)} output/{kernel}_acf_consist.npz",
@@ -85,5 +85,10 @@ run(
 compile_typst(
     "validation.typ",
     inp="output/stationarity.csv",
-    sysinp={"stationarity": "output/stationarity.csv"},
+    sysinp={
+        "official_settings": dataset_path / "settings.json",
+        "used_settings": dataset_output_path / "settings.json",
+        "stationarity": "output/stationarity.csv",
+    },
+    typst_args=["--root=../"],
 )
