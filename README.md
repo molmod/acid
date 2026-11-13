@@ -227,7 +227,7 @@ Please, follow these guidelines to make clean commits to this repository:
 1. Use `git commit` as you normally would.
 
 With the environment activated,
-the unit tests in `tests/` and `acidic/tests/` can be run with `pytest`
+the unit tests in `acidic/tests/` can be run with `pytest`
 in the root directory of this repository.
 
 ## How to Make a New Release
