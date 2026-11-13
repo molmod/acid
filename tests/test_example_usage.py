@@ -7,7 +7,7 @@ from runpy import run_path
 
 import numpy as np
 import pytest
-from utils import compute_acfs, compute_amplitudes, compute_msds
+from acidic.utils import compute_acfs, compute_amplitudes, compute_msds
 
 EXAMPLE_SCRIPT = Path(__file__).resolve().parents[1] / "1_dataset" / "scripts" / "example_usage.py"
 OUTPUT = Path(__file__).resolve().parents[1] / "1_dataset" / "output"

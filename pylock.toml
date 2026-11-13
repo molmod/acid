@@ -5,6 +5,10 @@ created-by = "uv"
 requires-python = "==3.14.*"
 
 [[packages]]
+name = "acidic"
+directory = { path = "acidic", editable = true }
+
+[[packages]]
 name = "appnope"
 version = "1.0.0"
 marker = "sys_platform == 'darwin'"

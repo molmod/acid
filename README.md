@@ -88,6 +88,10 @@ This repository consists of three parts:
 1. [`3_zenodo/`](3_zenodo/):
    A workflow to package and upload the generated data to Zenodo.
 
+The Python code shared by these workflows is organized as a separate package,
+[`acidic/`](acidic/) (ACID Internal Components),
+which is developed in this repository and can also be installed on its own.
+
 ## How to Run the Workflows
 
 The workflows in this repository can be executed on a compute cluster
@@ -103,6 +107,8 @@ They are, however, equally valid samples of the same stochastic processes.
 
 The software environment is defined in `pyproject.toml`,
 and the exact versions of all Python packages are pinned in `uv.lock`.
+The `acidic` package from this repository is installed in editable mode,
+so changes to its source code take effect without reinstalling it.
 The same pins are exported to `pylock.toml`,
 the standard Python lock file format ([PEP 751](https://peps.python.org/pep-0751/)),
 which can also be installed without uv, e.g. with `pip install -r pylock.toml` (pip 26.1 or newer).
@@ -144,8 +150,8 @@ The `setup.sh` script creates three ways to activate the environment:
   (It is not checked into Git.)
 
 Running only `source .venv/bin/activate` is not sufficient,
-because the environment also sets `PYTHONPATH`, so that the scripts can import the modules in `lib/`,
-`STEPUP_PATH_FILTER`, so that StepUp reruns steps when files in `lib/` change,
+because the environment also sets
+`STEPUP_PATH_FILTER`, so that StepUp reruns steps when files in `acidic/` change,
 `TYPST_IGNORE_SYSTEM_FONTS`, so that Typst only uses its built-in fonts,
 and `UV_CACHE_DIR` and `UV_PYTHON_INSTALL_DIR`, so that uv keeps its files in `.venv`.
 
@@ -216,10 +222,13 @@ Please, follow these guidelines to make clean commits to this repository:
    It includes [pre-commit](https://pre-commit.com/).
 1. Install the pre-commit hook by running `pre-commit install` in the root directory of this repository.
 1. Update the file `CHANGELOG.md` to describe changes.
+   If you make changes to the `acidic/` package, update its `CHANGELOG.md` instead,
+   and if those changes affect the generated dataset, also update the top-level `CHANGELOG.md`.
 1. Use `git commit` as you normally would.
 
 With the environment activated,
-the unit tests in `tests/` can be run with `pytest` in the root directory of this repository.
+the unit tests in `tests/` and `acidic/tests/` can be run with `pytest`
+in the root directory of this repository.
 
 ## How to Make a New Release
 

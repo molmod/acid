@@ -6,7 +6,7 @@
 import argparse
 from runpy import run_path
 
-from kernels import summarize
+from acidic.kernels import summarize
 from path import Path
 from stepup.core.api import amend, loadns
 

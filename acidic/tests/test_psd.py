@@ -10,7 +10,8 @@ from functools import partial
 import mpmath as mp
 import numpy as np
 import pytest
-from kernels import ExpTerm, PowTerm, SHOTerm
+
+from acidic.kernels import ExpTerm, PowTerm, SHOTerm
 
 
 def compute_quadosc_psd(freqs, acf):

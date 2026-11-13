@@ -2,7 +2,8 @@
 # SPDX-License-Identifier: CC-BY-SA-4.0 OR LGPL-3.0-or-later
 
 import numpy as np
-from utils import lookup_integer
+
+from acidic.utils import lookup_integer
 
 
 def test_lookup_integer():

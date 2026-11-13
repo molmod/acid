@@ -10,10 +10,10 @@ from runpy import run_path
 
 import attrs
 import numpy as np
-from kernels import compute, sample, summarize
+from acidic.kernels import compute, sample, summarize
+from acidic.utils import dump_meta, dump_npy, lookup_integer
 from path import Path
 from stepup.core.api import amend
-from utils import dump_meta, dump_npy, lookup_integer
 
 SEQ_DTYPE = np.uint16
 IMAX = np.iinfo(SEQ_DTYPE).max + 1

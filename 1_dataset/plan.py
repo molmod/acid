@@ -12,7 +12,7 @@ from stepup.reprep.api import compile_typst, wrap_git
 
 # Write Git information to text file for inclusion in documents.
 static("../.git/")
-wrap_git("git describe --tags", stdout="git-version.txt")
+wrap_git("git describe --tags --match 'v*'", stdout="git-version.txt")
 wrap_git("git log -n1 --pretty='format:(%cs %h)'", stdout="git-date.txt")
 
 # Declare static files
@@ -22,7 +22,7 @@ static(
     "settings.json",
     "../matplotlibrc",
     "kernels/",
-    "../lib/",
+    "../acidic/",
     "scripts/",
 )
 run(

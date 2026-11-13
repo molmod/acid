@@ -6,7 +6,8 @@ set -e
 # Settings
 # Keep PYTHON_VERSION consistent with requires-python in pyproject.toml.
 PYTHON_VERSION=3.14.10
-# Keep UV_VERSION consistent with the uv-pre-commit rev in .pre-commit-config.yaml.
+# Keep UV_VERSION consistent with the uv-pre-commit rev in .pre-commit-config.yaml
+# and with the build system in acidic/pyproject.toml.
 UV_VERSION=0.13.7
 TYPST_VERSION=0.15.1
 
@@ -66,8 +67,8 @@ rm $TYPST_ARCHIVE
 
 # Create the shell.sh script
 # The workflows are located in subdirectories of the project root.
-# STEPUP_PATH_FILTER makes StepUp track files in the project root (e.g. lib/),
-# except for the virtual environment.
+# STEPUP_PATH_FILTER makes StepUp track files in the project root
+# (e.g. the editable install of acidic/), except for the virtual environment.
 # TYPST_IGNORE_SYSTEM_FONTS makes Typst use only its built-in fonts,
 # so the documents do not depend on the fonts installed on the system.
 cat > shell.sh << EOF
@@ -75,7 +76,6 @@ cat > shell.sh << EOF
 export PYTHONNOUSERSITE=1
 export PROJECT_ROOT=$PWD
 source $PWD/.venv/bin/activate
-export PYTHONPATH=$PWD/lib
 export STEPUP_PATH_FILTER='-../.venv:+../'
 export TYPST_IGNORE_SYSTEM_FONTS=true
 export UV_CACHE_DIR=$UV_CACHE_DIR
@@ -98,6 +98,5 @@ setenv("TYPST_IGNORE_SYSTEM_FONTS", "true")
 setenv("VIRTUAL_ENV", venv)
 setenv("UV_CACHE_DIR", venv .. "/cache")
 setenv("UV_PYTHON_INSTALL_DIR", venv .. "/uv-python")
-prepend_path("PYTHONPATH", project_root .. "/lib")
 prepend_path("PATH", venv .. "/bin")
 EOF

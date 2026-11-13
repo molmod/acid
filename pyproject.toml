@@ -8,10 +8,9 @@ version = "2.0.0"
 description = "The AutoCorrelation Integral Drill (ACID) dataset"
 readme = "README.md"
 dependencies = [
+    "acidic[tests]",
     "attrs>=26.1.0",
     "matplotlib>=3.11.2",
-    "mpmath>=1.4.1",
-    "numdifftools>=0.11.2",
     "numpy>=2.5.4",
     "path>=17.1.1",
     "pre-commit>=4.7.0",
@@ -32,6 +31,11 @@ required-environments = [
     "sys_platform == 'linux' and platform_machine == 'x86_64'",
     "sys_platform == 'darwin' and platform_machine == 'arm64'",
 ]
+
+[tool.uv.sources]
+# The acidic package is developed in this repository.
+# It is installed in editable mode, so changes to its source code take effect immediately.
+acidic = { path = "acidic", editable = true }
 
 [tool.ruff]
 # The target version is derived from requires-python.

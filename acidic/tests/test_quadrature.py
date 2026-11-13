@@ -5,7 +5,8 @@
 import mpmath as mp
 import numpy as np
 import pytest
-from utils import make_grid_pow_rational_chebyshev
+
+from acidic.utils import make_grid_pow_rational_chebyshev
 
 
 @pytest.mark.parametrize(

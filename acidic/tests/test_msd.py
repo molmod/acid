@@ -8,7 +8,8 @@ All tests check whether the second derivative of the MSD divided by 2 matches th
 import numdifftools as nd
 import numpy as np
 import pytest
-from kernels import ExpTerm, PowTerm, SHOTerm
+
+from acidic.kernels import ExpTerm, PowTerm, SHOTerm
 
 
 def test_exp_msd():

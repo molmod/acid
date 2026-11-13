@@ -9,10 +9,10 @@ import argparse
 from runpy import run_path
 
 import numpy as np
-from kernels import compute, sample
+from acidic.kernels import compute, sample
+from acidic.utils import compute_amplitudes, generate_codec, lookup_integer
 from path import Path
 from stepup.core.api import amend
-from utils import compute_amplitudes, generate_codec, lookup_integer
 
 RESOLUTIONS = [2**10, 2**12, 2**14, 2**16, 2**18]
 

@@ -11,10 +11,9 @@ name = "acid"
 version = "2.0.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "acidic", extra = ["tests"] },
     { name = "attrs" },
     { name = "matplotlib" },
-    { name = "mpmath" },
-    { name = "numdifftools" },
     { name = "numpy" },
     { name = "path" },
     { name = "pre-commit" },
@@ -27,10 +26,9 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "acidic", extras = ["tests"], editable = "acidic" },
     { name = "attrs", specifier = ">=26.1.0" },
     { name = "matplotlib", specifier = ">=3.11.2" },
-    { name = "mpmath", specifier = ">=1.4.1" },
-    { name = "numdifftools", specifier = ">=0.11.2" },
     { name = "numpy", specifier = ">=2.5.4" },
     { name = "path", specifier = ">=17.1.1" },
     { name = "pre-commit", specifier = ">=4.7.0" },
@@ -40,6 +38,34 @@ requires-dist = [
     { name = "stepup", specifier = ">=4.0.3" },
     { name = "stepup-reprep", specifier = ">=4.0.2" },
 ]
+
+[[package]]
+name = "acidic"
+version = "0.0.0a0"
+source = { editable = "acidic" }
+dependencies = [
+    { name = "attrs" },
+    { name = "mpmath" },
+    { name = "numpy" },
+    { name = "scipy" },
+]
+
+[package.optional-dependencies]
+tests = [
+    { name = "numdifftools" },
+    { name = "pytest" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "attrs", specifier = ">=26.1.0" },
+    { name = "mpmath", specifier = ">=1.4.1" },
+    { name = "numdifftools", marker = "extra == 'tests'", specifier = ">=0.11.2" },
+    { name = "numpy", specifier = ">=2.5.4" },
+    { name = "pytest", marker = "extra == 'tests'", specifier = ">=9.2.0" },
+    { name = "scipy", specifier = ">=1.18.1" },
+]
+provides-extras = ["tests"]
 
 [[package]]
 name = "appnope"

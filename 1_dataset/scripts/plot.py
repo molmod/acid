@@ -9,8 +9,8 @@ import zipfile
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
+from acidic.utils import compute_acfs, compute_amplitudes, compute_msds
 from path import Path
-from utils import compute_acfs, compute_amplitudes, compute_msds
 
 
 def main():

@@ -617,7 +617,7 @@ with the software environment activated.
 
 Reading the data only requires Python and NumPy, as shown in @code-numpy.
 The example in @code-emp also uses SciPy.
-The Python modules implementing the kernel models (in `lib/` and `1_dataset/kernels/`)
+The Python modules implementing the kernel models (in the `acidic` package and `1_dataset/kernels/`)
 also require mpmath and attrs.
 
 The software environment used to generate the dataset is fully specified by the following files in the archive:
@@ -627,7 +627,8 @@ The software environment used to generate the dataset is fully specified by the 
   and the Python packages pinned in `uv.lock`.
   It supports `x86_64` Linux, on which the dataset was generated, and macOS on Apple Silicon.
 - `pyproject.toml` lists the Python packages used directly,
-  including NumPy, SciPy, mpmath, Matplotlib, StepUp and StepUp RepRep.
+  including NumPy, SciPy, Matplotlib, StepUp and StepUp RepRep,
+  and the `acidic` package from the `acidic/` directory, which is installed in editable mode.
 - `uv.lock` pins the exact versions and hashes of all Python packages.
   The same information is exported to `pylock.toml`,
   the standard Python lock file format (PEP 751),
