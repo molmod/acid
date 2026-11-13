@@ -1,6 +1,9 @@
 # SPDX-FileCopyrightText: 2026 ACID Contributors <https://doi.org/10.5281/zenodo.15722902>
 # SPDX-License-Identifier: CC-BY-SA-4.0 OR LGPL-3.0-or-later
 
+import functools
+from collections.abc import Callable
+
 import attrs
 import mpmath as mp
 import numpy as np
@@ -18,16 +21,31 @@ __all__ = (
     "WhiteTerm",
     "compute",
     "sample",
+    "strict_fp",
     "summarize",
 )
 
 
 ACINT_REF = 1.0
 
-# Kernel computations should be free from implicit floating point issues.
-# This decorator makes NumPy raise errors inside the decorated functions only,
-# without changing NumPy's global error handling.
-_strict_fp = np.errstate(over="raise", under="ignore", divide="raise", invalid="raise")
+
+def strict_fp[**P, R](func: Callable[P, R]) -> Callable[P, R]:
+    """Decorator for functions that should raise instead of warn on floating point issues.
+
+    The default of NumPy is to warn instead of raise for `over`, `divide` and `invalid`,
+    which are too easily missed in data generation jobs running on a headless compute node.
+    Underflow is deliberately ignored.
+
+    A new `np.errstate` is created for each call,
+    so decorated functions can be nested, recursive or used from multiple threads.
+    """
+
+    @functools.wraps(func)
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
+        with np.errstate(over="raise", under="ignore", divide="raise", invalid="raise"):
+            return func(*args, **kwargs)
+
+    return wrapper
 
 
 @attrs.define
@@ -292,7 +310,7 @@ class WhiteTerm(BaseTerm):
         return rng.normal(loc=0.0, scale=np.sqrt(self.a0), size=(nseq, nstep))
 
 
-@_strict_fp
+@strict_fp
 def compute(
     terms: list[BaseTerm], freqs: NDArray[float], times: NDArray[float]
 ) -> tuple[NDArray[float], NDArray[float], NDArray[float]]:
@@ -480,7 +498,7 @@ class KernelSummary:
     """A latex equation describing the kernel."""
 
 
-@_strict_fp
+@strict_fp
 def summarize(terms: list[BaseTerm]) -> KernelSummary:
     """Compute the properties of the kernel
     that do not depend on the sequence length or the number of sequences.
@@ -532,7 +550,7 @@ def summarize(terms: list[BaseTerm]) -> KernelSummary:
     )
 
 
-@_strict_fp
+@strict_fp
 def sample(
     terms: list[BaseTerm], nseq: int, nstep: int, rng: np.random.Generator
 ) -> NDArray[float]:
