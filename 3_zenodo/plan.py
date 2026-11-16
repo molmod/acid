@@ -26,9 +26,9 @@ archive_paths = [
     *static("../LICENSES/*.txt"),
 ]
 
-official = loadns("../1_dataset/settings.json", do_amend=True)
-used = loadns("../1_dataset/output/settings.json", do_amend=True)
-if official != used and os.getenv("REPREP_ZENODO_TOKEN") is not None:
+official_settings = loadns("../1_dataset/settings.json", do_amend=True)
+used_settings = loadns("../1_dataset/output/settings.json", do_amend=True)
+if official_settings != used_settings and os.getenv("REPREP_ZENODO_TOKEN") is not None:
     raise RuntimeError("Refusing to upload data generated with local settings.")
 
 sync_zenodo("sync_zenodo.yaml", archive_paths, path_description="zenodo_description.md")

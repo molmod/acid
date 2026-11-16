@@ -32,6 +32,9 @@ venvs
 .envrc
 shell.sh
 
+# macOS system files
+.DS_Store
+
 # Other
 tmp
 pkgs
