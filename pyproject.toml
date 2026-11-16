@@ -3,12 +3,12 @@
 
 [project]
 name = "acid"
-# Keep the version consistent with 3_zenodo/sync_zenodo.yaml.
+# Keep the version consistent with 3_zenodo/sync_zenodo.yaml and CITATION.cff.
 version = "2.0.0"
 description = "The AutoCorrelation Integral Drill (ACID) dataset"
 readme = "README.md"
 dependencies = [
-    "acidic[tests]",
+    "acidic[docs,tests]",
     "attrs>=26.1.0",
     "matplotlib>=3.11.2",
     "numpy>=2.5.4",

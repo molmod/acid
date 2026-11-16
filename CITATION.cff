@@ -1,9 +1,11 @@
 # SPDX-FileCopyrightText: 2026 ACID Contributors <https://doi.org/10.5281/zenodo.15722902>
 # SPDX-License-Identifier: CC-BY-SA-4.0
 
-cff-version: 2.0.0
+cff-version: 1.2.0
 message: If you use this software, please cite it using these metadata.
 title: The AutoCorrelation Integral Drill (ACID) 2 -- Dataset
+# Keep the version consistent with pyproject.toml and 3_zenodo/sync_zenodo.yaml.
+version: 2.0.0
 abstract: >-
   This repository contains the scripts and
   [StepUp workflow](https://reproducible-reporting.github.io/stepup-core/stable/)

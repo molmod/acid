@@ -1,0 +1,65 @@
+# SPDX-FileCopyrightText: 2026 ACID Contributors <https://doi.org/10.5281/zenodo.15722902>
+# SPDX-License-Identifier: CC-BY-SA-4.0
+
+name: pytest
+on:
+  push:
+    # Only branches are listed, so tag pushes do not trigger this workflow.
+    branches:
+      # Run tests for changes on the main branch ...
+      - main
+    paths: &relevant-paths
+      # ... and only if relevant files have changed.
+      - acidic/**
+      - pyproject.toml
+      - .github/workflows/pytest.yaml
+  pull_request:
+    # Run tests on pull requests, only if relevant files have changed.
+    paths: *relevant-paths
+
+jobs:
+  tests:
+    permissions:
+      contents: read
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.12", "3.13", "3.14", "3.15"]
+        # Every python-version needs an entry below, or matrix.resolution remains empty.
+        include:
+          # The oldest supported Python is combined with the oldest direct dependencies
+          # allowed by acidic/pyproject.toml, to verify that the declared lower bounds still hold.
+          - python-version: "3.12"
+            resolution: lowest-direct
+          # Newer Python versions are combined with the most recent dependencies.
+          - python-version: "3.13"
+            resolution: highest
+          - python-version: "3.14"
+            resolution: highest
+          - python-version: "3.15"
+            resolution: highest
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v6
+        timeout-minutes: 3
+        with:
+          persist-credentials: false
+      - name: Set up Python ${{ matrix.python-version }}
+        timeout-minutes: 3
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Set up uv
+        timeout-minutes: 3
+        uses: astral-sh/setup-uv@v10.0.1
+        with:
+          enable-cache: true
+          cache-dependency-glob: acidic/pyproject.toml
+          # Keep the caches of the lowest and highest resolutions separate.
+          cache-suffix: ${{ matrix.resolution }}
+      - name: Install acidic with test dependencies
+        timeout-minutes: 3
+        run: uv pip install --system --resolution ${{ matrix.resolution }} -e "acidic[tests]"
+      - name: Run pytest
+        timeout-minutes: 5
+        run: pytest -vv acidic/tests

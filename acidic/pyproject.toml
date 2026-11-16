@@ -39,9 +39,15 @@ tests = [
     "pytest>=9.2.0",
     "numdifftools>=0.11.2",
 ]
+docs = [
+    "pdoc>=16.0.0",
+]
 
 [project.urls]
-Source = "https://github.com/molmod/acid"
+Documentation = "https://molmod.github.io/acid"
+Repository = "https://github.com/molmod/acid.git"
+Issues = "https://github.com/molmod/acid/issues"
+Changelog = "https://github.com/molmod/acid/blob/main/acidic/CHANGELOG.md"
 
 [tool.ruff]
 # Reuse the ruff settings of the ACID repository.

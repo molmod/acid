@@ -1,0 +1,83 @@
+# SPDX-FileCopyrightText: 2026 ACID Contributors <https://doi.org/10.5281/zenodo.15722902>
+# SPDX-License-Identifier: CC-BY-SA-4.0
+
+# Run a light version of the three StepUp workflows (1_dataset, 2_validation and 3_zenodo),
+# using the reduced settings described in 1_dataset/README.md.
+# Windows is not supported, so only Linux and macOS are used here.
+
+name: lightrun
+on:
+  push:
+    # Only branches are listed, so tag pushes do not trigger this workflow.
+    branches:
+      # Run for changes on the main branch ...
+      - main
+    paths: &relevant-paths
+      # ... and only if relevant files have changed.
+      - 1_dataset/**
+      - 2_validation/**
+      - 3_zenodo/**
+      - acidic/**
+      - LICENSES/**
+      - .gitattributes
+      - matplotlibrc
+      - pyproject.toml
+      - setup.sh
+      - uv.lock
+      - .github/scripts/extract_local_settings.py
+      - .github/workflows/lightrun.yaml
+  pull_request:
+    # Run for pull requests, only if relevant files have changed.
+    paths: *relevant-paths
+
+jobs:
+  lightrun:
+    permissions:
+      contents: read
+    strategy:
+      matrix:
+        # Keep the platforms consistent with required-environments in pyproject.toml.
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v6
+        timeout-minutes: 3
+        with:
+          persist-credentials: false
+          # The workflows run "git describe --tags", which needs the tags and the history.
+          fetch-depth: 0
+      - name: Set up the software environment
+        timeout-minutes: 10
+        # setup.sh is the single source of truth for the uv, Python and Typst versions.
+        # It installs them in .venv, using the top-level pyproject.toml and uv.lock,
+        # and it generates .envrc with the environment variables for the workflows.
+        run: ./setup.sh
+      # The steps below start with "source .envrc" to activate the environment of setup.sh.
+      # (Environment changes do not carry over from one step to the next.)
+      # The .envrc file contains absolute paths, so it can be sourced from any directory.
+      - name: Use light settings
+        timeout-minutes: 1
+        # Extract the example from 1_dataset/README.md, so the documented settings are tested.
+        # This assumes that the README contains exactly one JSON code block.
+        run: |
+          source "$GITHUB_WORKSPACE/.envrc"
+          .github/scripts/extract_local_settings.py
+      - name: 1_dataset
+        timeout-minutes: 10
+        working-directory: 1_dataset
+        run: |
+          source "$GITHUB_WORKSPACE/.envrc"
+          stepup build
+      - name: 2_validation
+        timeout-minutes: 10
+        working-directory: 2_validation
+        run: |
+          source "$GITHUB_WORKSPACE/.envrc"
+          stepup build
+      - name: 3_zenodo
+        timeout-minutes: 5
+        working-directory: 3_zenodo
+        # REPREP_ZENODO_TOKEN is not set, so nothing is uploaded to Zenodo.
+        run: |
+          source "$GITHUB_WORKSPACE/.envrc"
+          stepup build
