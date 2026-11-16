@@ -87,7 +87,7 @@ compile_typst(
     inp="output/stationarity.csv",
     sysinp={
         "official_settings": dataset_path / "settings.json",
-        "used_settings": settings_path
+        "used_settings": settings_path,
         "stationarity": "output/stationarity.csv",
     },
     typst_args=["--root=../"],
