@@ -1,8 +1,26 @@
 // SPDX-FileCopyrightText: 2026 ACID Contributors <https://doi.org/10.5281/zenodo.15722902>
 // SPDX-License-Identifier: CC-BY-SA-4.0
 
-#set page("a4", margin: 2cm, numbering: "1 / 1")
 #import "@preview/diverential:0.3.0": *
+
+// Determine whether the settings are the official ones or not.
+#let official_settings = json(sys.inputs.official_settings)
+#let used_settings = json(sys.inputs.used_settings)
+#let is_official = (official_settings == used_settings)
+
+// Document layout settings
+#set page("a4", margin: 2cm, footer: context [
+  #if not is_official {
+    highlight[
+      *WARNING: Preliminary results in figures and tables due to local settings!*
+    ]
+  }
+  #h(1fr)
+  Page #counter(page).display(
+    "1/1",
+    both: true,
+  )
+])
 #show link: set text(blue)
 #show table.cell.where(y: 0): set text(weight: "bold")
 #let frame(stroke) = (x, y) => (

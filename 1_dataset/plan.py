@@ -7,7 +7,7 @@ See README.md for instructions on how to run this workflow.
 """
 
 from path import Path
-from stepup.core.api import hold, loadns, run, shq, static
+from stepup.core.api import copy, glob, hold, loadns, run, shq, static
 from stepup.reprep.api import compile_typst, wrap_git
 
 # Write Git information to text file for inclusion in documents.
@@ -25,18 +25,28 @@ static(
     "../acidic/",
     "scripts/",
 )
+
+# Select the settings file.
+if glob("local-settings.json"):
+    path_settings = "local-settings.json"
+    static(path_settings)
+else:
+    path_settings = "settings.json"
+copy(path_settings, "output/settings.json")
+
+# Generate codec.
 run(
     "./scripts/generate_lookup.py output/codec.zip",
     out="output/codec.zip",
 )
 
-zip_paths = []
 # Generate all ZIP files
-settings = loadns("settings.json", do_amend=True)
+zip_paths = []
+settings = loadns(path_settings, do_amend=True)
 with hold():
     # Holding back the steps until they are all declared, so the slowest steps are run first.
     for kernel in settings.kernels:
-        generate_inp = ["output/codec.zip", "settings.json"]
+        generate_inp = ["output/codec.zip", "output/settings.json"]
         run(
             f"./scripts/generate.py {shq(generate_inp)} {kernel} output/{kernel}.zip",
             inp=generate_inp,
@@ -49,12 +59,12 @@ with hold():
 
 # Generate summary plots, table and report.
 run(
-    "./scripts/summarize.py settings.json output/kernels.csv",
-    inp="settings.json",
+    "./scripts/summarize.py output/settings.json output/kernels.csv",
+    inp="output/settings.json",
     out="output/kernels.csv",
 )
 
-plot_inp = ["../matplotlibrc", "output/codec.zip", "settings.json", *zip_paths]
+plot_inp = ["../matplotlibrc", "output/codec.zip", "output/settings.json", *zip_paths]
 plot_out = [
     "output/plot_seqs.svg",
     "output/plot_acs.svg",
@@ -62,4 +72,12 @@ plot_out = [
     "output/plot_msds.svg",
 ]
 run(f"./scripts/plot.py {shq(plot_inp)} {shq(plot_out)}", inp=plot_inp, out=plot_out)
-compile_typst("overview.typ", inp="output/kernels.csv", sysinp={"kernels": "output/kernels.csv"})
+compile_typst(
+    "overview.typ",
+    inp=["output/kernels.csv", "settings.json", "output/settings.json"],
+    sysinp={
+        "official_settings": "settings.json",
+        "used_settings": "output/settings.json",
+        "kernels": "output/kernels.csv",
+    },
+)
