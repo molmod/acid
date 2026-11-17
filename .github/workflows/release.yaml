@@ -19,7 +19,7 @@ on:
     paths:
       # ... and only if relevant files have changed (not applied to tags).
       - acidic/**
-      - .github/scripts/extract_acidic_notes.sh
+      - .github/scripts/extract_acidic_notes.py
       - .github/workflows/release.yaml
 
 env:
@@ -68,9 +68,7 @@ jobs:
           name: python-package-distributions
           path: dist/
       - name: Extract the release notes
-        # Context values are passed through environment variables (GITHUB_*, set by the runner)
-        # instead of ${{ ... }} expressions, which would be pasted unquoted into the script.
-        run: .github/scripts/extract_acidic_notes.sh "${GITHUB_REPOSITORY}" "${GITHUB_REF}"
+        run: .github/scripts/extract_acidic_notes.py
       - name: Store the release notes
         uses: actions/upload-artifact@v7
         with:
