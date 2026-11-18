@@ -31,7 +31,7 @@ repos:
     - id: remove-crlf
       exclude_types: [binary]
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.17.4
+  rev: v0.17.5
   hooks:
     - id: ruff-format
     - id: ruff-check
@@ -55,3 +55,8 @@ repos:
     # Export uv.lock to the standard lock file format (PEP 751), usable without uv.
     - id: uv-export
       args: ["--frozen", "--format=pylock.toml", "--output-file=pylock.toml", "--quiet"]
+- repo: https://github.com/python-jsonschema/check-jsonschema
+  rev: 0.39.0
+  hooks:
+    - id: check-github-workflows
+    - id: check-citation-file-format

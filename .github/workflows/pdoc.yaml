@@ -1,0 +1,77 @@
+# SPDX-FileCopyrightText: 2026 ACID Contributors <https://doi.org/10.5281/zenodo.15722902>
+# SPDX-License-Identifier: CC-BY-SA-4.0
+
+# Build the API documentation of the acidic package with pdoc and deploy it with GitHub Pages.
+# The documentation is also built for pull requests (to catch errors early), but only deployed
+# for the main branch.
+
+name: pdoc
+on:
+  push:
+    # Only branches are listed, so tag pushes do not trigger this workflow.
+    branches:
+      - main
+    paths: &relevant-paths
+      # Only run if relevant files have changed.
+      - acidic/**
+      - .github/workflows/pdoc.yaml
+  pull_request:
+    paths: *relevant-paths
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+        timeout-minutes: 3
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        timeout-minutes: 3
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+      - name: Set up uv
+        timeout-minutes: 3
+        uses: astral-sh/setup-uv@v10.0.1
+        with:
+          enable-cache: true
+          cache-dependency-glob: acidic/pyproject.toml
+      - name: Install acidic with documentation dependencies
+        timeout-minutes: 3
+        # pdoc imports the package, so its dependencies must be installed.
+        run: uv pip install --system -e "acidic[docs]"
+      - name: Build the documentation
+        timeout-minutes: 3
+        run: pdoc -d numpy --math -o docs acidic/src/acidic
+      - name: Upload the documentation
+        timeout-minutes: 3
+        uses: actions/upload-pages-artifact@v5.0.0
+        with:
+          path: docs
+
+  deploy:
+    # Deploy only from the main branch, not for pull requests.
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: build
+    # Only one deployment at a time. Do not cancel a deployment that is in progress.
+    # This is set on the deploy job only, so documentation builds for pull requests
+    # never delay or replace a pending deployment from the main branch.
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    permissions:
+      # Required by actions/deploy-pages.
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        timeout-minutes: 3
+        id: deployment
+        uses: actions/deploy-pages@v5.0.1
