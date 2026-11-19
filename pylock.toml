@@ -9,6 +9,14 @@ name = "acidic"
 directory = { path = "acidic", editable = true }
 
 [[packages]]
+name = "anyio"
+version = "4.16.0"
+marker = "sys_platform != 'linux'"
+index = "https://pypi.org/simple"
+sdist = { url = "https://files.pythonhosted.org/packages/a1/98/7e457a3b014976887a050561955c0b76e1e7e2d6e27b78ecef2ef80518f2/anyio-4.16.0.tar.gz", upload-time = 2026-11-01T11:20:07Z, size = 310971, hashes = { sha256 = "59bb03251907983d1603d27c3087ddb1e93299ea2163adcdba37899a4fb12ffb" } }
+wheels = [{ url = "https://files.pythonhosted.org/packages/a9/16/7757fb84c819accc7d7e9af5291b261e4abb8627ee040f99e7d35ef2457a/anyio-4.16.0-py3-none-any.whl", upload-time = 2026-11-01T11:20:05Z, size = 134521, hashes = { sha256 = "c66ae634e0b8228396b801741beb3294326d4b6102f7bba4041c0dfb58c29026" } }]
+
+[[packages]]
 name = "appnope"
 version = "1.0.0"
 marker = "sys_platform == 'darwin'"
@@ -1170,17 +1178,17 @@ wheels = [{ url = "https://files.pythonhosted.org/packages/f1/7b/ce1eafaf1a76852
 
 [[packages]]
 name = "stepup"
-version = "4.0.3"
+version = "4.1.0rc5"
 index = "https://pypi.org/simple"
-sdist = { url = "https://files.pythonhosted.org/packages/c0/ea/b20f0cd29bdfe1e99ff504ed6cdcf9a7c7e3bd490428e6e71b05d113ee57/stepup-4.0.3.tar.gz", upload-time = 2026-09-19T13:30:24Z, size = 382104, hashes = { sha256 = "bf96561badb8bb22dfb0971021b3aced4f19ffdd4249b8778a974f8c75f8b733" } }
-wheels = [{ url = "https://files.pythonhosted.org/packages/cd/3d/f3c0295371eccad0839f178d0bb5e3f8751ee5df0a4eb07abf4b187a5f2c/stepup-4.0.3-py3-none-any.whl", upload-time = 2026-09-19T13:30:23Z, size = 352467, hashes = { sha256 = "538bc1ef2abb5e4adb5bf1cb5dd0ea0e68d9013e6201e08afcbd46021084f00d" } }]
+sdist = { url = "https://files.pythonhosted.org/packages/c9/52/3087c749d73d8bddeef6e124ef92c81977780e6d099f844cb3080e1666a8/stepup-4.1.0rc5.tar.gz", upload-time = 2026-11-19T07:02:37Z, size = 463382, hashes = { sha256 = "b65ec8e35527dc31dd1a86cbd954cde808cf27677ab801edc76f1a1ebbe6a1d4" } }
+wheels = [{ url = "https://files.pythonhosted.org/packages/6e/bb/32fb139826c49218fcf84d45106d1460ac10ed2b0d0ec4a3cc78400adaac/stepup-4.1.0rc5-py3-none-any.whl", upload-time = 2026-11-19T07:02:35Z, size = 442474, hashes = { sha256 = "4dd51a215c725d1ab718aef372a7af5cdf0c5c6782f1fe9be866ca9526e8f1fa" } }]
 
 [[packages]]
 name = "stepup-reprep"
-version = "4.0.2"
+version = "4.1.0rc1"
 index = "https://pypi.org/simple"
-sdist = { url = "https://files.pythonhosted.org/packages/a7/31/76b6d011dbda2f9a804638112407ed373ec67ac8ce5987fd06c4d3c5d4e3/stepup_reprep-4.0.2.tar.gz", upload-time = 2026-09-26T10:32:26Z, size = 143299, hashes = { sha256 = "deeef9fc32156f4e2088b474eedeb3014b489612061d5b21f3dde2efa8e0c9a5" } }
-wheels = [{ url = "https://files.pythonhosted.org/packages/d5/91/08a391c0540b9112590eb66c6f62e5dc03d36b60791e7e85baced0495440/stepup_reprep-4.0.2-py3-none-any.whl", upload-time = 2026-09-26T10:32:24Z, size = 126473, hashes = { sha256 = "be269599aa1c9f429bd9aba6c70e65975b483f33d3bfbef2aa4cbb8288fba47c" } }]
+sdist = { url = "https://files.pythonhosted.org/packages/1b/2e/6f9b60b76f61272c53a92510f9692ac6849f1f2eaaf486b724032001f8ed/stepup_reprep-4.1.0rc1.tar.gz", upload-time = 2026-11-18T21:44:10Z, size = 147754, hashes = { sha256 = "c669fea7b2faeb00517b98e0c931bedc0fce5f54fc84275d2df7ae81b8a45874" } }
+wheels = [{ url = "https://files.pythonhosted.org/packages/6f/8b/24cfca3701909b3a5bedd07db7b624a745fb096f3533e7066a37f3dd83ea/stepup_reprep-4.1.0rc1-py3-none-any.whl", upload-time = 2026-11-18T21:44:09Z, size = 129429, hashes = { sha256 = "2f7bf65edd71b98e160c7811d267b7fd9600fdef5558fcfdbf7a6a55401c0038" } }]
 
 [[packages]]
 name = "svg-path"
@@ -1308,6 +1316,25 @@ version = "21.15.6"
 index = "https://pypi.org/simple"
 sdist = { url = "https://files.pythonhosted.org/packages/b3/bd/e40ad2df6a9efc1f859ea23d63fd7371cff68252833f182ca9af819bb4d3/virtualenv-21.15.6.tar.gz", upload-time = 2026-11-06T18:17:32Z, size = 5641659, hashes = { sha256 = "c8b65c7d206ca6ef18de9352c160b3f04f66fff9f6b0ec8fd31f14688eba52c4" } }
 wheels = [{ url = "https://files.pythonhosted.org/packages/0a/63/fd514dee3159f74a96ac01beb8f460b65e4ef0b972f63f4fe9f0cd2aa0e3/virtualenv-21.15.6-py3-none-any.whl", upload-time = 2026-11-06T18:17:30Z, size = 5680963, hashes = { sha256 = "4b99ab9b95ff11043939bb4cad2fa0449175fa5a478372864f62160cb6c1a7ed" } }]
+
+[[packages]]
+name = "watchfiles"
+version = "1.3.0"
+marker = "sys_platform != 'linux'"
+index = "https://pypi.org/simple"
+sdist = { url = "https://files.pythonhosted.org/packages/b3/68/e6aa0b77d217b31f8f486ec0cdfe5e00e6e38dc0be657e7d85819b9faf0a/watchfiles-1.3.0.tar.gz", upload-time = 2026-09-21T09:08:55Z, size = 108119, hashes = { sha256 = "99aee4a07847c06820765fd7b1b49ceac4f3f711ccb7d104655a33231de1c207" } }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/68/fa/c0b840d5d8bafe640925408ce11095948c8945bb61be1e67d0ab629b872a/watchfiles-1.3.0-cp310-abi3-macosx_10_12_x86_64.whl", upload-time = 2026-09-21T09:08:13Z, size = 399703, hashes = { sha256 = "000b9688fc8133037a8b075c8ebf98f32844ff8964dda61e85c1db547dafc441" } },
+    { url = "https://files.pythonhosted.org/packages/c7/8a/894799b485fe9473ad10422a0d9668e53fb78e3a2b5cc6061159572844ad/watchfiles-1.3.0-cp310-abi3-macosx_11_0_arm64.whl", upload-time = 2026-09-21T09:08:15Z, size = 397647, hashes = { sha256 = "bbc1198edfdc90fda0600f825aa94150f428dfcbf8138746f55998e0e660d64c" } },
+    { url = "https://files.pythonhosted.org/packages/52/80/95ddb24f6a2f595c031c24432ab7b8aa7d6d1ada0c6d63a552166e06e8d1/watchfiles-1.3.0-cp310-abi3-win32.whl", upload-time = 2026-09-21T09:08:29Z, size = 277761, hashes = { sha256 = "509d9f74d2bec5c1f4cd868ddcfe0c9601f7ea53066dfcb19d8ede742c4de661" } },
+    { url = "https://files.pythonhosted.org/packages/48/a1/1c4a1b3c8030cd03206232612be8a6e8799093490c220b0fcb935d02b75a/watchfiles-1.3.0-cp310-abi3-win_amd64.whl", upload-time = 2026-09-21T09:08:30Z, size = 290643, hashes = { sha256 = "1acabde19b67e673274e89a04d613b7fb1f122e2c4b8ec9a581e59c149264b61" } },
+    { url = "https://files.pythonhosted.org/packages/82/e0/d2db577c632d26d08078c4390dd870b8555c4e558df25d22270f0166c71f/watchfiles-1.3.0-cp310-abi3-win_arm64.whl", upload-time = 2026-09-21T09:08:31Z, size = 285510, hashes = { sha256 = "d978cc1dd7ba44f5590d7de74f7a9c8be7262d9e469c2c0efb8bbfc2574321dc" } },
+    { url = "https://files.pythonhosted.org/packages/4f/55/a122743607939429ab6a7272672f49303aa02bbd34c3f06676765a3861de/watchfiles-1.3.0-cp314-cp314t-macosx_10_12_x86_64.whl", upload-time = 2026-09-21T09:08:32Z, size = 395978, hashes = { sha256 = "e0204f90677b7fb8d3a824279a71a01166bea9f6e53923b8056592d87b33b0b6" } },
+    { url = "https://files.pythonhosted.org/packages/3e/9d/0ee1b0ea42acfe72afa2484f0222e2386dd09992e9034a81e63cc3cdab0a/watchfiles-1.3.0-cp314-cp314t-macosx_11_0_arm64.whl", upload-time = 2026-09-21T09:08:33Z, size = 387997, hashes = { sha256 = "7c1125e99f84934a92996ae343501285617373acd66f16b59fd5654b27ad8d80" } },
+    { url = "https://files.pythonhosted.org/packages/25/9d/b9deb52f1e4528ffe44338c5ebab95c32ed79203082da661de50288e130a/watchfiles-1.3.0-cp314-cp314t-win32.whl", upload-time = 2026-09-21T09:08:46Z, size = 270863, hashes = { sha256 = "81c989d7267bfb7b676cd32c83bec97914e396870983cbf493e29415037bff5e" } },
+    { url = "https://files.pythonhosted.org/packages/59/59/8b1881afccbafda06248be4185e28034dd73c80c85e4da24f2cb0c1321eb/watchfiles-1.3.0-cp314-cp314t-win_amd64.whl", upload-time = 2026-09-21T09:08:47Z, size = 286879, hashes = { sha256 = "d754e049006e81a9be49dc78ba7802081cee426e968cbc63ee19e164fa2d0e39" } },
+    { url = "https://files.pythonhosted.org/packages/46/dd/41c12ae9745d5d72f709333287679d71cbba68ad7678fed872207bba94f4/watchfiles-1.3.0-cp314-cp314t-win_arm64.whl", upload-time = 2026-09-21T09:08:48Z, size = 276924, hashes = { sha256 = "a5b631db08fd3032db57ec6a92d1777cd60f88803287e4e941a4858c53aab1e0" } },
+]
 
 [[packages]]
 name = "wcwidth"
