@@ -172,7 +172,6 @@ sbatch job.sh
 The job scripts load the `acid` module, so they require LMod.
 Alternatively, you can activate the environment yourself
 and run `sb` or `stepup build` in one of these directories.
-StepUp's watch mode, which reruns steps when files change, is only supported on Linux.
 
 ### Updating the software environment
 
