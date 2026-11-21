@@ -1131,17 +1131,17 @@ wheels = [{ url = "https://files.pythonhosted.org/packages/f1/7b/ce1eafaf1a76852
 
 [[packages]]
 name = "stepup"
-version = "4.1.0"
+version = "4.2.0rc2"
 index = "https://pypi.org/simple"
-sdist = { url = "https://files.pythonhosted.org/packages/1c/b7/09d857cf9a8b0d63113fbac3225f083f2eda794ed2d9e253126128aa3f5f/stepup-4.1.0.tar.gz", upload-time = 2026-11-20T09:11:24Z, size = 464423, hashes = { sha256 = "317bb40c09f9e3ef0a4267a3d264d6086c064bce0f00c522856c0ea524e6b434" } }
-wheels = [{ url = "https://files.pythonhosted.org/packages/72/b4/db7f54347c246b698fefeb145612c3d9474d7cdf057b8aa56c9ab02b4d96/stepup-4.1.0-py3-none-any.whl", upload-time = 2026-11-20T09:11:22Z, size = 443650, hashes = { sha256 = "c571a71b587634ddb4f771896f90eacb69c8b492bca00cfc65272343b46b14a3" } }]
+sdist = { url = "https://files.pythonhosted.org/packages/c9/5f/012fcddb45ee64808da13ac143ecdb65d9d854d21da3774ff5ee0508784f/stepup-4.2.0rc2.tar.gz", upload-time = 2026-11-21T18:30:47Z, size = 467001, hashes = { sha256 = "50efb471f34da0e832483c3d66025bd9b50010e8fb1f492e1bfd42d4a4089c1e" } }
+wheels = [{ url = "https://files.pythonhosted.org/packages/a1/ad/0ee8e52aae37cb2ac0ee69fefb5bc374f618dbb36bbf308728ba76b90802/stepup-4.2.0rc2-py3-none-any.whl", upload-time = 2026-11-21T18:30:46Z, size = 445709, hashes = { sha256 = "0c57e245313ddf238d051a815ce84968436b5a7c67242587f800d4894d122245" } }]
 
 [[packages]]
 name = "stepup-reprep"
-version = "4.1.0"
+version = "4.2.0rc1"
 index = "https://pypi.org/simple"
-sdist = { url = "https://files.pythonhosted.org/packages/52/72/e7d77344c9226e4fd19c552da82a8997ae3e4e519f6ef190e0625232218e/stepup_reprep-4.1.0.tar.gz", upload-time = 2026-11-20T10:10:28Z, size = 148423, hashes = { sha256 = "fc6f2d497d7f96bce0a02d11f76a89df771c9a1bbc44be29b4aeac6f2516ec9f" } }
-wheels = [{ url = "https://files.pythonhosted.org/packages/4d/98/e033f76dcaacc35b1321200b8f50c504c58308e45ce5fe13041689366a07/stepup_reprep-4.1.0-py3-none-any.whl", upload-time = 2026-11-20T10:10:27Z, size = 130204, hashes = { sha256 = "ae5d721be7ce61e2fa4bd5219cfd786bed48f1d6a3f78f479013bfd1a98ef895" } }]
+sdist = { url = "https://files.pythonhosted.org/packages/aa/17/ab6aafda0f76813bbe6b1b82a05bea143f72cc7993a4be2eaeb9de2a1288/stepup_reprep-4.2.0rc1.tar.gz", upload-time = 2026-11-21T19:49:14Z, size = 155039, hashes = { sha256 = "513232ac0d494d64cfda81845769a28de63a7c7577b9be3e46458dda8db3c573" } }
+wheels = [{ url = "https://files.pythonhosted.org/packages/b9/5a/018c2f7a405d1d8861f062b2678a4b9ba09f05cd770cb0dfe5afec0e29c7/stepup_reprep-4.2.0rc1-py3-none-any.whl", upload-time = 2026-11-21T19:49:12Z, size = 137833, hashes = { sha256 = "5f44d88958ff61cce34ff13ab41a7ac29689a83e9aae70e736cabfb4cfb74bab" } }]
 
 [[packages]]
 name = "svg-path"

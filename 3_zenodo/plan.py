@@ -5,7 +5,7 @@
 import os
 
 from stepup.core.api import glob, loadns, static
-from stepup.reprep.api import sync_zenodo, wrap_git
+from stepup.reprep.api import make_inventory, sync_zenodo, wrap_git
 
 static("../.git/")
 wrap_git(
@@ -25,10 +25,11 @@ archive_paths = [
     *glob("../1_dataset/output/*.zip"),
     *static("../LICENSES/*.txt"),
 ]
+make_inventory(*archive_paths, "sync_zenodo_inventory.jsonl")
 
 official_settings = loadns("../1_dataset/settings.json", do_amend=True)
 used_settings = loadns("../1_dataset/output/settings.json", do_amend=True)
 if official_settings != used_settings and os.getenv("REPREP_ZENODO_TOKEN") is not None:
     raise RuntimeError("Refusing to upload data generated with local settings.")
 
-sync_zenodo("sync_zenodo.yaml", archive_paths, path_description="zenodo_description.md")
+sync_zenodo("sync_zenodo.yaml", "zenodo_description.md", "sync_zenodo_inventory.jsonl")
