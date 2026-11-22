@@ -8,12 +8,21 @@ See README.md for instructions on how to run this workflow.
 
 from path import Path
 from stepup.core.api import loadns, run, shq, static
-from stepup.reprep.api import compile_typst, wrap_git
+from stepup.reprep.api import compile_typst
 
 # Write Git information to text file for inclusion in documents.
-static("../.git/")
-wrap_git("git describe --tags --match 'v*'", stdout="git-version.txt")
-wrap_git("git log -n1 --pretty='format:(%cs %h)'", stdout="git-date.txt")
+run(
+    "git describe --tags --match 'v*' > git-version.txt",
+    shell=True,
+    out="git-version.txt",
+    recheck=True,
+)
+run(
+    "git log -n1 --pretty='format:(%cs %h)' > git-date.txt",
+    shell=True,
+    out="git-date.txt",
+    recheck=True,
+)
 
 
 dataset_path = Path("../1_dataset/")
