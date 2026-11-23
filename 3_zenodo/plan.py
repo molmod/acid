@@ -7,7 +7,6 @@ import os
 from stepup.core.api import glob, loadns, run, static
 from stepup.reprep.api import make_inventory, sync_zenodo
 
-static("../.git/")
 run(
     "git archive --format=zip --output 3_zenodo/main.zip HEAD",
     out="3_zenodo/main.zip",
