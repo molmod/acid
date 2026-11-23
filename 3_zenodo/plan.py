@@ -4,14 +4,14 @@
 
 import os
 
-from stepup.core.api import glob, loadns, static
-from stepup.reprep.api import sync_zenodo, wrap_git
+from stepup.core.api import glob, loadns, run, static
+from stepup.reprep.api import make_inventory, sync_zenodo
 
-static("../.git/")
-wrap_git(
+run(
     "git archive --format=zip --output 3_zenodo/main.zip HEAD",
     out="3_zenodo/main.zip",
     workdir="../",
+    recheck=True,
 )
 
 static("zenodo_description.md", "sync_zenodo.yaml", "../1_dataset/")
@@ -25,10 +25,14 @@ archive_paths = [
     *glob("../1_dataset/output/*.zip"),
     *static("../LICENSES/*.txt"),
 ]
+make_inventory(*archive_paths, "sync_zenodo_inventory.jsonl")
 
 official_settings = loadns("../1_dataset/settings.json", do_amend=True)
 used_settings = loadns("../1_dataset/output/settings.json", do_amend=True)
-if official_settings != used_settings and os.getenv("REPREP_ZENODO_TOKEN") is not None:
+if official_settings == used_settings:
+    # Only schedule the sync step with official settings.
+    # This guarantees that, even if plan.py is skipped upon restarting the workflow,
+    # no results derived from local settings are accidentally uploaded.
+    sync_zenodo("sync_zenodo.yaml", "zenodo_description.md", "sync_zenodo_inventory.jsonl")
+elif "REPREP_ZENODO_TOKEN" in os.environ:
     raise RuntimeError("Refusing to upload data generated with local settings.")
-
-sync_zenodo("sync_zenodo.yaml", archive_paths, path_description="zenodo_description.md")

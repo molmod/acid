@@ -16,6 +16,7 @@ output
 *.zip
 git-version.txt
 git-date.txt
+sync_zenodo_inventory.jsonl
 
 # Python
 __pycache__
