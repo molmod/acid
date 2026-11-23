@@ -35,8 +35,8 @@ requires-dist = [
     { name = "pytest", specifier = ">=9.2.0" },
     { name = "reuse", specifier = ">=6.3.0" },
     { name = "scipy", specifier = ">=1.18.1" },
-    { name = "stepup", specifier = ">=4.2.0rc4" },
-    { name = "stepup-reprep", specifier = ">=4.2.0rc2" },
+    { name = "stepup", specifier = ">=4.2.0" },
+    { name = "stepup-reprep", specifier = ">=4.2.0" },
 ]
 
 [[package]]
@@ -1583,7 +1583,7 @@ wheels = [
 
 [[package]]
 name = "stepup"
-version = "4.2.0rc4"
+version = "4.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "asyncinotify", marker = "sys_platform == 'linux'" },
@@ -1596,14 +1596,14 @@ dependencies = [
     { name = "rich" },
     { name = "watchfiles", marker = "sys_platform != 'linux'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/45/f5/80e900c2608eebc7c53d55e2800e30ee96ef20993b5185294069df3c489b/stepup-4.2.0rc4.tar.gz", hash = "sha256:ea5bd52ea4c7c3a88a7fcd12b707e3d5fa108facd12e019e857c8be4f1e1a2c7", size = 470513, upload-time = "2026-11-22T15:50:56.276Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/43/4c/d7f79df78adda6e96c20fe49653adc7d64a89fc43897b6f833aa0c3405ae/stepup-4.2.0.tar.gz", hash = "sha256:b6f72e6a3e365ed182ee3e252cee2338900f974ccd6401362bcda68fe612a279", size = 470409, upload-time = "2026-11-23T07:48:10.613Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/2a/cf/5d35afb0d1e337213a3f8b6bc1f10ef624c32ad7aaab65d78b0a8cf85051/stepup-4.2.0rc4-py3-none-any.whl", hash = "sha256:250875ae25d8bd196ba91244c7209aec80af2276f7cedb977967112ea7a0ce56", size = 449489, upload-time = "2026-11-22T15:50:54.852Z" },
+    { url = "https://files.pythonhosted.org/packages/95/68/b9d37feec90f22a4127f3923425c8399b923fe4d69881c8ff925c15378a5/stepup-4.2.0-py3-none-any.whl", hash = "sha256:c22b96e2256d6ca20fdab1a9fda763a7dc065f0222c2806624f8f4441dbaf0b8", size = 449447, upload-time = "2026-11-23T07:48:09.232Z" },
 ]
 
 [[package]]
 name = "stepup-reprep"
-version = "4.2.0rc2"
+version = "4.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "attrs" },
@@ -1629,9 +1629,9 @@ dependencies = [
     { name = "traitlets" },
     { name = "weasyprint" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/3f/14/ae449e90c4e6f393d9db9d9bd58730c0e26d1d2680706f2acbc49b33fc51/stepup_reprep-4.2.0rc2.tar.gz", hash = "sha256:976b1f3eaa7a09d98f86bccca31e633c914b6516d104ce4f327f08cf520af6f4", size = 156017, upload-time = "2026-11-22T16:00:31.647Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a3/e2/eee55df0415db7105f5853348d1748569726a3d104fc51f829d0eca5dc94/stepup_reprep-4.2.0.tar.gz", hash = "sha256:9c609a2ff28b26d9781634b57d28e2591d710a4395795180ffef985fa109e953", size = 156633, upload-time = "2026-11-23T08:22:38.595Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/33/7a/c0a6b3e3dd567179198d830a5f495ea68cb40f6817feef4509bbdc47771f/stepup_reprep-4.2.0rc2-py3-none-any.whl", hash = "sha256:483776a48a2c2f5f2ff1174b7b5c410bb627d2dde177c12742b9a696867d0221", size = 139039, upload-time = "2026-11-22T16:00:30.254Z" },
+    { url = "https://files.pythonhosted.org/packages/0d/37/24ff3e5a880202f5186728dc58187878cc2c6d355fa418f7a548c0bf9ec6/stepup_reprep-4.2.0-py3-none-any.whl", hash = "sha256:c0fdd748e2f9f2e7d2b2df07fbec4f8974dcd06e66a7154b03195b9f9552a318", size = 139459, upload-time = "2026-11-23T08:22:37.234Z" },
 ]
 
 [[package]]
