@@ -8,7 +8,7 @@ See README.md for instructions on how to run this workflow.
 
 from path import Path
 from stepup.core.api import copy, glob, hold, loadns, run, shq, static
-from stepup.reprep.api import compile_typst
+from stepup.report.api import compile_typst
 
 # Write Git information to text file for inclusion in documents.
 run(

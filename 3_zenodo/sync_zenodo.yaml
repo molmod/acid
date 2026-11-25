@@ -112,7 +112,11 @@ metadata:
       resource_type: software
       relation_type: requires
     - scheme: url
-      identifier: https://github.com/reproducible-reporting/stepup-reprep
+      identifier: https://github.com/reproducible-reporting/stepup-data
+      resource_type: software
+      relation_type: requires
+    - scheme: url
+      identifier: https://github.com/reproducible-reporting/stepup-report
       resource_type: software
       relation_type: requires
     - scheme: url

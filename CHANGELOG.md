@@ -56,6 +56,8 @@ A major refactoring of the ACID dataset.
 - Figures use the default Matplotlib font instead of IBM Plex Sans,
   so no fonts need to be installed on the system.
 - Upgraded to StepUp 4 and updated all Python dependencies to recent versions.
+- Replaced StepUp RepRep by its successors, StepUp Data and StepUp Report.
+  The Zenodo token is now taken from `STEPUP_DATA_ZENODO_TOKEN` instead of `REPREP_ZENODO_TOKEN`.
 - StepUp now tracks changes to the Python modules in `acidic/`,
   so that the affected steps are rerun when these modules change.
 - The Python modules in `lib/` were moved into the `acidic` package (ACID Internal Components),

@@ -44,7 +44,7 @@ instead of using the official `settings.json`.
 The consistency between `1_dataset/settings.json` and `1_dataset/output/settings.json`
 is used throughout the repository to check if the settings match the official ones.
 The PDFs will contain a warning in the footer when using local settings,
-and the `3_zenodo` workflow fails with an error if the `REPREP_ZENODO_TOKEN` is set.
+and the `3_zenodo` workflow fails with an error if the `STEPUP_DATA_ZENODO_TOKEN` is set.
 
 For example, with the following settings, each workflow takes less than a minute.
 The `kernels` are copied unchanged from `settings.json`,
