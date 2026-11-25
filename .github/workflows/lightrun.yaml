@@ -77,7 +77,7 @@ jobs:
       - name: 3_zenodo
         timeout-minutes: 5
         working-directory: 3_zenodo
-        # REPREP_ZENODO_TOKEN is not set, so nothing is uploaded to Zenodo.
+        # STEPUP_DATA_ZENODO_TOKEN is not set, so nothing is uploaded to Zenodo.
         run: |
           source "$GITHUB_WORKSPACE/.envrc"
           stepup build
